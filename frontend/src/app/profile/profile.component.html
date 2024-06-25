@@ -1,0 +1,24 @@
+<div class="profile-container" *ngIf="user">
+  <div class="profile-header">
+    <img [src]="userProfilePicture" alt="Profile Picture" class="profile-picture" />
+    <div class="profile-info">
+      <h2>{{ user?.firstName }} {{ user?.lastName }}</h2>
+      <p>Recipes: {{ userRecipesCount }}</p>
+    </div>
+  </div>
+  <div class="profile-actions">
+    <button class="btn btn-primary" (click)="changeData()">Change Data</button>
+    <button class="btn btn-secondary" (click)="uploadRecipe()">Upload Recipe</button>
+  </div>
+  <div class="user-recipes">
+    <h3>Your Recipes</h3>
+    <div *ngFor="let recipe of userRecipes" class="recipe-item">
+      <img [src]="recipe.imageUrl" alt="{{ recipe.title }}" class="recipe-image" />
+      <h4>{{ recipe.title }}</h4>
+      <p>{{ recipe.description }}</p>
+      <ol>
+        <li *ngFor="let step of recipe.steps">{{ step }}</li>
+      </ol>
+    </div>
+  </div>
+</div>
