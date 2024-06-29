@@ -5,13 +5,15 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { Observable } from 'rxjs';
 import { User } from '../models/user.model';
 import { map } from 'rxjs/operators';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  user$: Observable<any>;
+  user$: Observable<firebase.User | null>;
 
   constructor(private afAuth: AngularFireAuth, private db: AngularFirestore, private router: Router) {
     this.user$ = afAuth.authState;
@@ -27,6 +29,7 @@ export class AuthService {
         lastName,
         email
       });
+      await userCredential.user?.updateProfile({ displayName: `${firstName} ${lastName}` });
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
@@ -45,7 +48,7 @@ export class AuthService {
 
   async logout() {
     await this.afAuth.signOut();
-    this.router.navigate(['/login']);
+    await this.router.navigate(['/']);
   }
 
   isLoggedIn(): Observable<boolean> {
@@ -56,5 +59,9 @@ export class AuthService {
     return this.afAuth.authState.pipe(
       map(user => user ? user.uid : null)
     );
+  }
+
+  getCurrentUser(): Observable<firebase.User | null> {
+    return this.user$;
   }
 }

@@ -13,5 +13,6 @@ public class Recipe {
     private String description;
     private String imageUrl;
     private String userId;
+    private List<String> ingredients;
     private List<String> steps;
 }

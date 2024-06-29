@@ -15,12 +15,15 @@ public class RecipeService {
     @Autowired
     private RecipeRepository recipeRepository;
 
-    public String saveRecipe(Recipe recipe) throws ExecutionException, InterruptedException {
-        recipe.setId(UUID.randomUUID().toString()); // Generate a unique ID for the recipe
+    public Recipe saveRecipe(Recipe recipe) throws ExecutionException, InterruptedException {
         return recipeRepository.saveRecipe(recipe);
     }
 
     public List<Recipe> getRecipesByUserId(String userId) throws ExecutionException, InterruptedException {
         return recipeRepository.getRecipesByUserId(userId);
+    }
+
+    public List<Recipe> getAllRecipes() throws ExecutionException, InterruptedException {
+        return recipeRepository.getAllRecipes();
     }
 }

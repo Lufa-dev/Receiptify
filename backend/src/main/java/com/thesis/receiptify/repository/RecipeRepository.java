@@ -15,10 +15,11 @@ import java.util.stream.Collectors;
 @Repository
 public class RecipeRepository {
 
-    public String saveRecipe(Recipe recipe) throws ExecutionException, InterruptedException {
+    public Recipe saveRecipe(Recipe recipe) throws ExecutionException, InterruptedException {
         Firestore db = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> result = db.collection("recipes").document(recipe.getId()).set(recipe);
-        return result.get().getUpdateTime().toString();
+        ApiFuture<WriteResult> future = db.collection("recipes").document(recipe.getId()).set(recipe);
+        future.get(); // Wait for the write to complete
+        return recipe;
     }
 
     public List<Recipe> getRecipesByUserId(String userId) throws ExecutionException, InterruptedException {
@@ -27,5 +28,14 @@ public class RecipeRepository {
         return querySnapshot.get().getDocuments().stream()
                 .map(document -> document.toObject(Recipe.class))
                 .collect(Collectors.toList());
+    }
+
+    public List<Recipe> getAllRecipes() throws ExecutionException, InterruptedException {
+        Firestore db = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> future = db.collection("recipes").get();
+        List<Recipe> recipes = future.get().getDocuments().stream()
+                .map(document -> document.toObject(Recipe.class))
+                .collect(Collectors.toList());
+        return recipes;
     }
 }

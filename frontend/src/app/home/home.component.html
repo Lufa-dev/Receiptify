@@ -1,7 +1,14 @@
-<div class="container mt-4">
-  <h1>Recipes</h1>
-  <!-- Add a placeholder for recipes here -->
-  <div class="alert alert-info" role="alert">
-    Recipes will be listed here.
+<div class="main-container">
+  <div class="image-container">
+    <img src="assets/spices.jpeg" alt="Spices" class="main-image">
+    <div class="search-bar-container">
+      <input type="text" class="search-bar" placeholder="Search for recipes...">
+    </div>
+  </div>
+  <div class="recipes-container">
+    <div *ngFor="let recipe of recipes" class="recipe-card">
+      <img [src]="recipe.imageUrl" alt="{{ recipe.title }}" class="recipe-image">
+      <div class="recipe-title">{{ recipe.title }}</div>
+    </div>
   </div>
 </div>
