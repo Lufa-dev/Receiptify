@@ -18,7 +18,7 @@ public class RecipeRepository {
     public Recipe saveRecipe(Recipe recipe) throws ExecutionException, InterruptedException {
         Firestore db = FirestoreClient.getFirestore();
         ApiFuture<WriteResult> future = db.collection("recipes").document(recipe.getId()).set(recipe);
-        future.get(); // Wait for the write to complete
+        future.get();
         return recipe;
     }
 
