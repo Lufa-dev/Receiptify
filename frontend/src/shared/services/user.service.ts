@@ -23,30 +23,16 @@ export class UserService {
   }
 
   getUserProfile(): Observable<User> {
-    // Temporary mock implementation until backend is ready
-    const username = sessionStorage.getItem('profileName') || '';
-    return of({
-      username: username,
-      token: this.authService.getToken() || '',
-      email: `${username}@example.com`,
-      firstName: 'John',
-      lastName: 'Doe'
-    } as User);
-
-    // Uncomment this when backend is ready
-    // return this.http.get<User>(this.apiUrl, {
-    //   headers: this.getAuthHeaders()
-    // });
+    // Using real API instead of mock
+    return this.http.get<User>(this.apiUrl, {
+      headers: this.getAuthHeaders()
+    });
   }
 
   updateProfile(userData: any): Observable<any> {
-    // Temporary mock implementation
-    console.log('Profile update requested with data:', userData);
-    return of({ success: true });
-
-    // Uncomment this when backend is ready
-    // return this.http.put(`${this.apiUrl}`, userData, {
-    //   headers: this.getAuthHeaders()
-    // });
+    // Using real API instead of mock
+    return this.http.put(`${this.apiUrl}`, userData, {
+      headers: this.getAuthHeaders()
+    });
   }
 }

@@ -46,6 +46,17 @@ export class RecipeDetailComponent implements OnInit {
       }
     });
   }
+
+  formatIngredientName(type: string): string {
+    if (!type) return '';
+
+    return type
+      .toLowerCase()
+      .replace(/_/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
 }
 
 
