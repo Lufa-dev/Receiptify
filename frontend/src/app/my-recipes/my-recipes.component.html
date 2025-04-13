@@ -1,0 +1,35 @@
+<div class="my-recipes-container">
+  <div class="header">
+    <h1>My Recipes</h1>
+    <button class="add-recipe-btn" routerLink="/submit-recipe">Add New Recipe</button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading your recipes...</p>
+  </div>
+
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="recipes.length === 0 && !isLoading && !error" class="no-recipes">
+    <p>You haven't created any recipes yet.</p>
+    <button class="add-recipe-btn" routerLink="/submit-recipe">Create Your First Recipe</button>
+  </div>
+
+  <div class="recipes-grid">
+    <div *ngFor="let recipe of recipes" class="recipe-card" [routerLink]="['/recipe', recipe.id]">
+      <div class="recipe-image-container">
+        <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
+      </div>
+      <div class="recipe-content">
+        <h2 class="recipe-title">{{ recipe.title }}</h2>
+        <p class="recipe-description">{{ recipe.description || 'No description available' }}</p>
+        <div class="recipe-actions">
+          <button class="edit-btn" (click)="editRecipe(recipe.id, $event)">Edit</button>
+          <button class="delete-btn" (click)="deleteRecipe(recipe.id, $event)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

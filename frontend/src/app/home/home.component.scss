@@ -4,13 +4,18 @@
   .image-container {
     position: relative;
     width: 100%;
-    height: 50vh; /* Adjust height as needed */
+    height: 50vh;
     overflow: hidden;
 
     .main-image {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      transition: transform 0.5s ease;
+
+      &:hover {
+        transform: scale(1.03);
+      }
     }
 
     .search-bar-container {
@@ -22,10 +27,26 @@
 
       .search-bar {
         width: 100%;
-        padding: 10px;
+        padding: 15px 20px;
         font-size: 18px;
+        border-radius: 30px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+
+        &:focus {
+          outline: none;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+          transform: translateY(-2px);
+        }
       }
     }
+  }
+
+  .loading {
+    margin: 40px 0;
+    font-size: 18px;
+    color: #666;
   }
 
   .recipes-container {
@@ -33,25 +54,119 @@
     flex-wrap: wrap;
     justify-content: center;
     padding: 20px;
+    gap: 25px;  // Use gap for more consistent spacing
 
     .recipe-card {
-      width: 200px;
-      margin: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+      width: 280px;  // Slightly wider cards
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      background-color: white;
+      position: relative;
+
+      &:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+
+        .recipe-image {
+          transform: scale(1.1);
+        }
+      }
 
       .recipe-image {
         width: 100%;
-        height: 150px;
+        height: 200px;  // Taller images
         object-fit: cover;
+        transition: transform 0.5s ease;
       }
 
       .recipe-title {
-        padding: 10px;
-        font-size: 16px;
-        font-weight: bold;
+        padding: 16px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        background-color: white;
+        position: relative;
+        z-index: 1;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      // Add a subtle overlay on hover
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, transparent 70%, rgba(0, 0, 0, 0.7) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      &:hover::after {
+        opacity: 1;
+      }
+
+      // Add a category badge (optional - you can add category to your recipe model)
+      .recipe-category {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #555;
+        z-index: 2;
+      }
+    }
+  }
+
+  .no-recipes {
+    margin: 50px 0;
+    font-size: 18px;
+    color: #666;
+
+    a {
+      color: #4a90e2;
+      text-decoration: none;
+      font-weight: 600;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Add responsive design
+@media (max-width: 768px) {
+  .main-container {
+    .image-container {
+      height: 40vh;
+
+      .search-bar-container {
+        width: 80%;
+      }
+    }
+
+    .recipes-container {
+      .recipe-card {
+        width: calc(50% - 25px);
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .main-container {
+    .recipes-container {
+      .recipe-card {
+        width: 100%;
       }
     }
   }

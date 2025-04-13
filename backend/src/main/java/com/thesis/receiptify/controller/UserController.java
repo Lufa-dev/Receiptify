@@ -15,21 +15,4 @@ import java.util.concurrent.ExecutionException;
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
-
-    @PostMapping("/register")
-    public String registerUser(@RequestBody User user) throws ExecutionException, InterruptedException {
-        return userService.saveUser(user);
-    }
-
-    @GetMapping("/{userId}")
-    public User getUserById(@PathVariable String userId) throws ExecutionException, InterruptedException {
-        return userService.getUserById(userId);
-    }
-
-    @GetMapping("/{userId}/recipes")
-    public List<Recipe> getUserRecipes(@PathVariable String userId) throws ExecutionException, InterruptedException {
-        return userService.getUserRecipes(userId);
-    }
 }

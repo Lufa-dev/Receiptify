@@ -2,13 +2,21 @@
   <div class="image-container">
     <img src="assets/spices.jpeg" alt="Spices" class="main-image">
     <div class="search-bar-container">
-      <input type="text" class="search-bar" placeholder="Search for recipes...">
+      <input type="text" class="search-bar" placeholder="Search for recipes..."
+             (keyup.enter)="searchRecipes(searchInput.value)" #searchInput>
     </div>
   </div>
+
+  <div *ngIf="isLoading" class="loading">Loading recipes...</div>
+
   <div class="recipes-container">
-    <div *ngFor="let recipe of recipes" class="recipe-card">
-      <img [src]="recipe.imageUrl" alt="{{ recipe.title }}" class="recipe-image">
+    <div *ngFor="let recipe of recipes" class="recipe-card" [routerLink]="['/recipe', recipe.id]">
+      <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
       <div class="recipe-title">{{ recipe.title }}</div>
     </div>
+  </div>
+
+  <div *ngIf="recipes.length === 0 && !isLoading" class="no-recipes">
+    No recipes found. Why not <a routerLink="/submit-recipe">add one</a>?
   </div>
 </div>

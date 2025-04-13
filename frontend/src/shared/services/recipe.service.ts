@@ -1,49 +1,91 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {catchError, from, Observable, switchMap} from 'rxjs';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {Observable, of, throwError} from 'rxjs';
+import { catchError, tap, map } from 'rxjs/operators';
+import { AuthService } from './auth.service';
+
 import { Recipe } from '../models/recipe.model';
+import { PagedResponse } from '../models/paged-response.model';
+import { RecipeDTO } from '../models/DTOs/recipeDTO';
 import {environment} from "../../environments/environment";
-import {AuthService} from "./auth.service";
-import {user} from "@angular/fire/auth";
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecipeService {
+  private apiUrl = `${environment.API_URL}/api/recipes`;
 
-  private apiUrl = `${environment.apiUrl}/recipes`;
+  constructor(private http: HttpClient) { }
 
-  constructor(private http: HttpClient, private authService:AuthService) {}
+  private getAuthHeaders(): HttpHeaders {
+    const token = sessionStorage.getItem('token'); // Use sessionStorage instead of localStorage
 
-  getAllRecipes(): Observable<Recipe[]> {
-    return this.http.get<Recipe[]>(this.apiUrl + '/getAll')
+    if (!token) {
+      console.warn('No token found in sessionStorage');
+      return new HttpHeaders();
+    }
+
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
   }
 
-  addRecipe(recipe: Recipe): Observable<Recipe> {
-    return this.authService.getCurrentUser().pipe(
-      switchMap(user => {
-        if (user) {
-          return from(user.getIdToken()).pipe(
-            switchMap(token => {
-              const headers = new HttpHeaders({
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              });
-              return this.http.post<Recipe>(`${this.apiUrl}/add`, recipe, { headers });
-            }),
-            catchError(err => {
-              console.error('Error fetching ID token', err);
-              throw err;
-            })
-          );
-        } else {
-          throw new Error('User not authenticated');
-        }
-      })
+  getAllRecipes(page: number = 0, size: number = 10): Observable<any> {
+    return this.http.get(`${this.apiUrl}?page=${page}&size=${size}`);
+  }
+
+  getRecipeById(id: number): Observable<RecipeDTO> {
+    return this.http.get<RecipeDTO>(`${this.apiUrl}/${id}`);
+  }
+
+  getUserRecipes(page: number = 0, size: number = 10): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user?page=${page}&size=${size}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  searchRecipes(query: string, page: number = 0, size: number = 10): Observable<any> {
+    return this.http.get(`${this.apiUrl}/search?query=${query}&page=${page}&size=${size}`);
+  }
+
+  createRecipe(recipe: RecipeDTO): Observable<RecipeDTO> {
+    const token = localStorage.getItem('token');
+    console.log('Token being sent:', token); // Debug line
+
+    return this.http.post<RecipeDTO>(this.apiUrl, recipe, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  updateRecipe(id: number, recipe: RecipeDTO): Observable<RecipeDTO> {
+    return this.http.put<RecipeDTO>(`${this.apiUrl}/${id}`, recipe, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  deleteRecipe(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  uploadImage(file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<{imageUrl: string}>(`${this.apiUrl}/upload-image`, formData, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      map(response => response.imageUrl)
     );
   }
 
-  getRecipesByUserId(userId: string): Observable<Recipe[]> {
-    return this.http.get<Recipe[]>(`${this.apiUrl}/user/${userId}`);
+  getUserRecipeStats(): Observable<any> {
+    // Return mock data for now
+    return of({
+      total: 0,
+      thisMonth: 0,
+      topIngredient: ''
+    });
   }
 }

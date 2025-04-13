@@ -1,23 +1,52 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {Observable, of} from 'rxjs';
 import { User } from '../models/user.model';
-import { Recipe } from '../models/recipe.model';
+import { environment } from '../../environments/environment';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
+  private apiUrl = `${environment.API_URL}/api/profile`;
 
-  private apiUrl = 'http://localhost:8080/users'; // Adjust the URL as needed
+  constructor(
+    private http: HttpClient,
+    private authService: AuthService
+  ) { }
 
-  constructor(private http: HttpClient) {}
-
-  getUserById(userId: string): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/${userId}`);
+  private getAuthHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Authorization': `Bearer ${this.authService.getToken()}`
+    });
   }
 
-  getUserRecipes(userId: string): Observable<Recipe[]> {
-    return this.http.get<Recipe[]>(`${this.apiUrl}/${userId}/recipes`);
+  getUserProfile(): Observable<User> {
+    // Temporary mock implementation until backend is ready
+    const username = sessionStorage.getItem('profileName') || '';
+    return of({
+      username: username,
+      token: this.authService.getToken() || '',
+      email: `${username}@example.com`,
+      firstName: 'John',
+      lastName: 'Doe'
+    } as User);
+
+    // Uncomment this when backend is ready
+    // return this.http.get<User>(this.apiUrl, {
+    //   headers: this.getAuthHeaders()
+    // });
+  }
+
+  updateProfile(userData: any): Observable<any> {
+    // Temporary mock implementation
+    console.log('Profile update requested with data:', userData);
+    return of({ success: true });
+
+    // Uncomment this when backend is ready
+    // return this.http.put(`${this.apiUrl}`, userData, {
+    //   headers: this.getAuthHeaders()
+    // });
   }
 }

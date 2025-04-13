@@ -9,6 +9,7 @@ import { Recipe } from '../../shared/models/recipe.model';
 })
 export class HomeComponent implements OnInit {
   recipes: Recipe[] = [];
+  isLoading = false;
 
   constructor(private recipeService: RecipeService) {}
 
@@ -17,13 +18,38 @@ export class HomeComponent implements OnInit {
   }
 
   loadRecipes(): void {
-    this.recipeService.getAllRecipes().subscribe(
-      recipes => {
-        this.recipes = recipes;
-      },
-      error => {
-        console.error('Error fetching recipes:', error);
-      }
-    );
+    this.isLoading = true;
+    this.recipeService.getAllRecipes(0, 12)
+      .subscribe({
+        next: (response) => {
+          this.recipes = response.content;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading recipes:', error);
+          this.isLoading = false;
+        }
+      });
+  }
+
+  searchRecipes(query: string): void {
+    if (!query.trim()) {
+      this.loadRecipes();
+      return;
+    }
+
+    this.isLoading = true;
+    this.recipeService.searchRecipes(query, 0, 12)
+      .subscribe({
+        next: (response) => {
+          this.recipes = response.content;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error searching recipes:', error);
+          this.isLoading = false;
+        }
+      });
   }
 }
+

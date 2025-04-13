@@ -1,67 +1,148 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { Observable } from 'rxjs';
-import { User } from '../models/user.model';
-import { map } from 'rxjs/operators';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-
+import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
+import {BehaviorSubject, catchError, Observable, of, take, timer} from 'rxjs';
+import {User} from "../models/user.model";
+import {Router} from "@angular/router";
+import {environment} from "../../environments/environment";
+import {map, tap} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  user$: Observable<firebase.User | null>;
+  private userSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  public user$: Observable<User> = this.userSubject.asObservable();
 
-  constructor(private afAuth: AngularFireAuth, private db: AngularFirestore, private router: Router) {
-    this.user$ = afAuth.authState;
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+  ) {}
+
+  getAuthHeaders(): HttpHeaders {
+    const token = this.getToken();
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
   }
 
-  async register(user: User) {
-    const { email, password, firstName, lastName } = user;
-    try {
-      const userCredential = await this.afAuth.createUserWithEmailAndPassword(email, password!);
-      const uid = userCredential.user?.uid;
-      await this.db.collection('users').doc(uid).set({
-        firstName,
-        lastName,
-        email
-      });
-      await userCredential.user?.updateProfile({ displayName: `${firstName} ${lastName}` });
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
-    }
-  }
+  login(username: string, password: string): Observable<User | null> {
+    return this.http.post(`${environment.API_URL}/login`,
+      { username, password },
+      { observe: 'response', responseType: 'text' }
+    ).pipe(
+      map((response: HttpResponse<string>) => {
+        const authHeader = response.headers.get('Authorization');
+        if (response.ok && response.body && authHeader) {
+          const token = authHeader.startsWith('Bearer ')
+            ? authHeader.substring(7) // Remove 'Bearer ' from the start
+            : authHeader;
 
-
-  async login(email: string, password: string) {
-    try {
-      await this.afAuth.signInWithEmailAndPassword(email, password);
-      this.router.navigate(['/']);
-    } catch (error) {
-      console.error('Login error:', error);
-    }
-  }
-
-  async logout() {
-    await this.afAuth.signOut();
-    await this.router.navigate(['/']);
-  }
-
-  isLoggedIn(): Observable<boolean> {
-    return this.user$.pipe(map(user => !!user));
-  }
-
-  getCurrentUserIdObservable(): Observable<string | null> {
-    return this.afAuth.authState.pipe(
-      map(user => user ? user.uid : null)
+          const userObj = {
+            username: response.body,
+            token: token
+          } as User;
+          sessionStorage.setItem('token', token);
+          sessionStorage.setItem('profileName', userObj.username);
+          this.userSubject.next(userObj);
+          this.startLogOutTimer();
+          return userObj;
+        }
+        throw new Error('Login failed');
+      }),
+      catchError((error) => {
+        console.error('Login error:', error);
+        return of(null);
+      })
     );
   }
 
-  getCurrentUser(): Observable<firebase.User | null> {
-    return this.user$;
+  register(registrationRequest: {
+    username: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }): Observable<string | null> {
+    return this.http.post(`${environment.API_URL}/register`,
+      registrationRequest,
+      { observe: 'response', responseType: 'text' }
+    ).pipe(
+      map((response: HttpResponse<string>) => {
+        if (response.ok && response.body) {
+          sessionStorage.setItem('profileName', response.body);
+          return response.body;
+        }
+        throw new Error('Registration failed');
+      }),
+      catchError((error) => {
+        console.error('Registration error:', error);
+        return of(null);
+      })
+    );
+  }
+
+  signOut(): Observable<boolean> {
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      console.log('No token found');
+      return of(false);
+    }
+
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.post(`${environment.API_URL}/signout`,
+      {},
+      { headers, observe: 'response', responseType: 'text' }
+    ).pipe(
+      map((response) => {
+        if (response.ok) {
+          this.userSubject.next(null);
+          sessionStorage.clear();
+          return true;
+        }
+        throw new Error('Logout failed');
+      }),
+      catchError((error) => {
+        console.error('Logout error:', error);
+        return of(false);
+      })
+    );
+  }
+
+  startLogOutTimer(): void {
+    // 20 minutes timeout
+    timer(20 * 60 * 1000).pipe(
+      take(1)
+    ).subscribe(() => {
+      this.signOut().subscribe(() => {
+        this.router.navigate(['/login']);
+      });
+    });
+  }
+
+  getToken(): string | null {
+    return sessionStorage.getItem('token');
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.getToken();
+  }
+
+  refreshUserData(): Observable<User> {
+    return this.http.get<User>(`${environment.API_URL}/api/profile`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      tap(user => {
+        const currentUser = this.userSubject.getValue();
+        if (currentUser) {
+          this.userSubject.next({
+            ...currentUser,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email
+          });
+        }
+      })
+    );
   }
 }

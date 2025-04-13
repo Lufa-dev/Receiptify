@@ -1,0 +1,95 @@
+.card {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem;
+}
+
+.card-header h4 {
+  margin-bottom: 0;
+  font-weight: 600;
+  color: #495057;
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.img-thumbnail {
+  object-fit: cover;
+  max-height: 200px;
+  border-radius: 4px;
+}
+
+// Style for the step numbering
+h5 {
+  font-weight: 600;
+  color: #495057;
+}
+
+// Adding some space to the button elements
+button {
+  &.btn-danger {
+    margin-left: 8px;
+  }
+}
+
+// Style for the category groups in the select dropdown
+optgroup {
+  font-weight: bold;
+  color: #495057;
+}
+
+// Make textarea more comfortable for writing instructions
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+// Error state styling
+.is-invalid {
+  border-color: #dc3545;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.invalid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #dc3545;
+}
+
+// Button styling with icons
+.btn i {
+  margin-right: 4px;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+// Loading spinner
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+.btn-container {
+  padding-bottom: 10px;
+}

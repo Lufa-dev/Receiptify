@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../../shared/services/auth.service';
-import { User } from '../../shared/models/user.model';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -9,33 +9,45 @@ import { Router } from '@angular/router';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
-  firstName: string = '';
-  lastName: string = '';
-  email: string = '';
-  password: string = '';
-  confirmPassword: string = '';
+  registerForm: FormGroup;
+  error: string = '';
+  loading: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
+    this.registerForm = this.formBuilder.group({
+      username: ['', [Validators.required]],
+      firstName: [''],
+      lastName: [''],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
 
-  async onSubmit() {
-    if (this.password !== this.confirmPassword) {
-      alert('Passwords do not match.');
+  onSubmit() {
+    if (this.registerForm.invalid) {
       return;
     }
 
-    const user: User = {
-      firstName: this.firstName,
-      lastName: this.lastName,
-      email: this.email,
-      password: this.password
-    };
+    this.loading = true;
+    this.error = '';
 
-    try {
-      await this.authService.register(user);
-      this.router.navigate(['/']);
-    } catch (error) {
-      console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
-    }
+    this.authService.register(this.registerForm.value).subscribe({
+      next: (username) => {
+        if (username) {
+          this.router.navigate(['/login']);
+        } else {
+          this.error = 'Registration failed';
+          this.loading = false;
+        }
+      },
+      error: (error) => {
+        this.error = error.message || 'An error occurred during registration';
+        this.loading = false;
+      }
+    });
   }
 }

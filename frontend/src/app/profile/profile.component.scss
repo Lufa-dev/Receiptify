@@ -1,72 +1,104 @@
 .profile-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-}
+  padding: 2rem 1rem;
 
-.profile-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
+  .card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 
-  .profile-picture {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    margin-right: 20px;
-  }
+    .card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #f0f0f0;
 
-  .profile-info {
-    h2 {
-      margin: 0;
-    }
-
-    p {
-      margin: 5px 0;
-    }
-  }
-}
-
-.profile-actions {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 20px;
-
-  .btn {
-    margin: 0 5px;
-  }
-}
-
-.user-recipes {
-  .recipe-item {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-
-    .recipe-image {
-      width: 100%;
-      max-height: 200px;
-      object-fit: cover;
-      border-radius: 4px;
-    }
-
-    h4 {
-      margin: 10px 0 5px;
-    }
-
-    p {
-      margin: 0 0 10px;
-    }
-
-    ol {
-      padding-left: 20px;
-
-      li {
-        margin-bottom: 5px;
+      h2 {
+        font-weight: 600;
+        color: #333;
       }
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+  }
+
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .form-control {
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+
+    &:focus {
+      border-color: rgba(var(--bs-primary-rgb), 0.5);
+      box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    }
+
+    &:read-only {
+      background-color: #f8f9fa;
+    }
+  }
+
+  hr {
+    opacity: 0.15;
+  }
+
+  .btn-primary {
+    padding: 0.6rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  // Recipe stats styling
+  .h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--bs-primary);
+  }
+
+  .card.bg-light {
+    transition: all 0.3s ease;
+    border: none;
+
+    &:hover {
+      background-color: #e9ecef !important;
+      transform: translateY(-5px);
+    }
+  }
+}
+
+// Custom password strength meter
+.password-strength {
+  height: 5px;
+  margin-top: 5px;
+  background-color: #f5f5f5;
+  border-radius: 3px;
+  overflow: hidden;
+
+  .strength-meter {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+
+    &.weak {
+      background-color: #dc3545;
+      width: 33%;
+    }
+
+    &.medium {
+      background-color: #ffc107;
+      width: 66%;
+    }
+
+    &.strong {
+      background-color: #28a745;
+      width: 100%;
     }
   }
 }

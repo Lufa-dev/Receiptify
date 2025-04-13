@@ -1,24 +1,160 @@
-<div class="profile-container" *ngIf="user">
-  <div class="profile-header">
-    <img [src]="userProfilePicture" alt="Profile Picture" class="profile-picture" />
-    <div class="profile-info">
-      <h2>{{ user?.firstName }} {{ user?.lastName }}</h2>
-      <p>Recipes: {{ userRecipesCount }}</p>
-    </div>
-  </div>
-  <div class="profile-actions">
-    <button class="btn btn-primary" (click)="changeData()">Change Data</button>
-    <button class="btn btn-secondary" (click)="uploadRecipe()">Upload Recipe</button>
-  </div>
-  <div class="user-recipes">
-    <h3>Your Recipes</h3>
-    <div *ngFor="let recipe of userRecipes" class="recipe-item">
-      <img [src]="recipe.imageUrl" alt="{{ recipe.title }}" class="recipe-image" />
-      <h4>{{ recipe.title }}</h4>
-      <p>{{ recipe.description }}</p>
-      <ol>
-        <li *ngFor="let step of recipe.steps">{{ step }}</li>
-      </ol>
+<div class="container profile-container">
+  <div class="row">
+    <div class="col-lg-10 mx-auto">
+      <div class="card shadow">
+        <div class="card-header bg-white">
+          <h2 class="mb-0">Profile</h2>
+        </div>
+        <div class="card-body">
+          <!-- Loading spinner -->
+          <div *ngIf="isLoading" class="text-center my-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Success/Error messages -->
+          <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ successMessage }}
+            <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+          </div>
+
+          <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ errorMessage }}
+            <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+          </div>
+
+          <!-- Profile form -->
+          <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+            <div class="row g-4">
+              <!-- Username (readonly) -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="username" class="form-label">Username</label>
+                  <input type="text" id="username" class="form-control" formControlName="username" readonly>
+                  <div class="form-text text-muted">Username cannot be changed</div>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" id="email" class="form-control" formControlName="email"
+                         [ngClass]="{'is-invalid': submitted && f['email'].errors}">
+                  <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+                    <div *ngIf="f['email'].errors?.['required']">Email is required</div>
+                    <div *ngIf="f['email'].errors?.['email']">Please enter a valid email address</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- First Name -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="firstName" class="form-label">First Name</label>
+                  <input type="text" id="firstName" class="form-control" formControlName="firstName"
+                         [ngClass]="{'is-invalid': submitted && f['firstName'].errors}">
+                  <div *ngIf="submitted && f['firstName'].errors" class="invalid-feedback">
+                    <div *ngIf="f['firstName'].errors?.['required']">First name is required</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Last Name -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="lastName" class="form-label">Last Name</label>
+                  <input type="text" id="lastName" class="form-control" formControlName="lastName"
+                         [ngClass]="{'is-invalid': submitted && f['lastName'].errors}">
+                  <div *ngIf="submitted && f['lastName'].errors" class="invalid-feedback">
+                    <div *ngIf="f['lastName'].errors?.['required']">Last name is required</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <h4>Change Password</h4>
+            <p class="text-muted mb-3">Leave blank if you don't want to change your password</p>
+
+            <div class="row g-4">
+              <!-- Current Password -->
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="currentPassword" class="form-label">Current Password</label>
+                  <input type="password" id="currentPassword" class="form-control" formControlName="currentPassword"
+                         [ngClass]="{'is-invalid': submitted && passwordChangeAttempted && f['currentPassword'].errors}">
+                  <div *ngIf="submitted && passwordChangeAttempted && f['currentPassword'].errors" class="invalid-feedback">
+                    <div *ngIf="f['currentPassword'].errors?.['required']">Current password is required to change password</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- New Password -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="newPassword" class="form-label">New Password</label>
+                  <input type="password" id="newPassword" class="form-control" formControlName="newPassword"
+                         [ngClass]="{'is-invalid': submitted && passwordChangeAttempted && f['newPassword'].errors}">
+                  <div *ngIf="submitted && passwordChangeAttempted && f['newPassword'].errors" class="invalid-feedback">
+                    <div *ngIf="f['newPassword'].errors?.['minlength']">Password must be at least 6 characters</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Confirm Password -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="confirmPassword" class="form-label">Confirm Password</label>
+                  <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword"
+                         [ngClass]="{'is-invalid': submitted && passwordChangeAttempted && f['confirmPassword'].errors}">
+                  <div *ngIf="submitted && passwordChangeAttempted && f['confirmPassword'].errors" class="invalid-feedback">
+                    <div *ngIf="f['confirmPassword'].errors?.['matching']">Passwords must match</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+              <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Save Changes
+              </button>
+            </div>
+          </form>
+
+          <!-- Recipe statistics -->
+          <div class="mt-5" *ngIf="!isLoading">
+            <h4>Your Recipe Statistics</h4>
+            <div class="row mt-3">
+              <div class="col-md-4">
+                <div class="card text-center p-3 mb-3 bg-light">
+                  <div class="h1 mb-0">{{ recipeStats.total || 0 }}</div>
+                  <div>Total Recipes</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card text-center p-3 mb-3 bg-light">
+                  <div class="h1 mb-0">{{ recipeStats.thisMonth || 0 }}</div>
+                  <div>This Month</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card text-center p-3 mb-3 bg-light">
+                  <div class="h1 mb-0">{{ recipeStats.topIngredient ? '1' : '0' }}</div>
+                  <div>Top Ingredient</div>
+                  <div class="small text-muted" *ngIf="recipeStats.topIngredient">{{ recipeStats.topIngredient }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="text-center mt-3">
+              <a routerLink="/my-recipes" class="btn btn-outline-primary">View My Recipes</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
