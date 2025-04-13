@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {RecipeService} from "../../shared/services/recipe.service";
-import {RecipeDTO} from "../../shared/models/DTOs/recipeDTO";
+import {RecipeDTO} from "../../shared/models/recipe.model";
+import {AuthService} from "../../shared/services/auth.service";
 
 
 @Component({
@@ -13,9 +14,12 @@ export class RecipeDetailComponent implements OnInit {
   recipe: RecipeDTO | null = null;
   isLoading = true;
   error = '';
+  isOwner = false;
+  isDeleting = false;
 
   constructor(
     private recipeService: RecipeService,
+    private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -38,6 +42,11 @@ export class RecipeDetailComponent implements OnInit {
       next: (recipe) => {
         this.recipe = recipe;
         this.isLoading = false;
+
+        const username = sessionStorage.getItem('profileName');
+        this.isOwner = this.authService.isLoggedIn() &&
+          username === recipe.user?.username;
+
       },
       error: (error) => {
         console.error('Error loading recipe:', error);
@@ -56,6 +65,33 @@ export class RecipeDetailComponent implements OnInit {
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
+  }
+
+  editRecipe(): void {
+    if (this.recipe && this.recipe.id) {
+      this.router.navigate(['/recipe-form', this.recipe.id]);
+    }
+  }
+
+  deleteRecipe(): void {
+    if (!this.recipe || !this.recipe.id) {
+      return;
+    }
+
+    if (confirm('Are you sure you want to delete this recipe?')) {
+      this.isDeleting = true;
+      this.recipeService.deleteRecipe(this.recipe.id).subscribe({
+        next: () => {
+          // Navigate to the user's recipes page or home page
+          this.router.navigate(['/my-recipes']);
+        },
+        error: (error) => {
+          console.error('Error deleting recipe:', error);
+          this.error = 'Failed to delete recipe.';
+          this.isDeleting = false;
+        }
+      });
+    }
   }
 }
 

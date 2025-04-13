@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {IngredientService} from "../../shared/services/ingredient.service";
 import {IngredientType} from "../../shared/models/ingredient-type.model";
 import {finalize, forkJoin, of} from "rxjs";
-import {RecipeDTO} from "../../shared/models/DTOs/recipeDTO";
+import {RecipeDTO} from "../../shared/models/recipe.model";
 import {Ingredient} from "../../shared/models/ingredient.model";
 import {UnitType} from "../../shared/models/unit-type.model";
 import {RecipeStep} from "../../shared/models/recipe-step.model";
@@ -116,7 +116,20 @@ export class RecipeFormComponent implements OnInit {
     this.recipeForm.patchValue({
       title: recipe.title,
       description: recipe.description,
-      imageUrl: recipe.imageUrl
+      imageUrl: recipe.imageUrl,
+
+      category: recipe.category || '',
+      cuisine: recipe.cuisine || '',
+      servings: recipe.servings || null,
+      difficulty: recipe.difficulty || '',
+      costRating: recipe.costRating || '',
+
+      prepTime: recipe.prepTime || null,
+      cookTime: recipe.cookTime || null,
+      bakingTime: recipe.bakingTime || null,
+      bakingTemp: recipe.bakingTemp || null,
+      panSize: recipe.panSize || null,
+      bakingMethod: recipe.bakingMethod || ''
     });
 
     // Clear default ingredients and steps
@@ -174,7 +187,22 @@ export class RecipeFormComponent implements OnInit {
       description: ['', Validators.maxLength(500)],
       imageUrl: [''],
       ingredients: this.fb.array([this.createIngredientForm()]),
-      steps: this.fb.array([this.createStepForm(0)])
+      steps: this.fb.array([this.createStepForm(0)]),
+
+      // New fields
+      category: [''],
+      cuisine: [''],
+      servings: [null],
+      difficulty: [''],
+      costRating: [''],
+
+      // Additional values
+      prepTime: [null],
+      cookTime: [null],
+      bakingTime: [null],
+      bakingTemp: [null],
+      panSize: [null],
+      bakingMethod: ['']
     });
   }
 
@@ -307,7 +335,19 @@ export class RecipeFormComponent implements OnInit {
       steps: formValue.steps.map((step: RecipeStep) => ({
         stepNumber: step.stepNumber,
         instruction: step.instruction
-      }))
+      })),
+
+      category: formValue.category,
+      cuisine: formValue.cuisine,
+      servings: formValue.servings,
+      difficulty: formValue.difficulty,
+      costRating: formValue.costRating,
+      prepTime: formValue.prepTime,
+      cookTime: formValue.cookTime,
+      bakingTime: formValue.bakingTime,
+      bakingTemp: formValue.bakingTemp,
+      panSize: formValue.panSize,
+      bakingMethod: formValue.bakingMethod
     };
 
     console.log('Saving recipe:', recipeData);

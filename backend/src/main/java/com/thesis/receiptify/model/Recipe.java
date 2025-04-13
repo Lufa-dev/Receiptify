@@ -44,6 +44,19 @@ public class Recipe {
 
     private LocalDateTime updatedAt;
 
+    private String category;
+    private String cuisine;
+    private Integer servings;
+    private String difficulty;
+    private String costRating;
+
+    private Integer prepTime;
+    private Integer cookTime;
+    private Integer bakingTime;
+    private Integer bakingTemp;
+    private Integer panSize;
+    private String bakingMethod;
+
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();

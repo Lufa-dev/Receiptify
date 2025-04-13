@@ -34,4 +34,19 @@ public class RecipeDTO {
     @NotEmpty(message = "At least one step is required")
     @Valid
     private List<RecipeStepDTO> steps;
+
+    private UserDTO user;
+
+    private String category;
+    private String cuisine;
+    private Integer servings;
+    private String difficulty;
+    private String costRating;
+
+    private Integer prepTime;
+    private Integer cookTime;
+    private Integer bakingTime;
+    private Integer bakingTemp;
+    private Integer panSize;
+    private String bakingMethod;
 }

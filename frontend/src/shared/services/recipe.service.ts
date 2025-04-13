@@ -1,12 +1,8 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {Observable, of, throwError} from 'rxjs';
-import { catchError, tap, map } from 'rxjs/operators';
-import { AuthService } from './auth.service';
-
-import { Recipe } from '../models/recipe.model';
-import { PagedResponse } from '../models/paged-response.model';
-import { RecipeDTO } from '../models/DTOs/recipeDTO';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Observable, of} from 'rxjs';
+import {  map } from 'rxjs/operators';
+import { RecipeDTO } from '../models/recipe.model';
 import {environment} from "../../environments/environment";
 
 @Injectable({

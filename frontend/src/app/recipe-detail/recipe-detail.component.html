@@ -8,12 +8,121 @@
   </div>
 
   <div *ngIf="recipe && !isLoading" class="recipe-content">
+
+    <div *ngIf="isOwner" class="owner-actions mb-4">
+      <div class="d-flex justify-content-end">
+        <button class="btn btn-primary me-2" (click)="editRecipe()">
+          <i class="bi bi-pencil-square me-1"></i> Edit Recipe
+        </button>
+        <button class="btn btn-danger" (click)="deleteRecipe()" [disabled]="isDeleting">
+          <i class="bi bi-trash me-1"></i>
+          <span *ngIf="!isDeleting">Delete Recipe</span>
+          <span *ngIf="isDeleting">Deleting...</span>
+        </button>
+      </div>
+    </div>
+
     <div class="recipe-header">
       <h1>{{ recipe.title }}</h1>
       <div class="recipe-image-container" *ngIf="recipe.imageUrl">
         <img [src]="recipe.imageUrl" alt="{{ recipe.title }}" class="recipe-image">
       </div>
       <p class="recipe-description">{{ recipe.description }}</p>
+    </div>
+
+    <div class="recipe-author" *ngIf="recipe.user">
+      <p class="text-muted">
+        Created by: {{ recipe.user.firstName || '' }} {{ recipe.user.lastName || '' }}
+        <span *ngIf="!recipe.user.firstName && !recipe.user.lastName">{{ recipe.user.username }}</span>
+      </p>
+    </div>
+
+    <div class="recipe-meta" *ngIf="recipe">
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="recipe-attributes">
+            <h3>Characteristics</h3>
+            <div class="row">
+              <div class="col-md-4 mb-2" *ngIf="recipe.category">
+                <div class="attribute-item">
+                  <span class="attribute-label">Category:</span>
+                  <span class="attribute-value">{{ recipe.category }}</span>
+                </div>
+              </div>
+              <div class="col-md-4 mb-2" *ngIf="recipe.cuisine">
+                <div class="attribute-item">
+                  <span class="attribute-label">Cuisine:</span>
+                  <span class="attribute-value">{{ recipe.cuisine }}</span>
+                </div>
+              </div>
+              <div class="col-md-4 mb-2" *ngIf="recipe.servings">
+                <div class="attribute-item">
+                  <span class="attribute-label">Servings:</span>
+                  <span class="attribute-value">{{ recipe.servings }}</span>
+                </div>
+              </div>
+              <div class="col-md-4 mb-2" *ngIf="recipe.difficulty">
+                <div class="attribute-item">
+                  <span class="attribute-label">Difficulty:</span>
+                  <span class="attribute-value">{{ recipe.difficulty }}</span>
+                </div>
+              </div>
+              <div class="col-md-4 mb-2" *ngIf="recipe.costRating">
+                <div class="attribute-item">
+                  <span class="attribute-label">Cost per Serving:</span>
+                  <span class="attribute-value">{{ recipe.costRating }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <div class="recipe-values">
+            <h3>Preparation Details</h3>
+            <div class="row">
+              <div class="col-md-4 mb-2" *ngIf="recipe.prepTime">
+                <div class="attribute-item">
+                  <span class="attribute-label">Prep Time:</span>
+                  <span class="attribute-value">{{ recipe.prepTime }} minutes</span>
+                </div>
+              </div>
+              <div class="col-md-4 mb-2" *ngIf="recipe.cookTime">
+                <div class="attribute-item">
+                  <span class="attribute-label">Cook Time:</span>
+                  <span class="attribute-value">{{ recipe.cookTime }} minutes</span>
+                </div>
+              </div>
+              <div class="col-md-4 mb-2" *ngIf="recipe.bakingTime">
+                <div class="attribute-item">
+                  <span class="attribute-label">Baking Time:</span>
+                  <span class="attribute-value">{{ recipe.bakingTime }} minutes</span>
+                </div>
+              </div>
+              <div class="col-md-4 mb-2" *ngIf="recipe.bakingTemp">
+                <div class="attribute-item">
+                  <span class="attribute-label">Baking Temperature:</span>
+                  <span class="attribute-value">{{ recipe.bakingTemp }}°C</span>
+                </div>
+              </div>
+              <div class="col-md-4 mb-2" *ngIf="recipe.panSize">
+                <div class="attribute-item">
+                  <span class="attribute-label">Pan Size:</span>
+                  <span class="attribute-value">{{ recipe.panSize }} cm</span>
+                </div>
+              </div>
+              <div class="col-md-4 mb-2" *ngIf="recipe.bakingMethod">
+                <div class="attribute-item">
+                  <span class="attribute-label">Baking Method:</span>
+                  <span class="attribute-value">{{ recipe.bakingMethod }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="recipe-body">

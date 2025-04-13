@@ -7,6 +7,7 @@ import com.thesis.receiptify.model.RecipeStep;
 import com.thesis.receiptify.model.dto.IngredientDTO;
 import com.thesis.receiptify.model.dto.RecipeDTO;
 import com.thesis.receiptify.model.dto.RecipeStepDTO;
+import com.thesis.receiptify.model.dto.UserDTO;
 import com.thesis.receiptify.repository.ProfileRepository;
 import com.thesis.receiptify.repository.RecipeRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -41,6 +42,17 @@ public class RecipeService {
                 .ingredients(new ArrayList<>())
                 .steps(new ArrayList<>())
                 .createdAt(LocalDateTime.now())
+                .category(recipeDTO.getCategory())
+                .cuisine(recipeDTO.getCuisine())
+                .servings(recipeDTO.getServings())
+                .difficulty(recipeDTO.getDifficulty())
+                .costRating(recipeDTO.getCostRating())
+                .prepTime(recipeDTO.getPrepTime())
+                .cookTime(recipeDTO.getCookTime())
+                .bakingTime(recipeDTO.getBakingTime())
+                .bakingTemp(recipeDTO.getBakingTemp())
+                .panSize(recipeDTO.getPanSize())
+                .bakingMethod(recipeDTO.getBakingMethod())
                 .build();
 
         // Add ingredients
@@ -113,6 +125,18 @@ public class RecipeService {
         recipe.setImageUrl(recipeDTO.getImageUrl());
         recipe.setUpdatedAt(LocalDateTime.now());
 
+        recipe.setCategory(recipeDTO.getCategory());
+        recipe.setCuisine(recipeDTO.getCuisine());
+        recipe.setServings(recipeDTO.getServings());
+        recipe.setDifficulty(recipeDTO.getDifficulty());
+        recipe.setCostRating(recipeDTO.getCostRating());
+        recipe.setPrepTime(recipeDTO.getPrepTime());
+        recipe.setCookTime(recipeDTO.getCookTime());
+        recipe.setBakingTime(recipeDTO.getBakingTime());
+        recipe.setBakingTemp(recipeDTO.getBakingTemp());
+        recipe.setPanSize(recipeDTO.getPanSize());
+        recipe.setBakingMethod(recipeDTO.getBakingMethod());
+
         // Clear and re-add ingredients
         recipe.getIngredients().clear();
         for (IngredientDTO ingredientDTO : recipeDTO.getIngredients()) {
@@ -169,6 +193,23 @@ public class RecipeService {
                 .imageUrl(recipe.getImageUrl())
                 .ingredients(ingredientDTOs)
                 .steps(stepDTOs)
+                .user(UserDTO.builder()
+                        .id(recipe.getUser().getId())
+                        .username(recipe.getUser().getUsername())
+                        .firstName(recipe.getUser().getFirstName())
+                        .lastName(recipe.getUser().getLastName())
+                        .build())
+                .category(recipe.getCategory())
+                .cuisine(recipe.getCuisine())
+                .servings(recipe.getServings())
+                .difficulty(recipe.getDifficulty())
+                .costRating(recipe.getCostRating())
+                .prepTime(recipe.getPrepTime())
+                .cookTime(recipe.getCookTime())
+                .bakingTime(recipe.getBakingTime())
+                .bakingTemp(recipe.getBakingTemp())
+                .panSize(recipe.getPanSize())
+                .bakingMethod(recipe.getBakingMethod())
                 .build();
     }
 
