@@ -22,6 +22,12 @@
       </div>
     </div>
 
+    <div *ngIf="!isOwner && authService.isLoggedIn() && recipe && recipe.id" class="user-actions mb-4 text-end">
+      <app-add-to-collection [recipeId]="recipe.id"></app-add-to-collection>
+    </div>
+
+
+
     <div class="recipe-header">
       <h1>{{ recipe.title }}</h1>
       <div class="recipe-image-container" *ngIf="recipe.imageUrl">

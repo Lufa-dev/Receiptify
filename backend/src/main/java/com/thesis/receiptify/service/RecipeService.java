@@ -1,13 +1,11 @@
 package com.thesis.receiptify.service;
 
-import com.thesis.receiptify.model.Ingredient;
-import com.thesis.receiptify.model.Profile;
-import com.thesis.receiptify.model.Recipe;
-import com.thesis.receiptify.model.RecipeStep;
+import com.thesis.receiptify.model.*;
 import com.thesis.receiptify.model.dto.IngredientDTO;
 import com.thesis.receiptify.model.dto.RecipeDTO;
 import com.thesis.receiptify.model.dto.RecipeStepDTO;
 import com.thesis.receiptify.model.dto.UserDTO;
+import com.thesis.receiptify.repository.CollectionRepository;
 import com.thesis.receiptify.repository.ProfileRepository;
 import com.thesis.receiptify.repository.RecipeRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,6 +26,8 @@ public class RecipeService {
 
     private final RecipeRepository recipeRepository;
     private final ProfileRepository profileRepository;
+    private final CollectionService collectionService;
+    private final CollectionRepository collectionRepository;
 
     @Transactional
     public RecipeDTO createRecipe(RecipeDTO recipeDTO, String username) {
@@ -80,6 +80,9 @@ public class RecipeService {
         }
 
         Recipe savedRecipe = recipeRepository.save(recipe);
+
+        collectionService.handleNewRecipe(savedRecipe, username);
+
         return mapToDTO(savedRecipe);
     }
 
@@ -173,7 +176,21 @@ public class RecipeService {
             throw new SecurityException("You don't have permission to delete this recipe");
         }
 
+        List<Collection> collections = collectionRepository.findAllContainingRecipe(recipe);
+
+        // Remove the recipe from all collections
+        for (Collection collection : collections) {
+            collection.removeRecipe(recipe);
+            collectionRepository.save(collection);
+        }
+
         recipeRepository.delete(recipe);
+    }
+
+    @Transactional(readOnly = true)
+    public Recipe getRecipeEntityById(Long id) {
+        return recipeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Recipe not found"));
     }
 
     // Helper methods to map between entities and DTOs

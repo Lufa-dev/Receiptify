@@ -1,6 +1,7 @@
 package com.thesis.receiptify.controller;
 
 import com.thesis.receiptify.model.dto.RecipeDTO;
+import com.thesis.receiptify.service.CollectionService;
 import com.thesis.receiptify.service.FileStorageService;
 import com.thesis.receiptify.service.RecipeService;
 import jakarta.validation.Valid;
@@ -28,6 +29,7 @@ public class RecipeController {
 
     private final RecipeService recipeService;
     private final FileStorageService fileStorageService;
+    private final CollectionService collectionService;
 
     @PostMapping
     public ResponseEntity<RecipeDTO> createRecipe(
@@ -40,6 +42,12 @@ public class RecipeController {
         }
 
         RecipeDTO createdRecipe = recipeService.createRecipe(recipeDTO, userDetails.getUsername());
+
+        try {
+            collectionService.handleNewRecipe(recipeService.getRecipeEntityById(createdRecipe.getId()), userDetails.getUsername());
+        } catch (Exception e) {
+            System.err.println("Failed to add recipe to collection: " + e.getMessage());
+        }
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()

@@ -4,6 +4,7 @@ import {Observable, of} from 'rxjs';
 import {  map } from 'rxjs/operators';
 import { RecipeDTO } from '../models/recipe.model';
 import {environment} from "../../environments/environment";
+import {CollectionService} from "./collection.service";
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,9 @@ import {environment} from "../../environments/environment";
 export class RecipeService {
   private apiUrl = `${environment.API_URL}/api/recipes`;
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private collectionService: CollectionService) { }
 
   private getAuthHeaders(): HttpHeaders {
     const token = sessionStorage.getItem('token'); // Use sessionStorage instead of localStorage

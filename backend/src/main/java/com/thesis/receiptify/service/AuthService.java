@@ -29,6 +29,7 @@ public class AuthService {
     private final JwtUtil jwtTokenUtil;
     private final ProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CollectionService collectionService;
 
     public String register(RegistrationRequest registrationRequest) {
         Optional<Profile> existingUsername = profileRepository.findByUsername(registrationRequest.getUsername());
@@ -49,8 +50,13 @@ public class AuthService {
                 .username(registrationRequest.getUsername())
                 .roles(Role.USER)
                 .build();
-        profileRepository.save(profile);
+        Profile savedProfile = profileRepository.save(profile);
+
+        // Initialize default collections for the new user
+        collectionService.initializeDefaultCollections(savedProfile);
+
         return "OK";
+
     }
 
     public String authenticate(AuthRequest authRequest) throws Exception {

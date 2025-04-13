@@ -8,6 +8,8 @@ import {RecipeFormComponent} from "./recipe-form/recipe-form.component";
 import {AuthGuard} from "../shared/services/auth-guard";
 import {RecipeDetailComponent} from "./recipe-detail/recipe-detail.component";
 import {MyRecipesComponent} from "./my-recipes/my-recipes.component";
+import {CollectionsComponent} from "./collections/collections.component";
+import {CollectionDetailComponent} from "./collection-detail/collection-detail.component";
 
 
 const routes: Routes = [
@@ -19,6 +21,8 @@ const routes: Routes = [
   { path: 'my-recipes', component: MyRecipesComponent, canActivate: [AuthGuard] },
   { path: 'edit-recipe/:id', component: RecipeFormComponent, canActivate: [AuthGuard] },
   { path: 'recipe/:id', component: RecipeDetailComponent },
+  { path: 'collections', component: CollectionsComponent, canActivate: [AuthGuard] },
+  { path: 'collections/:id', component: CollectionDetailComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

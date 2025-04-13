@@ -16,6 +16,10 @@ import { ProfileComponent } from './profile/profile.component';
 import { RecipeFormComponent } from './recipe-form/recipe-form.component';
 import { RecipeDetailComponent } from './recipe-detail/recipe-detail.component';
 import { MyRecipesComponent } from './my-recipes/my-recipes.component';
+import { CollectionsComponent } from './collections/collections.component';
+import { CollectionDetailComponent } from './collection-detail/collection-detail.component';
+import { AddToCollectionComponent } from './add-to-collection/add-to-collection.component';
+import {ClickOutsideDirective} from "../shared/directives/click-outside.directive";
 
 @NgModule({
   declarations: [
@@ -29,6 +33,10 @@ import { MyRecipesComponent } from './my-recipes/my-recipes.component';
     RecipeFormComponent,
     RecipeDetailComponent,
     MyRecipesComponent,
+    CollectionsComponent,
+    CollectionDetailComponent,
+    AddToCollectionComponent,
+    ClickOutsideDirective,
   ],
     imports: [
         BrowserModule,
