@@ -152,5 +152,12 @@
         </ol>
       </div>
     </div>
+    <div class="recipe-ratings-and-comments" *ngIf="recipe && recipe.id">
+      <!-- Rating Component -->
+      <app-recipe-rating [recipeId]="recipe.id" [isOwner]="isOwner"></app-recipe-rating>
+
+      <!-- Comments Component -->
+      <app-recipe-comments [recipeId]="recipe.id" [isOwner]="isOwner"></app-recipe-comments>
+    </div>
   </div>
 </div>

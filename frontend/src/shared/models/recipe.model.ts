@@ -26,17 +26,21 @@ export interface RecipeDTO {
     lastName?: string;
   };
 
-  category?: string;       // e.g. "aprósütemény", "befőttek", etc.
-  cuisine?: string;        // e.g. "afrikai", "amerikai", etc.
-  servings?: number;       // e.g. 1-12 főre
-  difficulty?: string;     // e.g. "könnyű", "közepes", "nehéz"
-  costRating?: string;     // e.g. "olcsó", "megfizethető", "költséges"
+  category?: string;
+  cuisine?: string;
+  servings?: number;
+  difficulty?: string;
+  costRating?: string;
 
-  // Additional values
-  prepTime?: number;       // in minutes
-  cookTime?: number;       // in minutes
-  bakingTime?: number;     // in minutes
-  bakingTemp?: number;     // in Celsius
-  panSize?: number;        // in cm
+  prepTime?: number;
+  cookTime?: number;
+  bakingTime?: number;
+  bakingTemp?: number;
+  panSize?: number;
   bakingMethod?: string;
+
+  averageRating?: number;
+  totalRatings?: number;
+  totalComments?: number;
+  userRating?: number;
 }

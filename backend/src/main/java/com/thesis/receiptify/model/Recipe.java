@@ -39,6 +39,12 @@ public class Recipe {
     @OrderBy("stepNumber ASC")
     private List<RecipeStep> steps = new ArrayList<>();
 
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Rating> ratings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
@@ -81,5 +87,25 @@ public class Recipe {
     public void removeStep(RecipeStep step) {
         steps.remove(step);
         step.setRecipe(null);
+    }
+
+    public void addRating(Rating rating) {
+        ratings.add(rating);
+        rating.setRecipe(this);
+    }
+
+    public void removeRating(Rating rating) {
+        ratings.remove(rating);
+        rating.setRecipe(null);
+    }
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setRecipe(this);
+    }
+
+    public void removeComment(Comment comment) {
+        comments.remove(comment);
+        comment.setRecipe(null);
     }
 }

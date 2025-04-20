@@ -1,0 +1,107 @@
+<div class="recipe-comments-container">
+  <h4 class="comments-header">Comments ({{ totalComments || 0 }})</h4>
+
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = ''" aria-label="Close"></button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Comment Form -->
+  <div class="comment-form-container" id="comment-form">
+    <h5>{{ editingCommentId ? 'Edit Comment' : 'Add a Comment' }}</h5>
+
+    <div *ngIf="!authService.isLoggedIn()" class="login-prompt">
+      <p>Please <a [routerLink]="['/login']" [queryParams]="{returnUrl: '/recipe/' + recipeId}">log in</a> to comment on this recipe</p>
+    </div>
+
+    <form *ngIf="authService.isLoggedIn()" [formGroup]="commentForm" (ngSubmit)="submitComment()">
+      <div class="form-group mb-3">
+        <textarea
+          id="comment-textarea"
+          formControlName="content"
+          class="form-control"
+          rows="3"
+          placeholder="Share your thoughts about this recipe..."
+          [ngClass]="{'is-invalid': commentForm.get('content')?.invalid && commentForm.get('content')?.touched}"
+        ></textarea>
+        <div class="invalid-feedback" *ngIf="commentForm.get('content')?.errors?.['required'] && commentForm.get('content')?.touched">
+          Comment cannot be empty
+        </div>
+        <div class="invalid-feedback" *ngIf="commentForm.get('content')?.errors?.['maxlength']">
+          Comment must be less than 1000 characters
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="commentForm.invalid || isSubmitting"
+        >
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          {{ editingCommentId ? 'Update Comment' : 'Post Comment' }}
+        </button>
+
+        <button
+          *ngIf="editingCommentId"
+          type="button"
+          class="btn btn-outline-secondary ms-2"
+          (click)="cancelEdit()"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Comments List -->
+  <div class="comments-list mt-4">
+    <div *ngIf="isLoading && currentPage === 0" class="text-center py-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading comments...</span>
+      </div>
+    </div>
+
+    <div *ngIf="comments.length === 0 && !isLoading" class="no-comments text-center py-4">
+      <p>No comments yet. Be the first to share your thoughts!</p>
+    </div>
+
+    <div *ngFor="let comment of comments" class="comment-item">
+      <div class="comment-header">
+        <div class="user-info">
+          <strong>{{ comment.user?.firstName || comment.user?.lastName ?
+            (comment.user?.firstName + ' ' + comment.user?.lastName) :
+            comment.user?.username }}</strong>
+          <small class="text-muted">{{ formatDate(comment.createdAt || '') }}</small>
+          <small class="text-muted" *ngIf="comment.updatedAt && comment.updatedAt !== comment.createdAt">(edited)</small>
+        </div>
+
+        <div class="comment-actions" *ngIf="canModifyComment(comment)">
+          <button class="btn btn-sm btn-link" (click)="editComment(comment)">Edit</button>
+          <button class="btn btn-sm btn-link text-danger" (click)="deleteComment(comment.id || 0)">Delete</button>
+        </div>
+      </div>
+
+      <div class="comment-content">
+        {{ comment.content }}
+      </div>
+    </div>
+
+    <!-- Load More Button -->
+    <div *ngIf="comments.length > 0 && !lastPage" class="text-center mt-4">
+      <button
+        class="btn btn-outline-primary"
+        (click)="loadMoreComments()"
+        [disabled]="isLoading"
+      >
+        <span *ngIf="isLoading && currentPage > 0" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        Load More Comments
+      </button>
+    </div>
+  </div>
+</div>

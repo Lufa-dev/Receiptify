@@ -20,6 +20,9 @@ import { CollectionsComponent } from './collections/collections.component';
 import { CollectionDetailComponent } from './collection-detail/collection-detail.component';
 import { AddToCollectionComponent } from './add-to-collection/add-to-collection.component';
 import {ClickOutsideDirective} from "../shared/directives/click-outside.directive";
+import {RatingStarsComponent} from "../shared/components/rating-stars/rating-stars.component";
+import { RecipeRatingComponent } from './recipe-rating/recipe-rating.component';
+import { RecipeCommentsComponent } from './recipe-comments/recipe-comments.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +40,9 @@ import {ClickOutsideDirective} from "../shared/directives/click-outside.directiv
     CollectionDetailComponent,
     AddToCollectionComponent,
     ClickOutsideDirective,
+    RatingStarsComponent,
+    RecipeRatingComponent,
+    RecipeCommentsComponent
   ],
     imports: [
         BrowserModule,

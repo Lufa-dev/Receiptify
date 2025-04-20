@@ -38,22 +38,26 @@ export class RecipeDetailComponent implements OnInit {
 
   loadRecipe(id: number): void {
     this.isLoading = true;
-    this.recipeService.getRecipeById(id).subscribe({
-      next: (recipe) => {
-        this.recipe = recipe;
-        this.isLoading = false;
 
-        const username = sessionStorage.getItem('profileName');
-        this.isOwner = this.authService.isLoggedIn() &&
-          username === recipe.user?.username;
+    const username = this.authService.isLoggedIn() ?
+      sessionStorage.getItem('profileName') : null;
 
-      },
-      error: (error) => {
-        console.error('Error loading recipe:', error);
-        this.error = 'Failed to load recipe details.';
-        this.isLoading = false;
-      }
-    });
+    this.recipeService.getRecipeById(id, username || '')
+      .subscribe({
+        next: (recipe) => {
+          this.recipe = recipe;
+          this.isLoading = false;
+
+          const username = sessionStorage.getItem('profileName');
+          this.isOwner = this.authService.isLoggedIn() &&
+            username === recipe.user?.username;
+        },
+        error: (error) => {
+          console.error('Error loading recipe:', error);
+          this.error = 'Failed to load recipe details.';
+          this.isLoading = false;
+        }
+      });
   }
 
   formatIngredientName(type: string): string {

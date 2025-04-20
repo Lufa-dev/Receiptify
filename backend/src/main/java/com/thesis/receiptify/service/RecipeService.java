@@ -5,9 +5,7 @@ import com.thesis.receiptify.model.dto.IngredientDTO;
 import com.thesis.receiptify.model.dto.RecipeDTO;
 import com.thesis.receiptify.model.dto.RecipeStepDTO;
 import com.thesis.receiptify.model.dto.UserDTO;
-import com.thesis.receiptify.repository.CollectionRepository;
-import com.thesis.receiptify.repository.ProfileRepository;
-import com.thesis.receiptify.repository.RecipeRepository;
+import com.thesis.receiptify.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +27,8 @@ public class RecipeService {
     private final ProfileRepository profileRepository;
     private final CollectionService collectionService;
     private final CollectionRepository collectionRepository;
+    private final RatingRepository ratingRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public RecipeDTO createRecipe(RecipeDTO recipeDTO, String username) {
@@ -83,20 +84,41 @@ public class RecipeService {
 
         collectionService.handleNewRecipe(savedRecipe, username);
 
-        return mapToDTO(savedRecipe);
+        return mapToDTO(savedRecipe, null);
     }
 
     @Transactional(readOnly = true)
     public RecipeDTO getRecipeById(Long id) {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recipe not found"));
-        return mapToDTO(recipe);
+        return mapToDTO(recipe, null);
+    }
+
+    @Transactional(readOnly = true)
+    public RecipeDTO getRecipeById(Long id, String username) {
+        Recipe recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Recipe not found"));
+
+        // If username is provided, get the user's rating for this recipe
+        Integer userRating = null;
+        if (username != null) {
+            Profile user = profileRepository.findByUsername(username)
+                    .orElse(null);
+            if (user != null) {
+                Optional<Rating> rating = ratingRepository.findByUserAndRecipe(user, recipe);
+                if (rating.isPresent()) {
+                    userRating = rating.get().getStars();
+                }
+            }
+        }
+
+        return mapToDTO(recipe, userRating);
     }
 
     @Transactional(readOnly = true)
     public Page<RecipeDTO> getAllRecipes(Pageable pageable) {
         return recipeRepository.findAllByOrderByCreatedAtDesc(pageable)
-                .map(this::mapToDTO);
+                .map(recipe -> mapToDTO(recipe, null));
     }
 
     @Transactional(readOnly = true)
@@ -104,13 +126,13 @@ public class RecipeService {
         Profile user = profileRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         return recipeRepository.findByUserOrderByCreatedAtDesc(user, pageable)
-                .map(this::mapToDTO);
+                .map(recipe -> mapToDTO(recipe, null));
     }
 
     @Transactional(readOnly = true)
     public Page<RecipeDTO> searchRecipes(String query, Pageable pageable) {
         return recipeRepository.searchRecipes(query, pageable)
-                .map(this::mapToDTO);
+                .map(recipe -> mapToDTO(recipe, null));
     }
 
     @Transactional
@@ -163,7 +185,7 @@ public class RecipeService {
         }
 
         Recipe updatedRecipe = recipeRepository.save(recipe);
-        return mapToDTO(updatedRecipe);
+        return mapToDTO(updatedRecipe, null);
     }
 
     @Transactional
@@ -194,7 +216,7 @@ public class RecipeService {
     }
 
     // Helper methods to map between entities and DTOs
-    private RecipeDTO mapToDTO(Recipe recipe) {
+    private RecipeDTO mapToDTO(Recipe recipe, Integer userRating) {
         List<IngredientDTO> ingredientDTOs = recipe.getIngredients().stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -202,6 +224,11 @@ public class RecipeService {
         List<RecipeStepDTO> stepDTOs = recipe.getSteps().stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
+
+        // Get rating information
+        Double averageRating = ratingRepository.getAverageRatingByRecipeId(recipe.getId());
+        Integer totalRatings = ratingRepository.countByRecipeId(recipe.getId());
+        Integer totalComments = commentRepository.countByRecipeId(recipe.getId());
 
         return RecipeDTO.builder()
                 .id(recipe.getId())
@@ -227,6 +254,11 @@ public class RecipeService {
                 .bakingTemp(recipe.getBakingTemp())
                 .panSize(recipe.getPanSize())
                 .bakingMethod(recipe.getBakingMethod())
+                // Add rating information
+                .averageRating(averageRating != null ? averageRating : 0.0)
+                .totalRatings(totalRatings != null ? totalRatings : 0)
+                .totalComments(totalComments != null ? totalComments : 0)
+                .userRating(userRating)
                 .build();
     }
 

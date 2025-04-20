@@ -49,4 +49,9 @@ public class RecipeDTO {
     private Integer bakingTemp;
     private Integer panSize;
     private String bakingMethod;
+
+    private Double averageRating;
+    private Integer totalRatings;
+    private Integer totalComments;
+    private Integer userRating;
 }

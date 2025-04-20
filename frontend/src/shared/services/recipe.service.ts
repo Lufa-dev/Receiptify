@@ -5,6 +5,7 @@ import {  map } from 'rxjs/operators';
 import { RecipeDTO } from '../models/recipe.model';
 import {environment} from "../../environments/environment";
 import {CollectionService} from "./collection.service";
+import {AuthService} from "./auth.service";
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,8 @@ export class RecipeService {
 
   constructor(
     private http: HttpClient,
-    private collectionService: CollectionService) { }
+    private collectionService: CollectionService,
+    private authService: AuthService) { }
 
   private getAuthHeaders(): HttpHeaders {
     const token = sessionStorage.getItem('token'); // Use sessionStorage instead of localStorage
@@ -33,7 +35,17 @@ export class RecipeService {
     return this.http.get(`${this.apiUrl}?page=${page}&size=${size}`);
   }
 
-  getRecipeById(id: number): Observable<RecipeDTO> {
+  getRecipeById(id: number, username?: string): Observable<RecipeDTO> {
+    // If username is provided, pass it to the backend
+    if (username) {
+      const token = this.authService.getToken();
+      if (token) {
+        const headers = this.authService.getAuthHeaders();
+        return this.http.get<RecipeDTO>(`${this.apiUrl}/${id}`, { headers });
+      }
+    }
+
+    // Otherwise just get the recipe without user rating
     return this.http.get<RecipeDTO>(`${this.apiUrl}/${id}`);
   }
 
