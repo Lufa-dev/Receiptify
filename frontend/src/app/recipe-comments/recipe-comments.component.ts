@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Comment } from '../../shared/models/comment.model';
 import { CommentService } from '../../shared/services/comment.service';
@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 export class RecipeCommentsComponent implements OnInit {
   @Input() recipeId!: number | undefined;
   @Input() isOwner: boolean = false;
+  @Output() commentCountChanged = new EventEmitter<number>();
 
   comments: Comment[] = [];
   totalComments: number = 0;
@@ -56,10 +57,19 @@ export class RecipeCommentsComponent implements OnInit {
     this.commentService.getRecipeComments(this.recipeId, this.currentPage, this.pageSize)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
-        next: (response) => {
+        next: (response: any) => {
           this.comments = response.content;
-          this.totalComments = response.totalElements;
-          this.lastPage = response.last || false;
+
+          if (response.page) {
+            this.totalComments = response.page.totalElements;
+            this.lastPage = (response.page.number >= response.page.totalPages - 1);
+          } else {
+            this.totalComments = response.totalElements || 0;
+            this.lastPage = response.last || false;
+          }
+
+          console.log('Response:', response);
+          console.log('Total comments:', this.totalComments);
         },
         error: (error) => {
           console.error('Error loading comments:', error);
@@ -136,6 +146,7 @@ export class RecipeCommentsComponent implements OnInit {
           next: (newComment) => {
             this.comments.unshift(newComment); // Add to beginning of array
             this.totalComments++;
+            this.commentCountChanged.emit(this.totalComments);
             this.successMessage = 'Comment added successfully!';
             this.resetForm();
           },
@@ -166,6 +177,7 @@ export class RecipeCommentsComponent implements OnInit {
           next: () => {
             this.comments = this.comments.filter(c => c.id !== id);
             this.totalComments--;
+            this.commentCountChanged.emit(this.totalComments);
             this.successMessage = 'Comment deleted successfully!';
 
             setTimeout(() => {

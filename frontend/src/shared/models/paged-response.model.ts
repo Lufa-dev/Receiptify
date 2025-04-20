@@ -7,4 +7,5 @@ export interface PagedResponse<T> {
   first?: boolean;
   last?: boolean;
   empty?: boolean;
+
 }

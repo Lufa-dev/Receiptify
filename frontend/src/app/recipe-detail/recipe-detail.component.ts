@@ -97,6 +97,12 @@ export class RecipeDetailComponent implements OnInit {
       });
     }
   }
+
+  updateCommentCount(count: number): void {
+    if (this.recipe) {
+      this.recipe.totalComments = count;
+    }
+  }
 }
 
 
