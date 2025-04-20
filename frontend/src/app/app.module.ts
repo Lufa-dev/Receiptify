@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {APP_INITIALIZER, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { RouterModule } from '@angular/router';
@@ -23,6 +23,15 @@ import {ClickOutsideDirective} from "../shared/directives/click-outside.directiv
 import {RatingStarsComponent} from "../shared/components/rating-stars/rating-stars.component";
 import { RecipeRatingComponent } from './recipe-rating/recipe-rating.component';
 import { RecipeCommentsComponent } from './recipe-comments/recipe-comments.component';
+
+export function clearStorageInitializer() {
+  return () => {
+    console.log('Clearing storage for fresh start');
+    sessionStorage.clear();
+    localStorage.clear();
+    return Promise.resolve();
+  };
+}
 
 @NgModule({
   declarations: [
@@ -53,7 +62,12 @@ import { RecipeCommentsComponent } from './recipe-comments/recipe-comments.compo
         BrowserAnimationsModule,
         ReactiveFormsModule
     ],
-  providers: [AuthService],
+  providers: [AuthService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: clearStorageInitializer,
+      multi: true
+    }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

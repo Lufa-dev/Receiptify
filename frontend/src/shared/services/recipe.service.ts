@@ -19,7 +19,7 @@ export class RecipeService {
     private authService: AuthService) { }
 
   private getAuthHeaders(): HttpHeaders {
-    const token = sessionStorage.getItem('token'); // Use sessionStorage instead of localStorage
+    const token = sessionStorage.getItem('token');
 
     if (!token) {
       console.warn('No token found in sessionStorage');
@@ -60,7 +60,7 @@ export class RecipeService {
   }
 
   createRecipe(recipe: RecipeDTO): Observable<RecipeDTO> {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     console.log('Token being sent:', token); // Debug line
 
     return this.http.post<RecipeDTO>(this.apiUrl, recipe, {
