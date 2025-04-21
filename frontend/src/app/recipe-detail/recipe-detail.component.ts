@@ -3,6 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {RecipeService} from "../../shared/services/recipe.service";
 import {RecipeDTO} from "../../shared/models/recipe.model";
 import {AuthService} from "../../shared/services/auth.service";
+import {PortionCalculatorService} from "../../shared/services/portion-calculator.service";
 
 
 @Component({
@@ -12,16 +13,21 @@ import {AuthService} from "../../shared/services/auth.service";
 })
 export class RecipeDetailComponent implements OnInit {
   recipe: RecipeDTO | null = null;
+  originalRecipe: RecipeDTO | null = null;
   isLoading = true;
   error = '';
   isOwner = false;
   isDeleting = false;
+  currentServings: number = 0;
+  originalServings: number = 0;
+
 
   constructor(
     private recipeService: RecipeService,
     public authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private portionCalculatorService: PortionCalculatorService
   ) {}
 
   ngOnInit(): void {
@@ -45,7 +51,10 @@ export class RecipeDetailComponent implements OnInit {
     this.recipeService.getRecipeById(id, username || '')
       .subscribe({
         next: (recipe) => {
-          this.recipe = recipe;
+          this.recipe = JSON.parse(JSON.stringify(recipe)); // Deep copy
+          this.originalRecipe = JSON.parse(JSON.stringify(recipe)); // Store original
+          this.originalServings = recipe.servings || 1;
+          this.currentServings = recipe.servings || 1;
           this.isLoading = false;
 
           const username = sessionStorage.getItem('profileName');
@@ -63,12 +72,18 @@ export class RecipeDetailComponent implements OnInit {
   formatIngredientName(type: string): string {
     if (!type) return '';
 
-    return type
-      .toLowerCase()
-      .replace(/_/g, ' ')
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    // If the type is an enum like TABLESPOON or GRAM, format it
+    if (type.includes('_') || /^[A-Z0-9]+$/.test(type)) {
+      return type
+        .toLowerCase()
+        .replace(/_/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+
+    // Otherwise, return as is (likely already formatted)
+    return type;
   }
 
   editRecipe(): void {
@@ -98,11 +113,126 @@ export class RecipeDetailComponent implements OnInit {
     }
   }
 
+  /**
+   * Calculates the total time for the recipe in minutes
+   */
+  calculateTotalTime(): number {
+    if (!this.recipe) return 0;
+
+    let total = 0;
+    if (this.recipe.prepTime) total += this.recipe.prepTime;
+    if (this.recipe.cookTime) total += this.recipe.cookTime;
+    if (this.recipe.bakingTime) total += this.recipe.bakingTime;
+
+    return total;
+  }
+
+  /**
+   * Formats time in minutes to a human-readable format
+   */
+  formatTime(minutes: number): string {
+    if (minutes < 60) {
+      return `${minutes} min`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+
+    if (remainingMinutes === 0) {
+      return `${hours} hr`;
+    }
+
+    return `${hours} hr ${remainingMinutes} min`;
+  }
+
+  /**
+   * Opens the browser print dialog for the recipe
+   */
+  printRecipe(): void {
+    window.print();
+  }
+
   updateCommentCount(count: number): void {
     if (this.recipe) {
       this.recipe.totalComments = count;
     }
   }
+
+  /**
+   * Updates the serving size and recalculates ingredient amounts
+   */
+  updateServings(newServings: number | string): void {
+    // Convert input to number if needed
+    const servingsValue = typeof newServings === 'string' ? parseInt(newServings, 10) : newServings;
+
+    // Validate input
+    if (!this.recipe || !this.originalRecipe || isNaN(servingsValue) || servingsValue <= 0) {
+      return;
+    }
+
+    // If no change in servings, no need to recalculate
+    if (servingsValue === this.currentServings) {
+      return;
+    }
+
+    // Calculate adjusted ingredients
+    const result = this.portionCalculatorService.calculateAdjustedIngredients(
+      this.originalServings,
+      servingsValue,
+      this.originalRecipe.ingredients
+    );
+
+    // Show notification for non-scalable ingredients
+    if (result.nonScalableIngredients.length > 0 && this.currentServings === this.originalServings) {
+      const notification = document.createElement('div');
+      notification.className = 'scaling-notification';
+      notification.innerHTML = `
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <strong>Note:</strong> Some ingredients don't have specific amounts and won't be scaled.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      `;
+
+      // Check if notification already exists before adding
+      const existingNotification = document.querySelector('.scaling-notification');
+      if (!existingNotification) {
+        const container = document.querySelector('.recipe-detail-container');
+        if (container) {
+          container.insertBefore(notification, container.firstChild);
+
+          // Automatically remove after 5 seconds
+          setTimeout(() => {
+            if (notification.parentNode) {
+              notification.parentNode.removeChild(notification);
+            }
+          }, 5000);
+        }
+      }
+    }
+
+    // Update current servings and recipe
+    this.currentServings = servingsValue;
+    this.recipe.servings = servingsValue;
+    this.recipe.ingredients = result.adjustedIngredients;
+  }
+
+  /**
+   * Resets servings to original value
+   */
+  resetServings(): void {
+    if (this.originalRecipe) {
+      this.updateServings(this.originalServings);
+    }
+  }
+
+  onServingsInputChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input && input.value) {
+      this.updateServings(Number(input.value));
+    }
+  }
+
+  protected readonly HTMLInputElement = HTMLInputElement;
 }
 
 

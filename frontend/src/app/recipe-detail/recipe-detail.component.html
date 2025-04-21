@@ -26,8 +26,6 @@
       <app-add-to-collection [recipeId]="recipe.id"></app-add-to-collection>
     </div>
 
-
-
     <div class="recipe-header">
       <h1>{{ recipe.title }}</h1>
       <div class="recipe-image-container" *ngIf="recipe.imageUrl">
@@ -36,11 +34,19 @@
       <p class="recipe-description">{{ recipe.description }}</p>
     </div>
 
-    <div class="recipe-author" *ngIf="recipe.user">
-      <p class="text-muted">
-        Created by: {{ recipe.user.firstName || '' }} {{ recipe.user.lastName || '' }}
-        <span *ngIf="!recipe.user.firstName && !recipe.user.lastName">{{ recipe.user.username }}</span>
-      </p>
+    <div class="recipe-author-and-controls d-flex justify-content-between align-items-center mb-3">
+      <div class="recipe-author" *ngIf="recipe.user">
+        <p class="text-muted mb-0">
+          Created by: {{ recipe.user.firstName || '' }} {{ recipe.user.lastName || '' }}
+          <span *ngIf="!recipe.user.firstName && !recipe.user.lastName">{{ recipe.user.username }}</span>
+        </p>
+      </div>
+
+      <div class="print-controls">
+        <button class="btn btn-outline-secondary" (click)="printRecipe()">
+          <i class="bi bi-printer me-1"></i> Print Recipe
+        </button>
+      </div>
     </div>
 
     <div class="recipe-meta" *ngIf="recipe">
@@ -61,10 +67,30 @@
                   <span class="attribute-value">{{ recipe.cuisine }}</span>
                 </div>
               </div>
-              <div class="col-md-4 mb-2" *ngIf="recipe.servings">
-                <div class="attribute-item">
+              <div class="col-md-4 mb-2">
+                <div class="attribute-item servings-adjuster">
                   <span class="attribute-label">Servings:</span>
-                  <span class="attribute-value">{{ recipe.servings }}</span>
+                  <div class="servings-control">
+                    <button class="btn btn-sm btn-outline-secondary"
+                            [disabled]="currentServings <= 1"
+                            (click)="updateServings(currentServings - 1)">
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <input type="number"
+                           class="servings-input"
+                           min="1"
+                           [value]="currentServings"
+                           (change)="onServingsInputChange($event)">
+                    <button class="btn btn-sm btn-outline-secondary"
+                            (click)="updateServings(currentServings + 1)">
+                      <i class="bi bi-plus"></i>
+                    </button>
+                    <button *ngIf="currentServings !== originalServings"
+                            class="btn btn-sm btn-link reset-servings"
+                            (click)="resetServings()">
+                      Reset
+                    </button>
+                  </div>
                 </div>
               </div>
               <div class="col-md-4 mb-2" *ngIf="recipe.difficulty">
@@ -89,6 +115,13 @@
           <div class="recipe-values">
             <h3>Preparation Details</h3>
             <div class="row">
+              <!-- Total Time -->
+              <div class="col-md-4 mb-2" *ngIf="calculateTotalTime() > 0">
+                <div class="attribute-item">
+                  <span class="attribute-label">Total Time:</span>
+                  <span class="attribute-value">{{ formatTime(calculateTotalTime()) }}</span>
+                </div>
+              </div>
               <div class="col-md-4 mb-2" *ngIf="recipe.prepTime">
                 <div class="attribute-item">
                   <span class="attribute-label">Prep Time:</span>
@@ -133,7 +166,11 @@
 
     <div class="recipe-body">
       <div class="ingredients-section">
-        <h2>Ingredients</h2>
+        <h2>Ingredients
+          <span *ngIf="currentServings !== originalServings" class="adjusted-badge">
+            (Adjusted for {{ currentServings }} servings)
+          </span>
+        </h2>
         <ul class="ingredients-list">
           <li *ngFor="let ingredient of recipe.ingredients">
             <span class="amount" *ngIf="ingredient.amount">{{ ingredient.amount }}</span>

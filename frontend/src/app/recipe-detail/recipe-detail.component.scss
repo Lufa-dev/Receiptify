@@ -3,6 +3,16 @@
   margin: 0 auto;
   padding: 20px;
 
+  .scaling-notification {
+    margin-bottom: 15px;
+    animation: fadeIn 0.3s ease-in-out;
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  }
+
   .loading, .error {
     text-align: center;
     padding: 30px;
@@ -74,6 +84,57 @@
           .attribute-value {
             color: #444;
           }
+
+          &.servings-adjuster {
+            display: flex;
+            flex-direction: column;
+
+            .servings-control {
+              display: flex;
+              align-items: center;
+              margin-top: 5px;
+
+              .btn {
+                padding: 0.2rem 0.5rem;
+                line-height: 1;
+              }
+
+              .servings-value {
+                margin: 0 10px;
+                min-width: 20px;
+                text-align: center;
+                font-weight: 600;
+              }
+
+              .servings-input {
+                width: 50px;
+                text-align: center;
+                margin: 0 10px;
+                padding: 0.2rem;
+                border: 1px solid #ced4da;
+                border-radius: 0.25rem;
+                font-weight: 600;
+
+                // Remove spinner buttons in number input
+                &::-webkit-outer-spin-button,
+                &::-webkit-inner-spin-button {
+                  -webkit-appearance: none;
+                  margin: 0;
+                }
+
+                /* Firefox */
+                -moz-appearance: textfield;
+              }
+
+              .reset-servings {
+                margin-left: 10px;
+                padding: 0;
+                font-size: 0.8rem;
+                text-decoration: underline;
+                color: #666;
+              }
+            }
+          }
         }
       }
     }
@@ -92,6 +153,18 @@
         margin-bottom: 15px;
         border-bottom: 2px solid #f0f0f0;
         padding-bottom: 10px;
+
+        .adjusted-badge {
+          font-size: 14px;
+          font-weight: normal;
+          color: #fff;
+          background-color: #28a745;
+          padding: 2px 8px;
+          border-radius: 12px;
+          margin-left: 10px;
+          display: inline-block;
+          vertical-align: middle;
+        }
       }
 
       .ingredients-list {
@@ -147,5 +220,65 @@
     margin-top: 3rem;
     border-top: 1px solid #eee;
     padding-top: 2rem;
+  }
+
+  /* Print styles */
+  @media print {
+    /* Hide unnecessary elements */
+    .navbar, .owner-actions, .user-actions, .print-controls,
+    .recipe-ratings-and-comments, .reset-servings, .btn {
+      display: none !important;
+    }
+
+    /* Ensure full width on print */
+    .recipe-detail-container, .recipe-content {
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    /* Adjust layout for better print */
+    .recipe-body {
+      display: block !important;
+    }
+
+    .recipe-body > div {
+      width: 100% !important;
+      margin-bottom: 20px !important;
+    }
+
+    /* Print background colors */
+    .recipe-attributes, .recipe-values {
+      background-color: #f9f9fa !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    /* Ensure page breaks properly */
+    .ingredients-section, .instructions-section {
+      page-break-inside: avoid;
+    }
+
+    /* Add a footer with the adjustment info */
+    @page {
+      margin: 1cm;
+    }
+
+    .recipe-header {
+      text-align: center;
+    }
+
+    .recipe-image-container {
+      max-height: 250px !important;
+    }
+
+    /* Show the adjusted for X servings message prominently */
+    .adjusted-badge {
+      font-weight: bold !important;
+      color: #000 !important;
+      background: none !important;
+      border: 1px solid #000 !important;
+    }
   }
 }

@@ -23,6 +23,7 @@ import {ClickOutsideDirective} from "../shared/directives/click-outside.directiv
 import {RatingStarsComponent} from "../shared/components/rating-stars/rating-stars.component";
 import { RecipeRatingComponent } from './recipe-rating/recipe-rating.component';
 import { RecipeCommentsComponent } from './recipe-comments/recipe-comments.component';
+import {PortionCalculatorService} from "../shared/services/portion-calculator.service";
 
 export function clearStorageInitializer() {
   return () => {
@@ -62,7 +63,7 @@ export function clearStorageInitializer() {
         BrowserAnimationsModule,
         ReactiveFormsModule
     ],
-  providers: [AuthService,
+  providers: [AuthService, PortionCalculatorService,
     {
       provide: APP_INITIALIZER,
       useFactory: clearStorageInitializer,
