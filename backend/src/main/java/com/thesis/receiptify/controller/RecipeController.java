@@ -1,6 +1,7 @@
 package com.thesis.receiptify.controller;
 
 import com.thesis.receiptify.model.dto.RecipeDTO;
+import com.thesis.receiptify.model.dto.RecipeSearchCriteriaDTO;
 import com.thesis.receiptify.service.CollectionService;
 import com.thesis.receiptify.service.FileStorageService;
 import com.thesis.receiptify.service.RecipeService;
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -104,6 +106,20 @@ public class RecipeController {
             Pageable pageable) {
         Page<RecipeDTO> recipes = recipeService.searchRecipes(query, pageable);
         return ResponseEntity.ok(recipes);
+    }
+
+    @PostMapping("/advanced-search")
+    public ResponseEntity<Page<RecipeDTO>> advancedSearchRecipes(
+            @RequestBody RecipeSearchCriteriaDTO criteria,
+            Pageable pageable) {
+        Page<RecipeDTO> recipes = recipeService.advancedSearchRecipes(criteria, pageable);
+        return ResponseEntity.ok(recipes);
+    }
+
+    @GetMapping("/search-options")
+    public ResponseEntity<Map<String, List<String>>> getSearchOptions() {
+        Map<String, List<String>> options = recipeService.getSearchFilterOptions();
+        return ResponseEntity.ok(options);
     }
 
     @PutMapping("/{id}")

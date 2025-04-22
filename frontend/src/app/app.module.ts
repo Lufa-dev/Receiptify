@@ -23,6 +23,8 @@ import {RatingStarsComponent} from "../shared/components/rating-stars/rating-sta
 import { RecipeRatingComponent } from './recipe-rating/recipe-rating.component';
 import { RecipeCommentsComponent } from './recipe-comments/recipe-comments.component';
 import {PortionCalculatorService} from "../shared/services/portion-calculator.service";
+import { AdvancedSearchComponent } from './advanced-search/advanced-search.component';
+import {FormatEnumPipe} from "../shared/pipes/format-enum.pipe";
 
 export function clearStorageInitializer() {
   return () => {
@@ -50,7 +52,9 @@ export function clearStorageInitializer() {
     ClickOutsideDirective,
     RatingStarsComponent,
     RecipeRatingComponent,
-    RecipeCommentsComponent
+    RecipeCommentsComponent,
+    AdvancedSearchComponent,
+    FormatEnumPipe
   ],
     imports: [
         BrowserModule,

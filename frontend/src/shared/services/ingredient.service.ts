@@ -16,22 +16,22 @@ export class IngredientService {
   getAllIngredientTypes(): Observable<IngredientType[]> {
     return this.http.get<any[]>(this.apiUrl).pipe(
       map(data => data.map(item => ({
-        name: item.name,
-        displayName: item.displayName,
+        name: item.name || item,
+        displayName: item.displayName || this.formatEnumName(item.name || item),
         category: item.category
       })))
     );
   }
 
   getIngredientsByCategory(): Observable<Record<string, IngredientType[]>> {
-    return this.http.get<Record<string, string[]>>(`${this.apiUrl}/by-category`).pipe(
+    return this.http.get<Record<string, any[]>>(`${this.apiUrl}/by-category`).pipe(
       map(categories => {
         const result: Record<string, IngredientType[]> = {};
 
-        Object.entries(categories).forEach(([category, ingredientNames]) => {
-          result[category] = ingredientNames.map(enumName => ({
-            name: enumName.toLowerCase(),
-            displayName: this.formatEnumName(enumName),
+        Object.entries(categories).forEach(([category, ingredients]) => {
+          result[category] = ingredients.map(item => ({
+            name: typeof item === 'string' ? item : item.name,
+            displayName: typeof item === 'string' ? this.formatEnumName(item) : item.displayName,
             category: category
           }));
         });
@@ -41,8 +41,10 @@ export class IngredientService {
     );
   }
 
-// Helper method to format enum names
+  // Helper method to format enum names
   private formatEnumName(enumName: string): string {
+    if (!enumName) return '';
+
     return enumName
       .split('_')
       .map(word => word.charAt(0) + word.slice(1).toLowerCase())
@@ -53,4 +55,6 @@ export class IngredientService {
     return this.http.get<string[]>(`${this.apiUrl}/categories`);
   }
 }
+
+
 

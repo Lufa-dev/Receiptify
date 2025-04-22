@@ -6,6 +6,7 @@ import { RecipeDTO } from '../models/recipe.model';
 import {environment} from "../../environments/environment";
 import {CollectionService} from "./collection.service";
 import {AuthService} from "./auth.service";
+import {RecipeSearchCriteria, SearchFilterOptions} from "../models/recipe-search-criteria.model";
 
 @Injectable({
   providedIn: 'root'
@@ -57,6 +58,14 @@ export class RecipeService {
 
   searchRecipes(query: string, page: number = 0, size: number = 10): Observable<any> {
     return this.http.get(`${this.apiUrl}/search?query=${query}&page=${page}&size=${size}`);
+  }
+
+  advancedSearchRecipes(criteria: RecipeSearchCriteria, page: number = 0, size: number = 10): Observable<any> {
+    return this.http.post(`${this.apiUrl}/advanced-search?page=${page}&size=${size}`, criteria);
+  }
+
+  getSearchFilterOptions(): Observable<SearchFilterOptions> {
+    return this.http.get<SearchFilterOptions>(`${this.apiUrl}/search-options`);
   }
 
   createRecipe(recipe: RecipeDTO): Observable<RecipeDTO> {

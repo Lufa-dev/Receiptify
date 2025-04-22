@@ -1,11 +1,10 @@
 package com.thesis.receiptify.service;
 
 import com.thesis.receiptify.model.*;
-import com.thesis.receiptify.model.dto.IngredientDTO;
-import com.thesis.receiptify.model.dto.RecipeDTO;
-import com.thesis.receiptify.model.dto.RecipeStepDTO;
-import com.thesis.receiptify.model.dto.UserDTO;
+import com.thesis.receiptify.model.Collection;
+import com.thesis.receiptify.model.dto.*;
 import com.thesis.receiptify.repository.*;
+import com.thesis.receiptify.repository.specification.RecipeSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,9 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -133,6 +130,28 @@ public class RecipeService {
     public Page<RecipeDTO> searchRecipes(String query, Pageable pageable) {
         return recipeRepository.searchRecipes(query, pageable)
                 .map(recipe -> mapToDTO(recipe, null));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RecipeDTO> advancedSearchRecipes(RecipeSearchCriteriaDTO criteria, Pageable pageable) {
+        RecipeSpecification specification = new RecipeSpecification(criteria);
+        return recipeRepository.findAll(specification, pageable)
+                .map(recipe -> mapToDTO(recipe, null));
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, List<String>> getSearchFilterOptions() {
+        Map<String, List<String>> options = new HashMap<>();
+
+        // Get available categories and cuisines
+        options.put("categories", recipeRepository.findDistinctCategories());
+        options.put("cuisines", recipeRepository.findDistinctCuisines());
+
+        // Add other static options
+        options.put("difficulties", Arrays.asList("easy", "medium", "hard"));
+        options.put("costRatings", Arrays.asList("budget", "moderate", "expensive"));
+
+        return options;
     }
 
     @Transactional

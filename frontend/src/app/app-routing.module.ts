@@ -10,6 +10,7 @@ import {RecipeDetailComponent} from "./recipe-detail/recipe-detail.component";
 import {MyRecipesComponent} from "./my-recipes/my-recipes.component";
 import {CollectionsComponent} from "./collections/collections.component";
 import {CollectionDetailComponent} from "./collection-detail/collection-detail.component";
+import {AdvancedSearchComponent} from "./advanced-search/advanced-search.component";
 
 
 const routes: Routes = [
@@ -23,6 +24,7 @@ const routes: Routes = [
   { path: 'recipe/:id', component: RecipeDetailComponent },
   { path: 'collections', component: CollectionsComponent, canActivate: [AuthGuard] },
   { path: 'collections/:id', component: CollectionDetailComponent, canActivate: [AuthGuard] },
+  { path: 'advanced-search', component: AdvancedSearchComponent },
 ];
 
 @NgModule({
