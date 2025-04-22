@@ -10,7 +10,6 @@ import { LoginComponent } from './login/login.component';
 import { HomeComponent } from './home/home.component';
 import { NavbarComponent } from '../shared/components/navbar/navbar.component';
 import { AuthService } from '../shared/services/auth.service';
-import { LoginDialogComponent } from '../shared/components/login-dialog/login-dialog.component';
 import { HttpClientModule } from '@angular/common/http';
 import { ProfileComponent } from './profile/profile.component';
 import { RecipeFormComponent } from './recipe-form/recipe-form.component';
@@ -41,7 +40,6 @@ export function clearStorageInitializer() {
     LoginComponent,
     HomeComponent,
     NavbarComponent,
-    LoginDialogComponent,
     ProfileComponent,
     RecipeFormComponent,
     RecipeDetailComponent,
