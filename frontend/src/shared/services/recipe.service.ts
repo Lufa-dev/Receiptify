@@ -61,7 +61,34 @@ export class RecipeService {
   }
 
   advancedSearchRecipes(criteria: RecipeSearchCriteria, page: number = 0, size: number = 10): Observable<any> {
-    return this.http.post(`${this.apiUrl}/advanced-search?page=${page}&size=${size}`, criteria);
+    // Build sort parameters for the URL
+    let sortParam = '';
+    if (criteria.sortBy) {
+      // Ensure we're not trying to sort by a field that doesn't exist in the entity
+      const validSortFields = ['createdAt', 'title', 'prepTime', 'cookTime', 'bakingTime'];
+      if (validSortFields.includes(criteria.sortBy)) {
+        sortParam = `&sort=${criteria.sortBy},${criteria.sortDirection || 'desc'}`;
+      }
+    }
+
+    const url = `${this.apiUrl}/advanced-search?page=${page}&size=${size}${sortParam}`;
+
+    // Remove empty values from criteria
+    const cleanCriteria = JSON.parse(JSON.stringify(criteria));
+    Object.keys(cleanCriteria).forEach(key => {
+      if (cleanCriteria[key] === '' || cleanCriteria[key] === null || cleanCriteria[key] === undefined ||
+        (Array.isArray(cleanCriteria[key]) && cleanCriteria[key].length === 0)) {
+        delete cleanCriteria[key];
+      }
+    });
+
+    // Remove sort parameters from the request body (they're in the URL)
+    delete cleanCriteria.sortBy;
+    delete cleanCriteria.sortDirection;
+
+    console.log('Sending advanced search request:', { url, cleanCriteria });
+
+    return this.http.post(url, cleanCriteria);
   }
 
   getSearchFilterOptions(): Observable<SearchFilterOptions> {
@@ -109,3 +136,5 @@ export class RecipeService {
     });
   }
 }
+
+

@@ -23,9 +23,21 @@
             <label>Category</label>
             <select class="form-select" formControlName="category">
               <option value="">All Categories</option>
-              <option *ngFor="let category of filterOptions.categories" [value]="category">
-                {{ category | formatEnum }}
-              </option>
+              <option value="appetizer">Appetizer</option>
+              <option value="breakfast">Breakfast</option>
+              <option value="main">Main Course</option>
+              <option value="soup">Soup</option>
+              <option value="salad">Salad</option>
+              <option value="side">Side Dish</option>
+              <option value="dessert">Dessert</option>
+              <option value="snack">Snack</option>
+              <option value="bread">Bread</option>
+              <option value="cake">Cake</option>
+              <option value="cookie">Cookie</option>
+              <option value="pastry">Pastry</option>
+              <option value="beverage">Beverage</option>
+              <option value="sauce">Sauce</option>
+              <option value="preserve">Preserve</option>
             </select>
           </div>
         </div>
@@ -35,9 +47,25 @@
             <label>Cuisine</label>
             <select class="form-select" formControlName="cuisine">
               <option value="">All Cuisines</option>
-              <option *ngFor="let cuisine of filterOptions.cuisines" [value]="cuisine">
-                {{ cuisine | formatEnum }}
-              </option>
+              <option value="american">American</option>
+              <option value="italian">Italian</option>
+              <option value="french">French</option>
+              <option value="chinese">Chinese</option>
+              <option value="japanese">Japanese</option>
+              <option value="indian">Indian</option>
+              <option value="mexican">Mexican</option>
+              <option value="thai">Thai</option>
+              <option value="mediterranean">Mediterranean</option>
+              <option value="greek">Greek</option>
+              <option value="spanish">Spanish</option>
+              <option value="middle-eastern">Middle Eastern</option>
+              <option value="korean">Korean</option>
+              <option value="vietnamese">Vietnamese</option>
+              <option value="caribbean">Caribbean</option>
+              <option value="african">African</option>
+              <option value="german">German</option>
+              <option value="british">British</option>
+              <option value="fusion">Fusion</option>
             </select>
           </div>
         </div>
@@ -47,9 +75,9 @@
             <label>Difficulty</label>
             <select class="form-select" formControlName="difficulty">
               <option value="">Any Difficulty</option>
-              <option *ngFor="let difficulty of filterOptions.difficulties" [value]="difficulty">
-                {{ difficulty | formatEnum }}
-              </option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
             </select>
           </div>
         </div>
@@ -59,9 +87,9 @@
             <label>Cost Rating</label>
             <select class="form-select" formControlName="costRating">
               <option value="">Any Cost</option>
-              <option *ngFor="let cost of filterOptions.costRatings" [value]="cost">
-                {{ cost | formatEnum }}
-              </option>
+              <option value="budget">Budget</option>
+              <option value="moderate">Moderate</option>
+              <option value="expensive">Expensive</option>
             </select>
           </div>
         </div>

@@ -21,12 +21,48 @@ export class AdvancedSearchComponent implements OnInit {
   currentPage = 0;
   pageSize = 12;
 
-  // Filter options
+  // Filter options - hardcoded to match recipe-form.component
   filterOptions: SearchFilterOptions = {
-    categories: [],
-    cuisines: [],
-    difficulties: [],
-    costRatings: []
+    categories: [
+      'appetizer',
+      'breakfast',
+      'main',
+      'soup',
+      'salad',
+      'side',
+      'dessert',
+      'snack',
+      'bread',
+      'cake',
+      'cookie',
+      'pastry',
+      'beverage',
+      'sauce',
+      'preserve'
+    ],
+    cuisines: [
+      'american',
+      'italian',
+      'french',
+      'chinese',
+      'japanese',
+      'indian',
+      'mexican',
+      'thai',
+      'mediterranean',
+      'greek',
+      'spanish',
+      'middle-eastern',
+      'korean',
+      'vietnamese',
+      'caribbean',
+      'african',
+      'german',
+      'british',
+      'fusion'
+    ],
+    difficulties: ['easy', 'medium', 'hard'],
+    costRatings: ['budget', 'moderate', 'expensive']
   };
 
   ingredientTypes: IngredientType[] = [];
@@ -37,8 +73,9 @@ export class AdvancedSearchComponent implements OnInit {
   sortOptions = [
     { value: 'createdAt', label: 'Most Recent' },
     { value: 'title', label: 'Title (A-Z)' },
-    { value: 'averageRating', label: 'Highest Rated' },
-    { value: 'prepTime', label: 'Quickest to Make' }
+    { value: 'prepTime', label: 'Quickest to Prepare' },
+    { value: 'cookTime', label: 'Quickest to Cook' },
+    { value: 'bakingTime', label: 'Quickest to Bake' }
   ];
 
   constructor(
@@ -51,7 +88,6 @@ export class AdvancedSearchComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadFilterOptions();
     this.loadIngredientTypes();
   }
 
@@ -69,30 +105,6 @@ export class AdvancedSearchComponent implements OnInit {
       maxTotalTime: [null],
       sortBy: ['createdAt'],
       sortDirection: ['desc']
-    });
-  }
-
-  private loadFilterOptions(): void {
-    this.recipeService.getSearchFilterOptions().subscribe({
-      next: (options) => {
-        this.filterOptions = {
-          categories: options.categories || [],
-          cuisines: options.cuisines || [],
-          difficulties: options.difficulties || ['easy', 'medium', 'hard'],
-          costRatings: options.costRatings || ['budget', 'moderate', 'expensive']
-        };
-        console.log('Filter options loaded:', this.filterOptions);
-      },
-      error: (error) => {
-        console.error('Error loading filter options:', error);
-        // Set default values in case of error
-        this.filterOptions = {
-          categories: [],
-          cuisines: [],
-          difficulties: ['easy', 'medium', 'hard'],
-          costRatings: ['budget', 'moderate', 'expensive']
-        };
-      }
     });
   }
 
@@ -121,16 +133,29 @@ export class AdvancedSearchComponent implements OnInit {
   private performSearch(append: boolean = false): void {
     this.isLoading = true;
 
+    // Clean up the form values to remove empty strings and nulls
+    const formValue = this.searchForm.value;
+    const cleanedFormValue: any = {};
+
+    Object.keys(formValue).forEach(key => {
+      if (formValue[key] !== '' && formValue[key] !== null) {
+        cleanedFormValue[key] = formValue[key];
+      }
+    });
+
     const criteria: RecipeSearchCriteria = {
-      ...this.searchForm.value,
+      ...cleanedFormValue,
       includeIngredients: this.selectedIngredients.map(i => i.name),
       excludeIngredients: this.excludedIngredients.map(i => i.name)
     };
+
+    console.log('Sending search criteria:', criteria); // Debug log
 
     this.recipeService.advancedSearchRecipes(criteria, this.currentPage, this.pageSize)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (response) => {
+          console.log('Search response:', response); // Debug log
           if (append) {
             this.recipes = [...this.recipes, ...response.content];
           } else {
@@ -188,5 +213,10 @@ export class AdvancedSearchComponent implements OnInit {
     }
   }
 }
+
+
+
+
+
 
 
