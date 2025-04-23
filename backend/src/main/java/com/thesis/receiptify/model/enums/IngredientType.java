@@ -175,6 +175,7 @@ public enum IngredientType {
 
     // GRAINS & STARCHES
     AMARANTH("Amaranth", "Grains & Starches", IngredientSeasonality.YEAR_ROUND),
+    MILLET("Millet", "Grains & Starches", IngredientSeasonality.YEAR_ROUND),
     // Add other grains here...
 
     // DAIRY & EGGS

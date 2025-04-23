@@ -63,16 +63,38 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configure(httpSecurity))
                 .authorizeHttpRequests(auth -> auth
+                        // Public endpoints
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/register").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/signout").permitAll()
+
+                        // API endpoints - specifically allow GET for public endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/recipes").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/recipes/{id:[\\d]+}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/recipes/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/recipes/search-options").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/recipes/seasonal").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/seasonality/current-month").permitAll()
+
+                        // API endpoints that require authentication
+                        .requestMatchers(HttpMethod.POST, "/api/recipes").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/recipes/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/recipes/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/recipes/user").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/recipes/{id}/with-seasonality").permitAll()
+
+                        // Allow all requests to other API endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/**").authenticated()
+
+                        // Swagger/OpenAPI documentation
                         .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
+
+                        // Any other request requires authentication
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)

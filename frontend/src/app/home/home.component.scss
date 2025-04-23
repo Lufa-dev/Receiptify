@@ -1,48 +1,15 @@
 .main-container {
-  text-align: center;
-
-  .image-container {
-    position: relative;
-    width: 100%;
-    height: 50vh;
-    overflow: hidden;
-
-    .main-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease;
-    }
-
-    .search-bar-container {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 50%;
-
-      .search-bar {
-        width: 100%;
-        padding: 15px 20px;
-        font-size: 18px;
-        border-radius: 30px;
-        border: none;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s ease;
-
-        &:focus {
-          outline: none;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-          transform: translateY(-2px);
-        }
-      }
-    }
-  }
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 
   .loading {
     margin: 40px 0;
     font-size: 18px;
     color: #666;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   // Section titles
@@ -75,7 +42,7 @@
   // Seasonal section specific styles
   .seasonal-section {
     margin: 30px 0;
-    padding: 30px 0;
+    padding: 30px;
     background-color: #f8faf6; // Soft green background
     border-radius: 12px;
 
@@ -101,15 +68,17 @@
     }
   }
 
+  .all-recipes-section {
+    margin-top: 30px;
+  }
+
   .recipes-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 20px;
-    gap: 25px;  // Use gap for more consistent spacing
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
 
     .recipe-card {
-      width: 280px;  // Slightly wider cards
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -117,63 +86,35 @@
       cursor: pointer;
       background-color: white;
       position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
 
       &:hover {
-        transform: translateY(-10px);
+        transform: translateY(-5px);
         box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 
         .recipe-image {
-          transform: scale(1.1);
+          transform: scale(1.05);
         }
       }
 
       .recipe-image {
         width: 100%;
-        height: 200px;  // Taller images
+        height: 180px;
         object-fit: cover;
         transition: transform 0.5s ease;
       }
 
       .recipe-title {
         padding: 16px;
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 600;
         color: #333;
         background-color: white;
-        position: relative;
-        z-index: 1;
-        border-top: 1px solid rgba(0, 0, 0, 0.05);
-      }
-
-      // Add a subtle overlay on hover
-      &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to bottom, transparent 70%, rgba(0, 0, 0, 0.7) 100%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-
-      &:hover::after {
-        opacity: 1;
-      }
-
-      // Add a category badge (optional - you can add category to your recipe model)
-      .recipe-category {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: rgba(255, 255, 255, 0.9);
-        padding: 5px 10px;
-        border-radius: 15px;
-        font-size: 12px;
-        font-weight: 600;
-        color: #555;
-        z-index: 2;
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
       }
     }
   }
@@ -182,6 +123,7 @@
     margin: 50px 0;
     font-size: 18px;
     color: #666;
+    text-align: center;
 
     a {
       color: #4a90e2;
@@ -198,18 +140,19 @@
 // Add responsive design
 @media (max-width: 768px) {
   .main-container {
-    .image-container {
-      height: 40vh;
+    padding: 15px;
 
-      .search-bar-container {
-        width: 80%;
-      }
+    .section-title {
+      font-size: 24px;
+    }
+
+    .seasonal-section {
+      padding: 20px;
     }
 
     .recipes-container {
-      .recipe-card {
-        width: calc(50% - 25px);
-      }
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
     }
   }
 }
@@ -217,8 +160,12 @@
 @media (max-width: 480px) {
   .main-container {
     .recipes-container {
-      .recipe-card {
-        width: 100%;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+
+      .recipe-card .recipe-title {
+        font-size: 14px;
+        padding: 12px;
       }
     }
   }

@@ -15,10 +15,15 @@ export class IngredientSeasonalityComponent {
   getStatusIcon(): string {
     if (!this.seasonality) return 'bi-question-circle text-secondary';
 
-    if (this.seasonality.isInSeason) return 'bi-check-circle-fill text-success';
-    if (this.seasonality.isComingSoon) return 'bi-clock-history text-warning';
-    return 'bi-x-circle-fill text-danger';
+    if (this.seasonality.status === 'In Season') {
+      return 'bi-check-circle-fill text-success';
+    } else if (this.seasonality.status === 'Coming Soon') {
+      return 'bi-clock-history text-warning';
+    } else {
+      return 'bi-x-circle-fill text-danger';
+    }
   }
+
 
   getStatusLabel(): string {
     if (!this.seasonality) return 'Unknown';

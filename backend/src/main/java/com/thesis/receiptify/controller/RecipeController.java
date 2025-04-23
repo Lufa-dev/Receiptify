@@ -33,6 +33,23 @@ public class RecipeController {
     private final FileStorageService fileStorageService;
     private final CollectionService collectionService;
 
+    /**
+     * Search for recipes by season
+     * Note: This needs to be before the /{id} route to avoid path conflicts
+     */
+    @GetMapping("/seasonal")
+    public ResponseEntity<Page<RecipeDTO>> getSeasonalRecipes(
+            @RequestParam(required = false, defaultValue = "70") int minSeasonalScore,
+            Pageable pageable) {
+
+        try {
+            Page<RecipeDTO> seasonalRecipes = recipeService.findSeasonalRecipes(minSeasonalScore, pageable);
+            return ResponseEntity.ok(seasonalRecipes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @PostMapping
     public ResponseEntity<RecipeDTO> createRecipe(
             @Valid @RequestBody RecipeDTO recipeDTO,
@@ -153,22 +170,6 @@ public class RecipeController {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Failed to get recipe: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
-
-    /**
-     * Search for recipes by season
-     */
-    @GetMapping("/seasonal")
-    public ResponseEntity<Page<RecipeDTO>> getSeasonalRecipes(
-            @RequestParam(required = false, defaultValue = "70") int minSeasonalScore,
-            Pageable pageable) {
-
-        try {
-            Page<RecipeDTO> seasonalRecipes = recipeService.findSeasonalRecipes(minSeasonalScore, pageable);
-            return ResponseEntity.ok(seasonalRecipes);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

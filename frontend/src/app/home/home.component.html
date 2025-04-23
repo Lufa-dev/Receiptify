@@ -1,33 +1,48 @@
+<div class="main-container">
+  <!-- Loading state -->
+  <div *ngIf="isLoading && !seasonalRecipes.length && !recipes.length" class="loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading recipes...</span>
+    </div>
+    <span class="ms-2">Loading recipes...</span>
+  </div>
 
-<div *ngIf="isLoading && !seasonalRecipes.length" class="loading">Loading recipes...</div>
+  <!-- Error message -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = ''" aria-label="Close"></button>
+  </div>
 
-<!-- Seasonal Recipes Section -->
-<div class="seasonal-section" *ngIf="seasonalRecipes.length > 0">
-  <h2 class="section-title">Seasonal Recipes <span class="seasonal-badge">{{ currentMonth }}</span></h2>
-  <p class="section-description">Delicious recipes featuring ingredients that are in season now</p>
+  <!-- Seasonal Recipes Section -->
+  <div class="seasonal-section" *ngIf="seasonalRecipes.length > 0">
+    <h2 class="section-title">Seasonal Recipes <span class="seasonal-badge">{{ currentMonth }}</span></h2>
+    <p class="section-description">Delicious recipes featuring ingredients that are in season now</p>
 
-  <div class="recipes-container">
-    <div *ngFor="let recipe of seasonalRecipes" class="recipe-card seasonal-card" [routerLink]="['/recipe', recipe.id]">
-      <div class="seasonal-indicator">
-        <i class="bi bi-calendar-check"></i> {{ recipe.seasonalityInfo?.seasonalScore }}% Seasonal
+    <div class="recipes-container">
+      <div *ngFor="let recipe of seasonalRecipes" class="recipe-card seasonal-card" [routerLink]="['/recipe', recipe.id]">
+        <div class="seasonal-indicator">
+          <i class="bi bi-calendar-check"></i> {{ recipe.seasonalityInfo?.seasonalScore }}% Seasonal
+        </div>
+        <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
+        <div class="recipe-title">{{ recipe.title }}</div>
       </div>
-      <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
-      <div class="recipe-title">{{ recipe.title }}</div>
     </div>
   </div>
-</div>
 
-<!-- All Recipes Section -->
-<h2 class="section-title mt-4">All Recipes</h2>
-<div *ngIf="isLoading && !recipes.length" class="loading">Loading recipes...</div>
+  <!-- All Recipes Section -->
+  <div class="all-recipes-section">
+    <h2 class="section-title mt-4">All Recipes</h2>
+    <div *ngIf="isLoading && !recipes.length" class="loading">Loading recipes...</div>
 
-<div class="recipes-container">
-  <div *ngFor="let recipe of recipes" class="recipe-card" [routerLink]="['/recipe', recipe.id]">
-    <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
-    <div class="recipe-title">{{ recipe.title }}</div>
+    <div class="recipes-container">
+      <div *ngFor="let recipe of recipes" class="recipe-card" [routerLink]="['/recipe', recipe.id]">
+        <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
+        <div class="recipe-title">{{ recipe.title }}</div>
+      </div>
+    </div>
+
+    <div *ngIf="recipes.length === 0 && !isLoading" class="no-recipes">
+      No recipes found. Why not <a routerLink="/submit-recipe">add one</a>?
+    </div>
   </div>
-</div>
-
-<div *ngIf="recipes.length === 0 && !isLoading" class="no-recipes">
-  No recipes found. Why not <a routerLink="/submit-recipe">add one</a>?
 </div>

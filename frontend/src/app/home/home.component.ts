@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RecipeService } from '../../shared/services/recipe.service';
-import { Recipe } from '../../shared/models/recipe.model';
-import {finalize, forkJoin} from "rxjs";
+import {Recipe, RecipeDTO} from '../../shared/models/recipe.model';
+import {catchError, finalize, forkJoin, of} from "rxjs";
 
 @Component({
   selector: 'app-home',
@@ -9,12 +9,14 @@ import {finalize, forkJoin} from "rxjs";
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  recipes: Recipe[] = [];
-  seasonalRecipes: Recipe[] = [];
+  recipes: RecipeDTO[] = [];
+  seasonalRecipes: RecipeDTO[] = [];
   isLoading = false;
   currentMonth = '';
+  error = '';
 
-  constructor(private recipeService: RecipeService) {}
+  constructor(private recipeService: RecipeService) {
+  }
 
   ngOnInit(): void {
     this.loadAllRecipes();
@@ -22,36 +24,47 @@ export class HomeComponent implements OnInit {
 
   loadAllRecipes(): void {
     this.isLoading = true;
+    this.error = '';
 
     // Get current month for seasonality display
-    this.recipeService.getCurrentMonth().subscribe({
-      next: (month) => {
-        this.currentMonth = this.formatMonth(month);
-      },
-      error: (error) => {
+    this.recipeService.getCurrentMonth()
+      .pipe(catchError(error => {
         console.error('Error getting current month:', error);
         // Default to current browser month as fallback
         const date = new Date();
-        this.currentMonth = date.toLocaleString('default', { month: 'long' });
-      }
-    });
-
-    // Use forkJoin to load both regular and seasonal recipes
-    forkJoin({
-      regularRecipes: this.recipeService.getAllRecipes(0, 12),
-      seasonalRecipes: this.recipeService.getSeasonalRecipes(80, 0, 6) // Get highly seasonal recipes (80%+ score)
-    })
-      .pipe(finalize(() => this.isLoading = false))
+        return of(date.toLocaleString('default', { month: 'long' }).toUpperCase());
+      }))
       .subscribe({
-        next: (results) => {
-          this.recipes = results.regularRecipes.content;
-          this.seasonalRecipes = results.seasonalRecipes.content;
+        next: (month) => {
+          this.currentMonth = this.formatMonth(month);
+        }
+      });
 
-          console.log('Loaded seasonal recipes:', this.seasonalRecipes);
-        },
-        error: (error) => {
-          console.error('Error loading recipes:', error);
+    // Load regular recipes
+    this.recipeService.getAllRecipes(0, 12)
+      .pipe(catchError(error => {
+        console.error('Error loading regular recipes:', error);
+        return of({content: [], totalElements: 0});
+      }))
+      .subscribe({
+        next: (response) => {
+          this.recipes = response.content;
           this.isLoading = false;
+        }
+      });
+
+    // Load seasonal recipes separately to handle errors independently
+    this.recipeService.getSeasonalRecipes(80, 0, 6)
+      .pipe(
+        catchError(error => {
+          console.error('Error loading seasonal recipes:', error);
+          return of({content: [], totalElements: 0});
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          this.seasonalRecipes = response.content;
+          console.log('Loaded seasonal recipes:', this.seasonalRecipes);
         }
       });
   }
@@ -73,6 +86,7 @@ export class HomeComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error searching recipes:', error);
+          this.error = 'Failed to search recipes. Please try again.';
           this.isLoading = false;
         }
       });
