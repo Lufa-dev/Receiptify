@@ -10,6 +10,7 @@ import {UnitType} from "../../shared/models/unit-type.model";
 import {RecipeStep} from "../../shared/models/recipe-step.model";
 import {RecipeService} from "../../shared/services/recipe.service";
 import {UnitService} from "../../shared/services/unit.service";
+import {SelectOption} from "../../shared/components/searchable-select/searchable-select.component";
 
 @Component({
   selector: 'app-recipe-form',
@@ -29,6 +30,10 @@ export class RecipeFormComponent implements OnInit {
   saveError = '';
   isEditMode = false;
   recipeId: number | null = null;
+
+  // Select options for the searchable dropdown
+  ingredientOptions: SelectOption[] = [];
+  unitOptions: SelectOption[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -100,30 +105,43 @@ export class RecipeFormComponent implements OnInit {
     this.unitCategories = results.unitCategories;
     this.unitsByCategory = results.unitsByCategory;
 
-    console.log('Dropdown ingredient values by category:', this.ingredientsByCategory);
-    // Log flattened list of all ingredient names that will be used as values in the dropdown
-    console.log('All dropdown ingredient values:',
-      Object.values(this.ingredientsByCategory).flat()
-        .map(ing => ({ name: ing.name, displayName: ing.displayName }))
-    );
+    // Convert ingredients to select options
+    this.ingredientOptions = [];
+    Object.entries(this.ingredientsByCategory).forEach(([category, ingredients]) => {
+      ingredients.forEach(ingredient => {
+        this.ingredientOptions.push({
+          label: ingredient.displayName,
+          value: ingredient.name.toUpperCase(),
+          group: category
+        });
+      });
+    });
+
+    // Convert units to select options
+    this.unitOptions = [];
+    Object.entries(this.unitsByCategory).forEach(([category, units]) => {
+      units.forEach(unit => {
+        this.unitOptions.push({
+          label: `${unit.symbol} ${unit.name !== unit.symbol ? '(' + this.formatUnitName(unit.name) + ')' : ''}`,
+          value: unit.name,
+          group: category
+        });
+      });
+    });
   }
 
   private populateForm(recipe: RecipeDTO): void {
     if (!recipe) return;
 
-    console.log('Recipe data received from API:', recipe);
-
     this.recipeForm.patchValue({
       title: recipe.title,
       description: recipe.description,
       imageUrl: recipe.imageUrl,
-
       category: recipe.category || '',
       cuisine: recipe.cuisine || '',
       servings: recipe.servings || null,
       difficulty: recipe.difficulty || '',
       costRating: recipe.costRating || '',
-
       prepTime: recipe.prepTime || null,
       cookTime: recipe.cookTime || null,
       bakingTime: recipe.bakingTime || null,
@@ -144,19 +162,13 @@ export class RecipeFormComponent implements OnInit {
     // Add ingredients from recipe
     if (recipe.ingredients && recipe.ingredients.length > 0) {
       recipe.ingredients.forEach(ingredient => {
-        console.log('Adding ingredient to form:', ingredient);
-        console.log('API ingredient type value:', ingredient.type);
-
-        // This is the key change - the type needs to match exactly what's in your dropdown
         this.ingredients.push(this.fb.group({
-          type: [ingredient.type, Validators.required], // Make sure this matches what's in the dropdown
+          type: [ingredient.type, Validators.required],
           amount: [ingredient.amount],
           unit: [ingredient.unit],
           name: [ingredient.name]
         }));
       });
-
-      console.log('Ingredients after population:', this.ingredients.value);
     } else {
       // Add one empty ingredient if none exist
       this.ingredients.push(this.createIngredientForm());
@@ -188,15 +200,11 @@ export class RecipeFormComponent implements OnInit {
       imageUrl: [''],
       ingredients: this.fb.array([this.createIngredientForm()]),
       steps: this.fb.array([this.createStepForm(0)]),
-
-      // New fields
       category: [''],
       cuisine: [''],
       servings: [null],
       difficulty: [''],
       costRating: [''],
-
-      // Additional values
       prepTime: [null],
       cookTime: [null],
       bakingTime: [null],
@@ -318,7 +326,6 @@ export class RecipeFormComponent implements OnInit {
       imageUrl: imageUrl,
       ingredients: formValue.ingredients.map((ingredient: Ingredient) => {
         const formattedType = ingredient.type.toUpperCase().replace(/-/g, '_');
-
         const formattedName = ingredient.type.toLowerCase()
           .replace(/_/g, ' ')
           .split(' ')
@@ -336,7 +343,6 @@ export class RecipeFormComponent implements OnInit {
         stepNumber: step.stepNumber,
         instruction: step.instruction
       })),
-
       category: formValue.category,
       cuisine: formValue.cuisine,
       servings: formValue.servings,
@@ -350,8 +356,6 @@ export class RecipeFormComponent implements OnInit {
       bakingMethod: formValue.bakingMethod
     };
 
-    console.log('Saving recipe:', recipeData);
-
     // Use update or create based on edit mode
     const saveOperation = this.isEditMode && this.recipeId
       ? this.recipeService.updateRecipe(this.recipeId, recipeData)
@@ -361,7 +365,6 @@ export class RecipeFormComponent implements OnInit {
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: () => {
-        console.log('Recipe saved successfully');
         this.router.navigate(['']);
       },
       error: (error) => {
@@ -371,18 +374,12 @@ export class RecipeFormComponent implements OnInit {
     });
   }
 
-  getIngredientsForCategory(category: string): IngredientType[] {
-    return this.ingredientsByCategory[category] || [];
-  }
-
-  getUnitsForCategory(category: string): UnitType[] {
-    return this.unitsByCategory[category] || [];
-  }
-
   formatUnitName(unitName: string): string {
     return this.unitService.formatUnitName(unitName);
   }
 }
+
+
 
 
 

@@ -7,6 +7,7 @@ import { RecipeSearchCriteria, SearchFilterOptions } from '../../shared/models/r
 import { RecipeDTO } from '../../shared/models/recipe.model';
 import { IngredientType } from '../../shared/models/ingredient-type.model';
 import { finalize } from 'rxjs';
+import {SelectOption} from "../../shared/components/searchable-select/searchable-select.component";
 
 @Component({
   selector: 'app-advanced-search',
@@ -65,7 +66,7 @@ export class AdvancedSearchComponent implements OnInit {
     costRatings: ['budget', 'moderate', 'expensive']
   };
 
-  ingredientTypes: IngredientType[] = [];
+  ingredientOptions: SelectOption[] = [];
   selectedIngredients: IngredientType[] = [];
   excludedIngredients: IngredientType[] = [];
 
@@ -109,10 +110,19 @@ export class AdvancedSearchComponent implements OnInit {
   }
 
   private loadIngredientTypes(): void {
-    this.ingredientService.getAllIngredientTypes().subscribe({
-      next: (ingredients) => {
-        this.ingredientTypes = ingredients;
-        console.log('Ingredients loaded:', this.ingredientTypes);
+    this.ingredientService.getIngredientsByCategory().subscribe({
+      next: (ingredientsByCategory) => {
+        // Convert to select options format
+        this.ingredientOptions = [];
+        Object.entries(ingredientsByCategory).forEach(([category, ingredients]) => {
+          ingredients.forEach(ingredient => {
+            this.ingredientOptions.push({
+              label: ingredient.displayName,
+              value: ingredient.name,
+              group: category
+            });
+          });
+        });
       },
       error: (error) => {
         console.error('Error loading ingredient types:', error);
@@ -133,7 +143,6 @@ export class AdvancedSearchComponent implements OnInit {
   private performSearch(append: boolean = false): void {
     this.isLoading = true;
 
-    // Clean up the form values to remove empty strings and nulls
     const formValue = this.searchForm.value;
     const cleanedFormValue: any = {};
 
@@ -149,13 +158,10 @@ export class AdvancedSearchComponent implements OnInit {
       excludeIngredients: this.excludedIngredients.map(i => i.name)
     };
 
-    console.log('Sending search criteria:', criteria); // Debug log
-
     this.recipeService.advancedSearchRecipes(criteria, this.currentPage, this.pageSize)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (response) => {
-          console.log('Search response:', response); // Debug log
           if (append) {
             this.recipes = [...this.recipes, ...response.content];
           } else {
@@ -169,10 +175,11 @@ export class AdvancedSearchComponent implements OnInit {
       });
   }
 
-  addSelectedIngredient(ingredientValue: string): void {
-    // Find the ingredient object from the ingredientTypes array
-    const ingredient = this.ingredientTypes.find(i => i.name === ingredientValue);
-    if (ingredient && !this.selectedIngredients.includes(ingredient)) {
+  addSelectedIngredient(option: SelectOption | null): void {
+    if (!option) return;
+
+    const ingredient = this.findIngredientByName(option.value);
+    if (ingredient && !this.selectedIngredients.some(i => i.name === ingredient.name)) {
       this.selectedIngredients.push(ingredient);
     }
   }
@@ -181,16 +188,30 @@ export class AdvancedSearchComponent implements OnInit {
     this.selectedIngredients = this.selectedIngredients.filter(i => i !== ingredient);
   }
 
-  addExcludedIngredient(ingredientValue: string): void {
-    // Find the ingredient object from the ingredientTypes array
-    const ingredient = this.ingredientTypes.find(i => i.name === ingredientValue);
-    if (ingredient && !this.excludedIngredients.includes(ingredient)) {
+  addExcludedIngredient(option: SelectOption | null): void {
+    if (!option) return;
+
+    const ingredient = this.findIngredientByName(option.value);
+    if (ingredient && !this.excludedIngredients.some(i => i.name === ingredient.name)) {
       this.excludedIngredients.push(ingredient);
     }
   }
 
   removeExcludedIngredient(ingredient: IngredientType): void {
     this.excludedIngredients = this.excludedIngredients.filter(i => i !== ingredient);
+  }
+
+  private findIngredientByName(name: string): IngredientType | undefined {
+    for (const option of this.ingredientOptions) {
+      if (option.value === name) {
+        return {
+          name: option.value,
+          displayName: option.label,
+          category: option.group || ''
+        };
+      }
+    }
+    return undefined;
   }
 
   clearFilters(): void {
@@ -213,6 +234,7 @@ export class AdvancedSearchComponent implements OnInit {
     }
   }
 }
+
 
 
 

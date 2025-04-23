@@ -25,6 +25,7 @@ import { RecipeCommentsComponent } from './recipe-comments/recipe-comments.compo
 import {PortionCalculatorService} from "../shared/services/portion-calculator.service";
 import { AdvancedSearchComponent } from './advanced-search/advanced-search.component';
 import {FormatEnumPipe} from "../shared/pipes/format-enum.pipe";
+import {SearchableSelectComponent} from "../shared/components/searchable-select/searchable-select.component";
 
 export function clearStorageInitializer() {
   return () => {
@@ -54,7 +55,8 @@ export function clearStorageInitializer() {
     RecipeRatingComponent,
     RecipeCommentsComponent,
     AdvancedSearchComponent,
-    FormatEnumPipe
+    FormatEnumPipe,
+    SearchableSelectComponent
   ],
     imports: [
         BrowserModule,

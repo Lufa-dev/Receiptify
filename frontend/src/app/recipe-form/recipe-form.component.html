@@ -63,8 +63,6 @@
       </div>
     </div>
 
-    <!-- Add this after the basic recipe details card in recipe-form.component.html -->
-
     <!-- Recipe Characteristics -->
     <div class="card mb-4">
       <div class="card-header">
@@ -221,7 +219,7 @@
       </div>
     </div>
 
-    <!-- Ingredients -->
+    <!-- Updated Ingredients Section with searchable dropdown -->
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h4>Ingredients</h4>
@@ -234,19 +232,14 @@
           <div *ngFor="let ingredient of ingredients.controls; let i = index" class="row mb-3" [formGroupName]="i">
             <div class="col-md-5">
               <label [for]="'ingredient-type-' + i" class="form-label">Ingredient*</label>
-              <select
-                [id]="'ingredient-type-' + i"
-                class="form-select"
+              <app-searchable-select
+                [options]="ingredientOptions"
+                placeholder="Select Ingredient"
+                searchPlaceholder="Search ingredients..."
                 formControlName="type"
+                [grouped]="true"
                 [ngClass]="{'is-invalid': submitted && ingredient.get('type')?.invalid}"
-              >
-                <option value="">Select Ingredient</option>
-                <optgroup *ngFor="let category of categories" [label]="category">
-                  <option *ngFor="let ingredientType of getIngredientsForCategory(category)" [value]="ingredientType.name.toUpperCase()">
-                    {{ ingredientType.displayName }}
-                  </option>
-                </optgroup>
-              </select>
+              ></app-searchable-select>
               <div class="invalid-feedback" *ngIf="submitted && ingredient.get('type')?.errors?.['required']">
                 Ingredient is required
               </div>
@@ -264,19 +257,13 @@
 
             <div class="col-md-3">
               <label [for]="'ingredient-unit-' + i" class="form-label">Unit</label>
-              <select
-                [id]="'ingredient-unit-' + i"
-                class="form-select"
+              <app-searchable-select
+                [options]="unitOptions"
+                placeholder="Select Unit"
+                searchPlaceholder="Search units..."
                 formControlName="unit"
-              >
-                <option value="">Select Unit</option>
-
-                <optgroup *ngFor="let category of unitCategories" [label]="category">
-                  <option *ngFor="let unit of getUnitsForCategory(category)" [value]="unit.name">
-                    {{ unit.symbol }} {{ unit.name !== unit.symbol ? '(' + formatUnitName(unit.name) + ')' : '' }}
-                  </option>
-                </optgroup>
-              </select>
+                [grouped]="true"
+              ></app-searchable-select>
             </div>
 
             <div class="col-md-1 d-flex align-items-end">
