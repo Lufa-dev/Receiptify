@@ -90,6 +90,8 @@ export class AddToCollectionComponent implements OnInit {
     const collection = this.collections.find(c => c.id === collectionId);
     return collection ? collection.recipeIds.includes(this.recipeId) : false;
   }
+
+
 }
 
 

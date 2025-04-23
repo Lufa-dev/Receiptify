@@ -26,6 +26,9 @@ import {PortionCalculatorService} from "../shared/services/portion-calculator.se
 import { AdvancedSearchComponent } from './advanced-search/advanced-search.component';
 import {FormatEnumPipe} from "../shared/pipes/format-enum.pipe";
 import {SearchableSelectComponent} from "../shared/components/searchable-select/searchable-select.component";
+import { AddToShoppingListComponent } from './add-to-shopping-list/add-to-shopping-list.component';
+import { ShoppingListComponent } from './shopping-list/shopping-list.component';
+import {SortByAlphaPipe} from "../shared/pipes/sort-by-alpha.pipe";
 
 export function clearStorageInitializer() {
   return () => {
@@ -56,7 +59,10 @@ export function clearStorageInitializer() {
     RecipeCommentsComponent,
     AdvancedSearchComponent,
     FormatEnumPipe,
-    SearchableSelectComponent
+    SearchableSelectComponent,
+    AddToShoppingListComponent,
+    ShoppingListComponent,
+    SortByAlphaPipe
   ],
     imports: [
         BrowserModule,

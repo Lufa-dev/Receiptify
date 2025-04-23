@@ -1,0 +1,12 @@
+<div class="add-to-shopping-list-container">
+  <button class="btn"
+          [ngClass]="isInShoppingList ? 'btn-danger' : 'btn-outline-primary'"
+          (click)="toggleShoppingList()">
+    <i class="bi" [ngClass]="isInShoppingList ? 'bi-cart-dash' : 'bi-cart-plus'"></i>
+    {{ isInShoppingList ? 'Remove from Shopping List' : 'Add to Shopping List' }}
+  </button>
+
+  <div *ngIf="successMessage" class="success-message mt-2">
+    {{ successMessage }}
+  </div>
+</div>

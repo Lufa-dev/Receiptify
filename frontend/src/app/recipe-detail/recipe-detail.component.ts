@@ -88,7 +88,7 @@ export class RecipeDetailComponent implements OnInit {
 
   editRecipe(): void {
     if (this.recipe && this.recipe.id) {
-      this.router.navigate(['/recipe-form', this.recipe.id]);
+      this.router.navigate(['/edit-recipe', this.recipe.id]);
     }
   }
 

@@ -1,6 +1,7 @@
 package com.thesis.receiptify.model;
 
 
+import com.thesis.receiptify.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

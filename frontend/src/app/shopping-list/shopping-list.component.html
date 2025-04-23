@@ -1,0 +1,105 @@
+<div class="shopping-list-container">
+  <div class="header-section">
+    <h1>Shopping List</h1>
+    <div class="action-buttons">
+      <button class="btn btn-outline-primary me-2" (click)="toggleOrganization()">
+        <i class="bi" [ngClass]="organizeByCategory ? 'bi-sort-alpha-down' : 'bi-list-ul'"></i>
+        {{ organizeByCategory ? 'Sort Alphabetically' : 'Sort by Category' }}
+      </button>
+      <button class="btn btn-outline-success me-2" (click)="printShoppingList()">
+        <i class="bi bi-printer"></i> Print
+      </button>
+      <button class="btn btn-outline-info" (click)="exportShoppingList()">
+        <i class="bi bi-download"></i> Export
+      </button>
+    </div>
+  </div>
+
+  <!-- Recipes Section -->
+  <div class="recipes-section">
+    <h3>Recipes ({{recipes.length}})</h3>
+
+    <div *ngIf="recipes.length === 0" class="empty-list">
+      <p>You haven't added any recipes to your shopping list yet.</p>
+      <button class="btn btn-primary" routerLink="/">Browse Recipes</button>
+    </div>
+
+    <div *ngIf="recipes.length > 0" class="recipe-cards">
+      <div *ngFor="let recipe of recipes" class="recipe-card">
+        <div class="recipe-info" (click)="viewRecipe(recipe.id!)">
+          <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
+          <div class="recipe-details">
+            <h4>{{ recipe.title }}</h4>
+            <div class="servings-info">
+              <span *ngIf="!isEditingServings || editingRecipeId !== recipe.id">
+                {{ recipe.servings || 1 }} servings
+                <button class="btn btn-sm btn-link" (click)="startEditServings(recipe); $event.stopPropagation()">
+                  <i class="bi bi-pencil"></i>
+                </button>
+              </span>
+              <div *ngIf="isEditingServings && editingRecipeId === recipe.id" class="servings-editor" (click)="$event.stopPropagation()">
+                <input type="number" class="form-control" [(ngModel)]="servingsInput" min="1">
+                <button class="btn btn-sm btn-primary" (click)="saveServings(); $event.stopPropagation()">Save</button>
+                <button class="btn btn-sm btn-outline-secondary" (click)="cancelEditServings(); $event.stopPropagation()">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="remove-btn" (click)="removeRecipe(recipe.id!)">
+          <i class="bi bi-x-circle"></i>
+        </button>
+      </div>
+
+      <div class="clear-all">
+        <button class="btn btn-outline-danger" (click)="clearShoppingList()">
+          <i class="bi bi-trash"></i> Clear All
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shopping List Section -->
+  <div *ngIf="recipes.length > 0" class="list-section">
+    <h3>Ingredients</h3>
+
+    <!-- By Category -->
+    <div *ngIf="organizeByCategory" class="categorized-list">
+      <div *ngFor="let category of categories" class="category-group">
+        <h4 class="category-header">{{ category }}</h4>
+        <ul class="items-list">
+          <li *ngFor="let item of categorizedList[category]" class="shopping-item" [class.checked]="item.checked">
+            <div class="item-checkbox">
+              <input type="checkbox" [checked]="item.checked" (change)="toggleItemChecked(item)">
+            </div>
+            <div class="item-details" (click)="toggleItemChecked(item)">
+              <span class="item-name">{{ item.name }}</span>
+              <span *ngIf="item.amount" class="item-amount">{{ item.amount }} {{ item.unit || '' }}</span>
+              <span class="item-recipes">
+                Used in: {{ item.recipes.join(', ') }}
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Alphabetical List -->
+    <div *ngIf="!organizeByCategory" class="alphabetical-list">
+      <ul class="items-list">
+        <li *ngFor="let item of shoppingList | sortByAlpha:'name'" class="shopping-item" [class.checked]="item.checked">
+          <div class="item-checkbox">
+            <input type="checkbox" [checked]="item.checked" (change)="toggleItemChecked(item)">
+          </div>
+          <div class="item-details" (click)="toggleItemChecked(item)">
+            <span class="item-name">{{ item.name }}</span>
+            <span *ngIf="item.amount" class="item-amount">{{ item.amount }} {{ item.unit || '' }}</span>
+            <span class="item-recipes">
+              Used in: {{ item.recipes.join(', ') }}
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

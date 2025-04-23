@@ -3,7 +3,7 @@ package com.thesis.receiptify.service;
 import com.thesis.receiptify.model.AuthRequest;
 import com.thesis.receiptify.model.Profile;
 import com.thesis.receiptify.model.RegistrationRequest;
-import com.thesis.receiptify.model.Role;
+import com.thesis.receiptify.model.enums.Role;
 import com.thesis.receiptify.repository.ProfileRepository;
 import com.thesis.receiptify.util.JwtUtil;
 import jakarta.transaction.Transactional;
