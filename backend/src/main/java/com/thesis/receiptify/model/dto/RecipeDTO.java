@@ -54,4 +54,6 @@ public class RecipeDTO {
     private Integer totalRatings;
     private Integer totalComments;
     private Integer userRating;
+
+    private RecipeSeasonalityDTO seasonalityInfo;
 }

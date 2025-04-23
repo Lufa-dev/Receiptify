@@ -1,22 +1,33 @@
-<div class="main-container">
-  <div class="image-container">
-    <img src="assets/spices.jpeg" alt="Spices" class="main-image">
-    <div class="search-bar-container">
-      <input type="text" class="search-bar" placeholder="Search for recipes..."
-             (keyup.enter)="searchRecipes(searchInput.value)" #searchInput>
-    </div>
-  </div>
 
-  <div *ngIf="isLoading" class="loading">Loading recipes...</div>
+<div *ngIf="isLoading && !seasonalRecipes.length" class="loading">Loading recipes...</div>
+
+<!-- Seasonal Recipes Section -->
+<div class="seasonal-section" *ngIf="seasonalRecipes.length > 0">
+  <h2 class="section-title">Seasonal Recipes <span class="seasonal-badge">{{ currentMonth }}</span></h2>
+  <p class="section-description">Delicious recipes featuring ingredients that are in season now</p>
 
   <div class="recipes-container">
-    <div *ngFor="let recipe of recipes" class="recipe-card" [routerLink]="['/recipe', recipe.id]">
+    <div *ngFor="let recipe of seasonalRecipes" class="recipe-card seasonal-card" [routerLink]="['/recipe', recipe.id]">
+      <div class="seasonal-indicator">
+        <i class="bi bi-calendar-check"></i> {{ recipe.seasonalityInfo?.seasonalScore }}% Seasonal
+      </div>
       <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
       <div class="recipe-title">{{ recipe.title }}</div>
     </div>
   </div>
+</div>
 
-  <div *ngIf="recipes.length === 0 && !isLoading" class="no-recipes">
-    No recipes found. Why not <a routerLink="/submit-recipe">add one</a>?
+<!-- All Recipes Section -->
+<h2 class="section-title mt-4">All Recipes</h2>
+<div *ngIf="isLoading && !recipes.length" class="loading">Loading recipes...</div>
+
+<div class="recipes-container">
+  <div *ngFor="let recipe of recipes" class="recipe-card" [routerLink]="['/recipe', recipe.id]">
+    <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
+    <div class="recipe-title">{{ recipe.title }}</div>
   </div>
+</div>
+
+<div *ngIf="recipes.length === 0 && !isLoading" class="no-recipes">
+  No recipes found. Why not <a routerLink="/submit-recipe">add one</a>?
 </div>

@@ -127,6 +127,35 @@ export class RecipeService {
     );
   }
 
+  getRecipeWithSeasonality(id: number, username?: string): Observable<RecipeDTO> {
+    const headers = username ? this.authService.getAuthHeaders() : new HttpHeaders();
+    return this.http.get<RecipeDTO>(`${this.apiUrl}/${id}/with-seasonality`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  /**
+   * Gets seasonal recipes
+   */
+  getSeasonalRecipes(minSeasonalScore: number = 70, page: number = 0, size: number = 10): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/seasonal?minSeasonalScore=${minSeasonalScore}&page=${page}&size=${size}`, {
+        headers: this.getAuthHeaders()
+      }
+    );
+  }
+
+  /**
+   * Gets current month for seasonality calculations
+   */
+  getCurrentMonth(): Observable<string> {
+    return this.http.get<string>(`${environment.API_URL}/api/seasonality/current-month`, {
+        headers: this.getAuthHeaders()
+      }
+      );
+  }
+
+
   getUserRecipeStats(): Observable<any> {
     // Return mock data for now
     return of({

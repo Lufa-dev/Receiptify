@@ -138,4 +138,37 @@ public class RecipeController {
         recipeService.deleteRecipe(id, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}/with-seasonality")
+    public ResponseEntity<RecipeDTO> getRecipeWithSeasonality(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        String username = userDetails != null ? userDetails.getUsername() : null;
+
+        try {
+            RecipeDTO recipeDTO = recipeService.getRecipeWithSeasonality(id, username);
+            return ResponseEntity.ok(recipeDTO);
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Failed to get recipe: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    /**
+     * Search for recipes by season
+     */
+    @GetMapping("/seasonal")
+    public ResponseEntity<Page<RecipeDTO>> getSeasonalRecipes(
+            @RequestParam(required = false, defaultValue = "70") int minSeasonalScore,
+            Pageable pageable) {
+
+        try {
+            Page<RecipeDTO> seasonalRecipes = recipeService.findSeasonalRecipes(minSeasonalScore, pageable);
+            return ResponseEntity.ok(seasonalRecipes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

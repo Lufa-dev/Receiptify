@@ -48,7 +48,7 @@ export class RecipeDetailComponent implements OnInit {
     const username = this.authService.isLoggedIn() ?
       sessionStorage.getItem('profileName') : null;
 
-    this.recipeService.getRecipeById(id, username || '')
+    this.recipeService.getRecipeWithSeasonality(id, username || '')
       .subscribe({
         next: (recipe) => {
           this.recipe = JSON.parse(JSON.stringify(recipe)); // Deep copy
@@ -230,6 +230,16 @@ export class RecipeDetailComponent implements OnInit {
     if (input && input.value) {
       this.updateServings(Number(input.value));
     }
+  }
+
+  getIngredientSeasonality(ingredientName: string): any {
+    if (!this.recipe || !this.recipe.seasonalityInfo || !this.recipe.seasonalityInfo.ingredientSeasonality) {
+      return null;
+    }
+
+    return this.recipe.seasonalityInfo.ingredientSeasonality.find(
+      i => i.ingredientName === ingredientName
+    ) || null;
   }
 
   protected readonly HTMLInputElement = HTMLInputElement;

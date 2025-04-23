@@ -104,6 +104,8 @@ export class AdvancedSearchComponent implements OnInit {
       maxPrepTime: [null],
       maxCookTime: [null],
       maxTotalTime: [null],
+      seasonalOnly: [false],
+      minSeasonalScore: [70],
       sortBy: ['createdAt'],
       sortDirection: ['desc']
     });
@@ -158,8 +160,25 @@ export class AdvancedSearchComponent implements OnInit {
       excludeIngredients: this.excludedIngredients.map(i => i.name)
     };
 
-    this.recipeService.advancedSearchRecipes(criteria, this.currentPage, this.pageSize)
-      .pipe(finalize(() => this.isLoading = false))
+    // Decide which search method to use based on seasonality filter
+    let searchObservable;
+
+    if (formValue.seasonalOnly) {
+      console.log('Searching for seasonal recipes with score >=', formValue.minSeasonalScore);
+      searchObservable = this.recipeService.getSeasonalRecipes(
+        formValue.minSeasonalScore,
+        this.currentPage,
+        this.pageSize
+      );
+    } else {
+      searchObservable = this.recipeService.advancedSearchRecipes(
+        criteria,
+        this.currentPage,
+        this.pageSize
+      );
+    }
+
+    searchObservable.pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (response) => {
           if (append) {

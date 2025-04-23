@@ -1,0 +1,102 @@
+.seasonality-container {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.seasonality-score-container {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.seasonality-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+
+  &.score-high {
+    background-color: #28a745; // Green for high scores
+  }
+
+  &.score-medium {
+    background-color: #ffc107; // Yellow for medium scores
+  }
+
+  &.score-low {
+    background-color: #fd7e14; // Orange for low scores
+  }
+
+  &.score-very-low {
+    background-color: #dc3545; // Red for very low scores
+  }
+
+  &.score-unknown {
+    background-color: #6c757d; // Gray for unknown scores
+  }
+
+  .score-value {
+    font-size: 1.8rem;
+    line-height: 1;
+  }
+
+  .score-label {
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 0.2rem;
+  }
+}
+
+.seasonality-stats {
+  flex: 1;
+
+  .seasonal-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+
+    i {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+.ingredient-seasonality-list {
+  margin-top: 1rem;
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+/* For smaller screens */
+@media (max-width: 576px) {
+  .seasonality-score-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .seasonality-score {
+    width: 80px;
+    height: 80px;
+
+    .score-value {
+      font-size: 1.6rem;
+    }
+  }
+}

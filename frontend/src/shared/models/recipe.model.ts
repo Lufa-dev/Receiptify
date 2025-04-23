@@ -1,5 +1,6 @@
 import {Ingredient, IngredientDTO} from './ingredient.model';
 import { RecipeStep } from './recipe-step.model';
+import {RecipeSeasonality} from "./seasonality.model";
 
 export interface Recipe {
   id: number;
@@ -10,6 +11,7 @@ export interface Recipe {
   steps: RecipeStep[];
   createdAt?: string;
   updatedAt?: string;
+  seasonalityInfo?: RecipeSeasonality;
 }
 
 export interface RecipeDTO {
@@ -43,4 +45,6 @@ export interface RecipeDTO {
   totalRatings?: number;
   totalComments?: number;
   userRating?: number;
+
+  seasonalityInfo?: RecipeSeasonality;
 }

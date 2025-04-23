@@ -137,6 +137,36 @@
       </div>
     </div>
 
+    <div class="search-section">
+      <h3>Seasonality</h3>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Seasonal Score</label>
+            <div class="d-flex align-items-center">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="seasonalOnly" id="seasonalOnly">
+                <label class="form-check-label" for="seasonalOnly">Show only seasonal recipes</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6" *ngIf="searchForm.get('seasonalOnly')?.value">
+          <div class="form-group">
+            <label>Minimum Seasonal Score ({{ searchForm.get('minSeasonalScore')?.value }}%)</label>
+            <input type="range" class="form-range" min="0" max="100" step="10"
+                   formControlName="minSeasonalScore">
+            <div class="d-flex justify-content-between">
+              <small>0% (Any)</small>
+              <small>50%</small>
+              <small>100% (Fully Seasonal)</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Updated Ingredients Section -->
     <div class="search-section">
       <h3>Ingredients</h3>

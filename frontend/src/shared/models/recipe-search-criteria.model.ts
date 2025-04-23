@@ -18,6 +18,10 @@ export interface RecipeSearchCriteria {
   maxCookTime?: number;
   maxTotalTime?: number;
 
+  // Seasonality filters
+  seasonalOnly?: boolean;
+  minSeasonalScore?: number;
+
   // Dietary filters
   dietaryTags?: string[];
 

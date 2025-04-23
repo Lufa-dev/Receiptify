@@ -8,6 +8,7 @@ import com.thesis.receiptify.repository.specification.RecipeSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class RecipeService {
     private final CollectionRepository collectionRepository;
     private final RatingRepository ratingRepository;
     private final CommentRepository commentRepository;
+    private final SeasonalityService seasonalityService;
 
     @Transactional
     public RecipeDTO createRecipe(RecipeDTO recipeDTO, String username) {
@@ -232,6 +234,43 @@ public class RecipeService {
     public Recipe getRecipeEntityById(Long id) {
         return recipeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recipe not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public RecipeDTO getRecipeWithSeasonality(Long id, String username) {
+        Recipe recipe = recipeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Recipe not found"));
+
+        // Get standard recipe DTO
+        RecipeDTO recipeDTO = getRecipeById(id, username);
+
+        // Add seasonality information
+        RecipeSeasonalityDTO seasonalityDTO = seasonalityService.analyzeRecipeSeasonality(recipe);
+        recipeDTO.setSeasonalityInfo(seasonalityDTO);
+
+        return recipeDTO;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RecipeDTO> findSeasonalRecipes(int minSeasonalScore, Pageable pageable) {
+        // Get all recipes
+        Page<Recipe> recipePage = recipeRepository.findAll(pageable);
+
+        // Process them to include seasonality information and filter by score
+        List<RecipeDTO> seasonalRecipes = recipePage.getContent().stream()
+                .map(recipe -> {
+                    RecipeDTO dto = mapToDTO(recipe, null);
+                    RecipeSeasonalityDTO seasonalityDTO = seasonalityService.analyzeRecipeSeasonality(recipe);
+                    dto.setSeasonalityInfo(seasonalityDTO);
+                    return dto;
+                })
+                .filter(dto -> dto.getSeasonalityInfo().getSeasonalScore() >= minSeasonalScore)
+                .collect(Collectors.toList());
+
+        // Create a new page with the filtered content
+        return new PageImpl<>(seasonalRecipes, pageable,
+                // If we filtered out some recipes, the total will be less than the original
+                recipePage.getTotalElements());
     }
 
     // Helper methods to map between entities and DTOs

@@ -167,6 +167,12 @@
       </div>
     </div>
 
+    <div class="row mb-4" *ngIf="recipe.seasonalityInfo">
+      <div class="col-md-12">
+        <app-seasonality-indicator [seasonalityInfo]="recipe.seasonalityInfo" [showDetails]="true"></app-seasonality-indicator>
+      </div>
+    </div>
+
     <div class="recipe-body">
       <div class="ingredients-section">
         <h2>Ingredients
@@ -179,6 +185,14 @@
             <span class="amount" *ngIf="ingredient.amount">{{ ingredient.amount }}</span>
             <span class="unit" *ngIf="ingredient.unit">{{ formatIngredientName(ingredient.unit) }}</span>
             <span class="ingredient-name">{{ ingredient.name || formatIngredientName(ingredient.type) }}</span>
+
+            <app-ingredient-seasonality
+              *ngIf="recipe.seasonalityInfo"
+              [seasonality]="getIngredientSeasonality(ingredient.name || formatIngredientName(ingredient.type))"
+              [showIcon]="true"
+              [showLabel]="false"
+              [showTooltip]="true">
+            </app-ingredient-seasonality>
           </li>
         </ul>
       </div>
