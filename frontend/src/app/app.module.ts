@@ -31,6 +31,7 @@ import { ShoppingListComponent } from './shopping-list/shopping-list.component';
 import {SortByAlphaPipe} from "../shared/pipes/sort-by-alpha.pipe";
 import { SeasonalityIndicatorComponent } from './seasonality-indicator/seasonality-indicator.component';
 import { IngredientSeasonalityComponent } from './ingredient-seasonality/ingredient-seasonality.component';
+import { NutritionDisplayComponent } from './nutrition-display/nutrition-display.component';
 
 export function clearStorageInitializer() {
   return () => {
@@ -65,7 +66,8 @@ export function clearStorageInitializer() {
     ShoppingListComponent,
     SortByAlphaPipe,
     SeasonalityIndicatorComponent,
-    IngredientSeasonalityComponent
+    IngredientSeasonalityComponent,
+    NutritionDisplayComponent
   ],
     imports: [
         BrowserModule,

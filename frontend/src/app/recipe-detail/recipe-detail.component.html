@@ -173,6 +173,10 @@
       </div>
     </div>
 
+    <div class="nutrition-section" *ngIf="recipe && recipe.id">
+      <app-nutrition-display [recipeId]="recipe.id"></app-nutrition-display>
+    </div>
+
     <div class="recipe-body">
       <div class="ingredients-section">
         <h2>Ingredients

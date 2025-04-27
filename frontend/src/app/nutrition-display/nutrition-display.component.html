@@ -1,0 +1,93 @@
+<div class="nutrition-container">
+  <h3 class="nutrition-title">Nutrition Facts</h3>
+
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading nutrition data...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-warning">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!isLoading && !error && nutrition" class="nutrition-facts">
+    <div class="serving-info">
+      <p>Serving Size: 1 serving</p>
+      <p>Servings Per Recipe: {{ nutrition.servings }}</p>
+    </div>
+
+    <div class="nutrition-line thick-line"></div>
+
+    <div class="calories-section">
+      <div class="calories-header">Amount Per Serving</div>
+      <div class="calories-value">
+        <strong>Calories</strong> {{ nutrition.calories }}
+      </div>
+    </div>
+
+    <div class="nutrition-line thin-line"></div>
+
+    <div class="daily-values-header">% Daily Value*</div>
+
+    <div class="nutrient-row">
+      <div class="nutrient-name"><strong>Total Fat</strong> {{ nutrition.fat }}g</div>
+      <div class="nutrient-value">{{ dailyValues?.fat }}%</div>
+    </div>
+
+    <div class="nutrition-line thin-line"></div>
+
+    <div class="nutrient-row">
+      <div class="nutrient-name"><strong>Total Carbohydrate</strong> {{ nutrition.carbs }}g</div>
+      <div class="nutrient-value">{{ dailyValues?.carbs }}%</div>
+    </div>
+
+    <div class="nutrient-row indented">
+      <div class="nutrient-name">Dietary Fiber {{ nutrition.fiber }}g</div>
+      <div class="nutrient-value">{{ dailyValues?.fiber }}%</div>
+    </div>
+
+    <div class="nutrient-row indented">
+      <div class="nutrient-name">Sugars {{ nutrition.sugar }}g</div>
+      <div class="nutrient-value"></div>
+    </div>
+
+    <div class="nutrition-line thin-line"></div>
+
+    <div class="nutrient-row">
+      <div class="nutrient-name"><strong>Protein</strong> {{ nutrition.protein }}g</div>
+      <div class="nutrient-value">{{ dailyValues?.protein }}%</div>
+    </div>
+
+    <div class="nutrition-line thin-line"></div>
+
+    <div class="nutrient-row">
+      <div class="nutrient-name">Sodium {{ nutrition.sodium }}mg</div>
+      <div class="nutrient-value">{{ dailyValues?.sodium }}%</div>
+    </div>
+
+    <div class="nutrition-line thick-line"></div>
+
+    <div class="nutrition-footer">
+      <p>* Percent Daily Values are based on a 2,000 calorie diet.</p>
+    </div>
+
+    <div class="macronutrient-distribution">
+      <h4>Macronutrient Distribution</h4>
+      <div class="macro-bars">
+        <div class="macro-bar-container">
+          <div class="macro-bar protein" [style.width.%]="nutrition.proteinPercentage"></div>
+          <div class="macro-label">Protein: {{ nutrition.proteinPercentage }}%</div>
+        </div>
+        <div class="macro-bar-container">
+          <div class="macro-bar fat" [style.width.%]="nutrition.fatPercentage"></div>
+          <div class="macro-label">Fat: {{ nutrition.fatPercentage }}%</div>
+        </div>
+        <div class="macro-bar-container">
+          <div class="macro-bar carbs" [style.width.%]="nutrition.carbsPercentage"></div>
+          <div class="macro-label">Carbs: {{ nutrition.carbsPercentage }}%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

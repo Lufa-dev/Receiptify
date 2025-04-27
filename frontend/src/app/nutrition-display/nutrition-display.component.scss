@@ -1,0 +1,125 @@
+.nutrition-container {
+  width: 100%;
+  max-width: 320px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  font-family: Arial, sans-serif;
+  margin: 20px 0;
+  background-color: white;
+}
+
+.nutrition-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.serving-info {
+  font-size: 14px;
+  margin-bottom: 5px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.nutrition-line {
+  height: 1px;
+  background-color: #000;
+  width: 100%;
+  margin: 5px 0;
+
+  &.thick-line {
+    height: 4px;
+  }
+
+  &.thin-line {
+    height: 1px;
+  }
+}
+
+.calories-section {
+  margin: 8px 0;
+
+  .calories-header {
+    font-weight: bold;
+    font-size: 13px;
+  }
+
+  .calories-value {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+}
+
+.daily-values-header {
+  text-align: right;
+  font-weight: bold;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.nutrient-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+  font-size: 14px;
+
+  &.indented {
+    padding-left: 20px;
+    font-size: 13px;
+  }
+}
+
+.nutrition-footer {
+  font-size: 10px;
+  margin-top: 10px;
+}
+
+.macronutrient-distribution {
+  margin-top: 20px;
+
+  h4 {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .macro-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .macro-bar-container {
+    width: 100%;
+
+    .macro-bar {
+      height: 20px;
+      border-radius: 3px;
+      transition: width 0.3s ease;
+
+      &.protein {
+        background-color: #4CAF50;
+      }
+
+      &.fat {
+        background-color: #FFC107;
+      }
+
+      &.carbs {
+        background-color: #2196F3;
+      }
+    }
+
+    .macro-label {
+      font-size: 12px;
+      margin-top: 2px;
+    }
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
