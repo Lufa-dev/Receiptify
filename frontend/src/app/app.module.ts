@@ -36,7 +36,6 @@ export function clearStorageInitializer() {
   return () => {
     console.log('Clearing storage for fresh start');
     sessionStorage.clear();
-    localStorage.clear();
     return Promise.resolve();
   };
 }

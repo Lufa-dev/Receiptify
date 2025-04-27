@@ -37,7 +37,12 @@
             <td>{{ ingredient.ingredientName }}</td>
             <td>
                 <span class="status-indicator">
-                  <i [class]="getStatusIcon(ingredient)" [title]="getStatusTooltip(ingredient)"></i>
+                  <!-- FIX: Explicitly use appropriate icon based on status text -->
+                  <i *ngIf="ingredient.status === 'In Season'" class="bi bi-check-circle-fill text-success" title="In Season"></i>
+                  <i *ngIf="ingredient.status === 'Coming Soon'" class="bi bi-clock-history text-warning" title="Coming Soon"></i>
+                  <i *ngIf="ingredient.status === 'Out of Season'" class="bi bi-x-circle-fill text-danger" title="Out of Season"></i>
+                  <i *ngIf="ingredient.status !== 'In Season' && ingredient.status !== 'Coming Soon' && ingredient.status !== 'Out of Season'"
+                     class="bi bi-question-circle text-secondary" title="Unknown status"></i>
                   {{ ingredient.status }}
                 </span>
             </td>
