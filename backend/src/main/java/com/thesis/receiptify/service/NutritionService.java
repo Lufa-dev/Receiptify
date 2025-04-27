@@ -4,6 +4,7 @@ import com.thesis.receiptify.model.Ingredient;
 import com.thesis.receiptify.model.Recipe;
 import com.thesis.receiptify.model.dto.NutritionDTO;
 import com.thesis.receiptify.model.enums.IngredientType;
+import com.thesis.receiptify.model.enums.UnitType;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -63,13 +64,13 @@ public class NutritionService {
         int servings = Optional.ofNullable(recipe.getServings()).orElse(1);
 
         return NutritionDTO.builder()
-                .calories(Math.round(totalCalories / servings))
+                .calories((int) Math.round(totalCalories / servings))
                 .protein(Math.round(totalProtein * 10.0 / servings) / 10.0)
                 .fat(Math.round(totalFat * 10.0 / servings) / 10.0)
                 .carbs(Math.round(totalCarbs * 10.0 / servings) / 10.0)
                 .fiber(Math.round(totalFiber * 10.0 / servings) / 10.0)
                 .sugar(Math.round(totalSugar * 10.0 / servings) / 10.0)
-                .sodium(Math.round(totalSodium / servings))
+                .sodium((int) Math.round(totalSodium / servings))
                 .servings(servings)
                 .build();
     }
@@ -93,7 +94,7 @@ public class NutritionService {
     /**
      * Extracts the weight in grams from the amount string and unit
      */
-    private double extractGramsFromAmount(String amount, String unit) {
+    private double extractGramsFromAmount(String amount, UnitType unitType) {
         if (amount == null || amount.isEmpty()) {
             return 0;
         }
@@ -101,6 +102,8 @@ public class NutritionService {
         try {
             // Handle fractions like "1/2" or mixed numbers like "1 1/2"
             double numericAmount = parseAmount(amount);
+
+            String unit = unitType != null ? unitType.getSymbol() : null;
 
             // If no unit or already in grams, return the amount
             if (unit == null || unit.isEmpty() || unit.equalsIgnoreCase("g") || unit.equalsIgnoreCase("gram") || unit.equalsIgnoreCase("grams")) {
@@ -232,6 +235,9 @@ public class NutritionService {
         conversions.put("dashes", 0.5);
         conversions.put("clove", 5.0);  // for garlic
         conversions.put("cloves", 5.0);
+
+        conversions.put("to taste", 0.5); // Minimal amount
+        conversions.put("as needed", 0.5); // Minimal amount
 
         return conversions;
     }
