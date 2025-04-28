@@ -22,12 +22,19 @@ export class RecommendationService {
   /**
    * Get personalized recommendations for the current user
    */
-  getRecommendationsForUser(limit: number = 10): Observable<RecipeDTO[]> {
-    return this.http.get<RecipeDTO[]>(`${this.apiUrl}/for-user?limit=${limit}`, {
-      headers: this.authService.getAuthHeaders()
-    });
-  }
+  getRecommendationsForUser(limit: number = 10, includePreviousInteractions: boolean = false): Observable<RecipeDTO[]> {
+    const url = `${this.apiUrl}/for-user?limit=${limit}&includePrevious=${includePreviousInteractions}`;
 
+    return this.http.get<RecipeDTO[]>(url, {
+      headers: this.authService.getAuthHeaders()
+    }).pipe(
+      // Add a fallback to return empty array instead of error
+      catchError(error => {
+        console.error('Error fetching recommendations:', error);
+        return of([]);
+      })
+    );
+  }
   /**
    * Get recipes similar to the specified recipe
    */

@@ -221,5 +221,8 @@
         (commentCountChanged)="updateCommentCount($event)">
       </app-recipe-comments>
     </div>
+    <div *ngIf="recipe && recipe.id" class="mt-5 mb-4">
+      <app-similar-recipes [recipeId]="recipe.id" [limit]="4"></app-similar-recipes>
+    </div>
   </div>
 </div>

@@ -22,6 +22,7 @@ public class RecommendationController {
     @GetMapping("/for-user")
     public ResponseEntity<List<RecipeDTO>> getRecommendationsForUser(
             @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "false") boolean includePrevious,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         if (userDetails == null) {
@@ -29,7 +30,7 @@ public class RecommendationController {
         }
 
         List<RecipeDTO> recommendations =
-                recommendationService.getRecommendationsForUser(userDetails.getUsername(), limit);
+                recommendationService.getRecommendationsForUser(userDetails.getUsername(), limit, includePrevious);
 
         return ResponseEntity.ok(recommendations);
     }

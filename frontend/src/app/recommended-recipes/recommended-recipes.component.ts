@@ -29,7 +29,7 @@ export class RecommendedRecipesComponent implements OnInit {
     this.loadRecommendations();
   }
 
-  loadRecommendations(): void {
+  loadRecommendations(retryWithPrevious: boolean = false): void {
     // Only load personalized recommendations if the user is logged in
     if (this.recommendationType === 'personal' && !this.authService.isLoggedIn()) {
       return;
@@ -39,7 +39,7 @@ export class RecommendedRecipesComponent implements OnInit {
     this.error = '';
 
     const recommendationObservable = this.recommendationType === 'personal'
-      ? this.recommendationService.getRecommendationsForUser(this.limit)
+      ? this.recommendationService.getRecommendationsForUser(this.limit, retryWithPrevious)
       : this.recommendationService.getSeasonalRecommendations(this.limit);
 
     recommendationObservable
@@ -47,6 +47,13 @@ export class RecommendedRecipesComponent implements OnInit {
       .subscribe({
         next: (recipes) => {
           this.recipes = recipes;
+
+          // If we got no recommendations and haven't tried including previous interactions
+          if (this.recipes.length === 0 && !retryWithPrevious && this.recommendationType === 'personal') {
+            console.log('No recommendations found, trying with previous interactions');
+            this.loadRecommendations(true);
+            return;
+          }
 
           // Check which recipes are already in a collection if user is logged in
           if (this.authService.isLoggedIn()) {
@@ -66,6 +73,7 @@ export class RecommendedRecipesComponent implements OnInit {
         }
       });
   }
+
 
   navigateToRecipe(recipeId: number): void {
     // Track the recipe view for recommendation analytics

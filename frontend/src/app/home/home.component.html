@@ -13,6 +13,15 @@
     <button type="button" class="btn-close" (click)="error = ''" aria-label="Close"></button>
   </div>
 
+  <!-- Personalized Recommendations (for logged-in users) -->
+  <div *ngIf="isUserLoggedIn()">
+    <app-recommended-recipes
+      title="Recommended for You"
+      [limit]="6"
+      recommendationType="personal">
+    </app-recommended-recipes>
+  </div>
+
   <!-- Seasonal Recipes Section -->
   <div class="seasonal-section" *ngIf="seasonalRecipes.length > 0">
     <h2 class="section-title">Seasonal Recipes <span class="seasonal-badge">{{ currentMonth }}</span></h2>

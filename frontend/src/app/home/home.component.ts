@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RecipeService } from '../../shared/services/recipe.service';
 import {Recipe, RecipeDTO} from '../../shared/models/recipe.model';
 import {catchError, finalize, forkJoin, of} from "rxjs";
+import {AuthService} from "../../shared/services/auth.service";
 
 @Component({
   selector: 'app-home',
@@ -15,7 +16,9 @@ export class HomeComponent implements OnInit {
   currentMonth = '';
   error = '';
 
-  constructor(private recipeService: RecipeService) {
+  constructor(private recipeService: RecipeService,
+              private authService: AuthService
+              ) {
   }
 
   ngOnInit(): void {
@@ -90,6 +93,10 @@ export class HomeComponent implements OnInit {
           this.isLoading = false;
         }
       });
+  }
+
+  isUserLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
   }
 
   private formatMonth(month: string): string {

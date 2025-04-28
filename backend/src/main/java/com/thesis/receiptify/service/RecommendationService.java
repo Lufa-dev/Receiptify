@@ -32,7 +32,7 @@ public class RecommendationService {
     private static final double PREFERENCE_WEIGHT = 0.3;
 
     @Transactional(readOnly = true)
-    public List<RecipeDTO> getRecommendationsForUser(String username, int limit) {
+    public List<RecipeDTO> getRecommendationsForUser(String username, int limit, boolean includePrevious) {
         Profile user = profileRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
@@ -43,9 +43,9 @@ public class RecommendationService {
                 .collect(Collectors.toSet());
 
         // Get recommendations by each method
-        Map<Long, Double> contentScores = getContentBasedScores(user, interactedRecipeIds);
-        Map<Long, Double> collaborativeScores = getCollaborativeScores(user, interactedRecipeIds);
-        Map<Long, Double> preferenceScores = getPreferenceBasedScores(user, interactedRecipeIds);
+        Map<Long, Double> contentScores = getContentBasedScores(user, includePrevious ? new HashSet<>() : interactedRecipeIds);
+        Map<Long, Double> collaborativeScores = getCollaborativeScores(user, includePrevious ? new HashSet<>() : interactedRecipeIds);
+        Map<Long, Double> preferenceScores = getPreferenceBasedScores(user, includePrevious ? new HashSet<>() : interactedRecipeIds);
 
         // Combine all recommendation scores with weights
         Map<Long, Double> combinedScores = new HashMap<>();
