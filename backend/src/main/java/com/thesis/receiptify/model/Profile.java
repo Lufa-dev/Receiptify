@@ -1,6 +1,7 @@
 package com.thesis.receiptify.model;
 
 
+import com.thesis.receiptify.model.enums.IngredientType;
 import com.thesis.receiptify.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
@@ -38,4 +41,22 @@ public class Profile {
 
     @Enumerated(EnumType.STRING)
     private Role roles;
+
+    @ElementCollection
+    private Set<String> preferredCategories = new HashSet<>();
+
+    @ElementCollection
+    private Set<String> preferredCuisines = new HashSet<>();
+
+    @ElementCollection
+    private Set<IngredientType> favoriteIngredients = new HashSet<>();
+
+    @ElementCollection
+    private Set<IngredientType> dislikedIngredients = new HashSet<>();
+
+    private Integer maxPrepTime;
+
+    private String difficultyPreference;
+
+    private Boolean preferSeasonalRecipes = false;
 }

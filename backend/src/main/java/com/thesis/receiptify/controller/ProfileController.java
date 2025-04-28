@@ -1,6 +1,8 @@
 package com.thesis.receiptify.controller;
 
 import com.thesis.receiptify.model.Profile;
+import com.thesis.receiptify.model.dto.ProfileDTO;
+import com.thesis.receiptify.model.enums.IngredientType;
 import com.thesis.receiptify.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,8 +11,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -26,14 +28,8 @@ public class ProfileController {
         }
 
         try {
-            Profile profile = profileService.getProfileByUsername(userDetails.getUsername());
-            Map<String, Object> response = new HashMap<>();
-            response.put("username", profile.getUsername());
-            response.put("firstName", profile.getFirstName());
-            response.put("lastName", profile.getLastName());
-            response.put("email", profile.getEmail());
-
-            return ResponseEntity.ok(response);
+            ProfileDTO profile = profileService.getUserProfileDTO(userDetails.getUsername());
+            return ResponseEntity.ok(profile);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to retrieve profile: " + e.getMessage());
@@ -50,23 +46,10 @@ public class ProfileController {
         }
 
         try {
-            Profile profile = profileService.getProfileByUsername(userDetails.getUsername());
-
-            // Update profile fields if provided
-            if (profileData.containsKey("firstName")) {
-                profile.setFirstName(profileData.get("firstName"));
-            }
-            if (profileData.containsKey("lastName")) {
-                profile.setLastName(profileData.get("lastName"));
-            }
-            if (profileData.containsKey("email")) {
-                profile.setEmail(profileData.get("email"));
-            }
-
             // Handle password change if requested
             if (profileData.containsKey("currentPassword") && profileData.containsKey("newPassword")) {
                 boolean passwordChanged = profileService.changePassword(
-                        profile,
+                        userDetails.getUsername(),
                         profileData.get("currentPassword"),
                         profileData.get("newPassword")
                 );
@@ -77,15 +60,8 @@ public class ProfileController {
                 }
             }
 
-            Profile updatedProfile = profileService.updateProfile(profile);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("username", updatedProfile.getUsername());
-            response.put("firstName", updatedProfile.getFirstName());
-            response.put("lastName", updatedProfile.getLastName());
-            response.put("email", updatedProfile.getEmail());
-
-            return ResponseEntity.ok(response);
+            ProfileDTO updatedProfile = profileService.updateProfileData(userDetails.getUsername(), profileData);
+            return ResponseEntity.ok(updatedProfile);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -107,4 +83,38 @@ public class ProfileController {
                     .body("Failed to retrieve recipe statistics: " + e.getMessage());
         }
     }
+
+    @PutMapping("/preferences")
+    public ResponseEntity<?> updatePreferences(
+            @RequestBody Map<String, Object> preferences,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            ProfileDTO updatedProfile = profileService.updateUserPreferences(userDetails.getUsername(), preferences);
+            return ResponseEntity.ok(updatedProfile);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update preferences: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/preferences")
+    public ResponseEntity<?> getPreferences(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            Map<String, Object> preferences = profileService.getUserPreferences(userDetails.getUsername());
+            return ResponseEntity.ok(preferences);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to retrieve preferences: " + e.getMessage());
+        }
+    }
 }
+

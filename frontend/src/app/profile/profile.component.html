@@ -153,6 +153,69 @@
               <a routerLink="/my-recipes" class="btn btn-outline-primary">View My Recipes</a>
             </div>
           </div>
+
+          <div class="preferences-section">
+            <h3>Recipe Preferences</h3>
+
+            <div class="form-group">
+              <label>Preferred Categories</label>
+              <app-searchable-select
+                [options]="categoryOptions"
+                [multiple]="true"
+                formControlName="preferredCategories">
+              </app-searchable-select>
+            </div>
+
+            <div class="form-group">
+              <label>Preferred Cuisines</label>
+              <app-searchable-select
+                [options]="cuisineOptions"
+                [multiple]="true"
+                formControlName="preferredCuisines">
+              </app-searchable-select>
+            </div>
+
+            <div class="form-group">
+              <label>Favorite Ingredients</label>
+              <app-searchable-select
+                [options]="ingredientOptions"
+                [multiple]="true"
+                formControlName="favoriteIngredients">
+              </app-searchable-select>
+            </div>
+
+            <div class="form-group">
+              <label>Disliked Ingredients</label>
+              <app-searchable-select
+                [options]="ingredientOptions"
+                [multiple]="true"
+                formControlName="dislikedIngredients">
+              </app-searchable-select>
+            </div>
+
+            <div class="form-group">
+              <label>Maximum Preparation Time (minutes)</label>
+              <input type="number" class="form-control" formControlName="maxPrepTime">
+            </div>
+
+            <div class="form-group">
+              <label>Difficulty Preference</label>
+              <select class="form-select" formControlName="difficultyPreference">
+                <option value="">No preference</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" formControlName="preferSeasonalRecipes" id="preferSeasonalRecipes">
+              <label class="form-check-label" for="preferSeasonalRecipes">
+                Prefer seasonal recipes
+              </label>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
