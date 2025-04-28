@@ -42,6 +42,9 @@ export class ProfileComponent implements OnInit {
   cuisineOptions: SelectOption[] = [];
   ingredientOptions: SelectOption[] = [];
 
+  // For the slider display
+  prepTimeValue: number = 30;
+
   recipeStats = {
     total: 0,
     thisMonth: 0,
@@ -95,7 +98,7 @@ export class ProfileComponent implements OnInit {
       preferredCuisines: [[]],
       favoriteIngredients: [[]],
       dislikedIngredients: [[]],
-      maxPrepTime: [null],
+      maxPrepTime: [30], // Default value
       difficultyPreference: [''],
       preferSeasonalRecipes: [false]
     });
@@ -126,6 +129,18 @@ export class ProfileComponent implements OnInit {
               group: category
             });
           });
+        });
+
+        // Sort ingredient options alphabetically within each group
+        this.ingredientOptions.sort((a, b) => {
+          // Get groups, defaulting to empty string if undefined
+          const groupA = a.group || '';
+          const groupB = b.group || '';
+
+          if (groupA === groupB) {
+            return a.label.localeCompare(b.label);
+          }
+          return groupA.localeCompare(groupB);
         });
       },
       error: (error) => {
@@ -160,10 +175,13 @@ export class ProfileComponent implements OnInit {
                 preferredCuisines: preferences.preferredCuisines || [],
                 favoriteIngredients: preferences.favoriteIngredients || [],
                 dislikedIngredients: preferences.dislikedIngredients || [],
-                maxPrepTime: preferences.maxPrepTime || null,
+                maxPrepTime: preferences.maxPrepTime || 30,
                 difficultyPreference: preferences.difficultyPreference || '',
                 preferSeasonalRecipes: preferences.preferSeasonalRecipes || false
               });
+
+              // Update slider display value
+              this.prepTimeValue = preferences.maxPrepTime || 30;
             },
             error: (error) => {
               console.error('Error loading user preferences:', error);
@@ -290,6 +308,14 @@ export class ProfileComponent implements OnInit {
       .subscribe({
         next: () => {
           this.successMessage = 'Preferences updated successfully!';
+
+          // Scroll to the top to see the message
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+
+          // Clear message after a delay
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 3000);
         },
         error: (error) => {
           console.error('Error updating preferences:', error);
@@ -297,7 +323,29 @@ export class ProfileComponent implements OnInit {
         }
       });
   }
+
+  // Update the displayed prep time value when slider changes
+  updatePrepTimeLabel(): void {
+    this.prepTimeValue = this.preferencesForm.get('maxPrepTime')?.value || 30;
+  }
+
+  // Reset preferences to default values
+  resetPreferences(): void {
+    this.preferencesForm.patchValue({
+      preferredCategories: [],
+      preferredCuisines: [],
+      favoriteIngredients: [],
+      dislikedIngredients: [],
+      maxPrepTime: 30,
+      difficultyPreference: '',
+      preferSeasonalRecipes: false
+    });
+
+    // Update slider display value
+    this.prepTimeValue = 30;
+  }
 }
+
 
 
 
