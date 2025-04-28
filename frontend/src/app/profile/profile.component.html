@@ -154,68 +154,92 @@
             </div>
           </div>
 
-          <div class="preferences-section">
-            <h3>Recipe Preferences</h3>
+          <!-- Recipe Preferences Form -->
+          <div class="mt-5" *ngIf="!isLoading">
+            <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()">
+              <h4>Recipe Preferences</h4>
+              <p class="text-muted mb-3">Customize your recipe recommendations</p>
 
-            <div class="form-group">
-              <label>Preferred Categories</label>
-              <app-searchable-select
-                [options]="categoryOptions"
-                [multiple]="true"
-                formControlName="preferredCategories">
-              </app-searchable-select>
-            </div>
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Preferred Categories</label>
+                    <select class="form-select" formControlName="preferredCategories" multiple>
+                      <option *ngFor="let option of categoryOptions" [value]="option.value">{{ option.label }}</option>
+                    </select>
+                    <small class="form-text text-muted">Hold Ctrl (or Cmd) to select multiple categories</small>
+                  </div>
+                </div>
 
-            <div class="form-group">
-              <label>Preferred Cuisines</label>
-              <app-searchable-select
-                [options]="cuisineOptions"
-                [multiple]="true"
-                formControlName="preferredCuisines">
-              </app-searchable-select>
-            </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Preferred Cuisines</label>
+                    <select class="form-select" formControlName="preferredCuisines" multiple>
+                      <option *ngFor="let option of cuisineOptions" [value]="option.value">{{ option.label }}</option>
+                    </select>
+                    <small class="form-text text-muted">Hold Ctrl (or Cmd) to select multiple cuisines</small>
+                  </div>
+                </div>
 
-            <div class="form-group">
-              <label>Favorite Ingredients</label>
-              <app-searchable-select
-                [options]="ingredientOptions"
-                [multiple]="true"
-                formControlName="favoriteIngredients">
-              </app-searchable-select>
-            </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Favorite Ingredients</label>
+                    <select class="form-select" formControlName="favoriteIngredients" multiple>
+                      <option *ngFor="let option of ingredientOptions" [value]="option.value">{{ option.label }}</option>
+                    </select>
+                    <small class="form-text text-muted">Select ingredients you love</small>
+                  </div>
+                </div>
 
-            <div class="form-group">
-              <label>Disliked Ingredients</label>
-              <app-searchable-select
-                [options]="ingredientOptions"
-                [multiple]="true"
-                formControlName="dislikedIngredients">
-              </app-searchable-select>
-            </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Disliked Ingredients</label>
+                    <select class="form-select" formControlName="dislikedIngredients" multiple>
+                      <option *ngFor="let option of ingredientOptions" [value]="option.value">{{ option.label }}</option>
+                    </select>
+                    <small class="form-text text-muted">Select ingredients you prefer to avoid</small>
+                  </div>
+                </div>
 
-            <div class="form-group">
-              <label>Maximum Preparation Time (minutes)</label>
-              <input type="number" class="form-control" formControlName="maxPrepTime">
-            </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Maximum Preparation Time (minutes)</label>
+                    <input type="number" class="form-control" formControlName="maxPrepTime">
+                    <small class="form-text text-muted">Maximum time you want to spend preparing a recipe</small>
+                  </div>
+                </div>
 
-            <div class="form-group">
-              <label>Difficulty Preference</label>
-              <select class="form-select" formControlName="difficultyPreference">
-                <option value="">No preference</option>
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
-            </div>
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Difficulty Preference</label>
+                    <select class="form-select" formControlName="difficultyPreference">
+                      <option value="">No preference</option>
+                      <option value="easy">Easy</option>
+                      <option value="medium">Medium</option>
+                      <option value="hard">Hard</option>
+                    </select>
+                  </div>
+                </div>
 
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" formControlName="preferSeasonalRecipes" id="preferSeasonalRecipes">
-              <label class="form-check-label" for="preferSeasonalRecipes">
-                Prefer seasonal recipes
-              </label>
-            </div>
+                <div class="col-md-12">
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" formControlName="preferSeasonalRecipes" id="preferSeasonalRecipes">
+                    <label class="form-check-label" for="preferSeasonalRecipes">
+                      Prefer seasonal recipes
+                    </label>
+                    <small class="form-text text-muted d-block">Prioritize recipes using in-season ingredients</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end mt-3">
+                <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+                  <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Save Preferences
+                </button>
+              </div>
+            </form>
           </div>
-
         </div>
       </div>
     </div>

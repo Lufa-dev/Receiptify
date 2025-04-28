@@ -32,6 +32,8 @@ import {SortByAlphaPipe} from "../shared/pipes/sort-by-alpha.pipe";
 import { SeasonalityIndicatorComponent } from './seasonality-indicator/seasonality-indicator.component';
 import { IngredientSeasonalityComponent } from './ingredient-seasonality/ingredient-seasonality.component';
 import { NutritionDisplayComponent } from './nutrition-display/nutrition-display.component';
+import { RecommendedRecipesComponent } from './recommended-recipes/recommended-recipes.component';
+import { SimilarRecipesComponent } from './similar-recipes/similar-recipes.component';
 
 export function clearStorageInitializer() {
   return () => {
@@ -67,7 +69,9 @@ export function clearStorageInitializer() {
     SortByAlphaPipe,
     SeasonalityIndicatorComponent,
     IngredientSeasonalityComponent,
-    NutritionDisplayComponent
+    NutritionDisplayComponent,
+    RecommendedRecipesComponent,
+    SimilarRecipesComponent
   ],
     imports: [
         BrowserModule,

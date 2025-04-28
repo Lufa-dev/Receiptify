@@ -23,16 +23,35 @@ export class UserService {
   }
 
   getUserProfile(): Observable<User> {
-    // Using real API instead of mock
     return this.http.get<User>(this.apiUrl, {
       headers: this.getAuthHeaders()
     });
   }
 
   updateProfile(userData: any): Observable<any> {
-    // Using real API instead of mock
     return this.http.put(`${this.apiUrl}`, userData, {
       headers: this.getAuthHeaders()
     });
   }
+
+  // New methods for user preferences
+  getUserPreferences(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/preferences`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  updatePreferences(preferences: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/preferences`, preferences, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  // Method to get recipe stats (if needed separately)
+  getRecipeStats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/recipe-stats`, {
+      headers: this.getAuthHeaders()
+    });
+  }
 }
+

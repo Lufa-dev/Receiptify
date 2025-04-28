@@ -5,6 +5,9 @@ import { AuthService } from '../../shared/services/auth.service';
 import { RecipeService } from '../../shared/services/recipe.service';
 import {finalize, Observable, of} from 'rxjs';
 import {Router} from "@angular/router";
+import {SelectOption} from "../../shared/components/searchable-select/searchable-select.component";
+import {RECIPE_CATEGORIES, RECIPE_CUISINES} from "../../shared/constants/recipe-options";
+import {IngredientService} from "../../shared/services/ingredient.service";
 
 // Password match validator
 function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
@@ -26,12 +29,18 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
 })
 export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
+  preferencesForm: FormGroup;
   isLoading = false;
   isSubmitting = false;
   submitted = false;
   passwordChangeAttempted = false;
   successMessage = '';
   errorMessage = '';
+
+  // Options for select dropdowns
+  categoryOptions: SelectOption[] = [];
+  cuisineOptions: SelectOption[] = [];
+  ingredientOptions: SelectOption[] = [];
 
   recipeStats = {
     total: 0,
@@ -44,9 +53,11 @@ export class ProfileComponent implements OnInit {
     private userService: UserService,
     private authService: AuthService,
     private recipeService: RecipeService,
+    private ingredientService: IngredientService,
     private router: Router
   ) {
-    this.profileForm = this.createForm();
+    this.profileForm = this.createProfileForm();
+    this.preferencesForm = this.createPreferencesForm();
   }
 
   ngOnInit(): void {
@@ -58,6 +69,7 @@ export class ProfileComponent implements OnInit {
 
     this.loadUserProfile();
     this.loadRecipeStats();
+    this.initializeSelectOptions();
   }
 
   // Getter for easy access to form fields
@@ -65,7 +77,7 @@ export class ProfileComponent implements OnInit {
     return this.profileForm.controls;
   }
 
-  createForm(): FormGroup {
+  createProfileForm(): FormGroup {
     return this.fb.group({
       username: [{ value: '', disabled: true }],
       email: ['', [Validators.required, Validators.email]],
@@ -75,6 +87,51 @@ export class ProfileComponent implements OnInit {
       newPassword: ['', Validators.minLength(6)],
       confirmPassword: ['']
     }, { validators: passwordMatchValidator });
+  }
+
+  createPreferencesForm(): FormGroup {
+    return this.fb.group({
+      preferredCategories: [[]],
+      preferredCuisines: [[]],
+      favoriteIngredients: [[]],
+      dislikedIngredients: [[]],
+      maxPrepTime: [null],
+      difficultyPreference: [''],
+      preferSeasonalRecipes: [false]
+    });
+  }
+
+  initializeSelectOptions() {
+    // Initialize category options
+    this.categoryOptions = RECIPE_CATEGORIES.map(category => ({
+      label: category.label,
+      value: category.value
+    }));
+
+    // Initialize cuisine options
+    this.cuisineOptions = RECIPE_CUISINES.map(cuisine => ({
+      label: cuisine.label,
+      value: cuisine.value
+    }));
+
+    // Initialize ingredient options from service
+    this.ingredientService.getIngredientsByCategory().subscribe({
+      next: (ingredientsByCategory) => {
+        this.ingredientOptions = [];
+        Object.entries(ingredientsByCategory).forEach(([category, ingredients]) => {
+          ingredients.forEach(ingredient => {
+            this.ingredientOptions.push({
+              label: ingredient.displayName,
+              value: ingredient.name,
+              group: category
+            });
+          });
+        });
+      },
+      error: (error) => {
+        console.error('Error loading ingredients:', error);
+      }
+    });
   }
 
   loadUserProfile(): void {
@@ -93,6 +150,24 @@ export class ProfileComponent implements OnInit {
             email: user.email || '',
             firstName: user.firstName || '',
             lastName: user.lastName || ''
+          });
+
+          // Load user preferences
+          this.userService.getUserPreferences().subscribe({
+            next: (preferences) => {
+              this.preferencesForm.patchValue({
+                preferredCategories: preferences.preferredCategories || [],
+                preferredCuisines: preferences.preferredCuisines || [],
+                favoriteIngredients: preferences.favoriteIngredients || [],
+                dislikedIngredients: preferences.dislikedIngredients || [],
+                maxPrepTime: preferences.maxPrepTime || null,
+                difficultyPreference: preferences.difficultyPreference || '',
+                preferSeasonalRecipes: preferences.preferSeasonalRecipes || false
+              });
+            },
+            error: (error) => {
+              console.error('Error loading user preferences:', error);
+            }
           });
         },
         error: (error) => {
@@ -201,7 +276,29 @@ export class ProfileComponent implements OnInit {
         }
       });
   }
+
+  savePreferences(): void {
+    if (this.preferencesForm.invalid) {
+      return;
+    }
+
+    this.isSubmitting = true;
+    const preferences = this.preferencesForm.value;
+
+    this.userService.updatePreferences(preferences)
+      .pipe(finalize(() => this.isSubmitting = false))
+      .subscribe({
+        next: () => {
+          this.successMessage = 'Preferences updated successfully!';
+        },
+        error: (error) => {
+          console.error('Error updating preferences:', error);
+          this.errorMessage = 'Failed to update preferences. Please try again.';
+        }
+      });
+  }
 }
+
 
 
 
