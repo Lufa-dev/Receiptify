@@ -202,7 +202,8 @@
                       [options]="categoryOptions"
                       [placeholder]="'Select categories'"
                       formControlName="preferredCategories"
-                      [clearAfterSelect]="false">
+                      (selectionChange)="addSelectedCategory($event)"
+                      [clearAfterSelect]="true">
                     </app-searchable-select>
 
                     <div class="selected-items mt-2">

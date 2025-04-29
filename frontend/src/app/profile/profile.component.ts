@@ -430,8 +430,12 @@ export class ProfileComponent implements OnInit {
     if (!this.selectedCategories.some(item => item.value === option.value)) {
       this.selectedCategories.push(option);
 
-      // Update the form control
-      const currentValues = this.preferencesForm.get('preferredCategories')?.value || [];
+      // Update the form control - ensure we're working with an array
+      let currentValues = this.preferencesForm.get('preferredCategories')?.value;
+      if (!Array.isArray(currentValues)) {
+        currentValues = [];
+      }
+
       this.preferencesForm.get('preferredCategories')?.setValue([
         ...currentValues,
         option.value
@@ -442,8 +446,12 @@ export class ProfileComponent implements OnInit {
   removeSelectedCategory(option: SelectOption): void {
     this.selectedCategories = this.selectedCategories.filter(item => item.value !== option.value);
 
-    // Update the form control
-    const currentValues = this.preferencesForm.get('preferredCategories')?.value || [];
+    // Update the form control - ensure we're working with an array
+    let currentValues = this.preferencesForm.get('preferredCategories')?.value;
+    if (!Array.isArray(currentValues)) {
+      currentValues = [];
+    }
+
     this.preferencesForm.get('preferredCategories')?.setValue(
       currentValues.filter((value: string) => value !== option.value)
     );
