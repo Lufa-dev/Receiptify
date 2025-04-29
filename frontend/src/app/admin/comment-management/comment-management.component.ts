@@ -1,14 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { AdminService } from '../../../shared/services/admin.service';
-import { finalize } from 'rxjs/operators';
-import { Router } from '@angular/router';
-import { Comment } from '../../../shared/models/comment.model';
+import {finalize} from "rxjs";
+import {OnInit} from "@angular/core";
+import {AdminService} from "../../../shared/services/admin.service";
+import {Router} from "@angular/router";
 
-@Component({
-  selector: 'app-comment-management',
-  templateUrl: './comment-management.component.html',
-  styleUrls: ['./comment-management.component.scss']
-})
 export class CommentManagementComponent implements OnInit {
   comments: Comment[] = [];
   totalComments = 0;
