@@ -42,6 +42,12 @@ export class ProfileComponent implements OnInit {
   cuisineOptions: SelectOption[] = [];
   ingredientOptions: SelectOption[] = [];
 
+  // Selected items arrays
+  selectedCategories: SelectOption[] = [];
+  selectedCuisines: SelectOption[] = [];
+  selectedFavoriteIngredients: SelectOption[] = [];
+  selectedDislikedIngredients: SelectOption[] = [];
+
   // For the slider display
   prepTimeValue: number = 30;
 
@@ -170,6 +176,7 @@ export class ProfileComponent implements OnInit {
           // Load user preferences
           this.userService.getUserPreferences().subscribe({
             next: (preferences) => {
+              // Populate preference form
               this.preferencesForm.patchValue({
                 preferredCategories: preferences.preferredCategories || [],
                 preferredCuisines: preferences.preferredCuisines || [],
@@ -182,6 +189,9 @@ export class ProfileComponent implements OnInit {
 
               // Update slider display value
               this.prepTimeValue = preferences.maxPrepTime || 30;
+
+              // Update the selected items for visual display
+              this.populateSelectedPreferences(preferences);
             },
             error: (error) => {
               console.error('Error loading user preferences:', error);
@@ -198,6 +208,59 @@ export class ProfileComponent implements OnInit {
           }
         }
       });
+  }
+
+  populateSelectedPreferences(preferences: any): void {
+    // Populate selected categories
+    if (preferences.preferredCategories && preferences.preferredCategories.length) {
+      this.selectedCategories = preferences.preferredCategories.map((categoryValue: string) => {
+        const option = this.categoryOptions.find(opt => opt.value === categoryValue);
+        return option || { label: categoryValue, value: categoryValue };
+      });
+    }
+
+    // Populate selected cuisines
+    if (preferences.preferredCuisines && preferences.preferredCuisines.length) {
+      this.selectedCuisines = preferences.preferredCuisines.map((cuisineValue: string) => {
+        const option = this.cuisineOptions.find(opt => opt.value === cuisineValue);
+        return option || { label: cuisineValue, value: cuisineValue };
+      });
+    }
+
+    // Populate favorite ingredients
+    if (preferences.favoriteIngredients && preferences.favoriteIngredients.length) {
+      this.selectedFavoriteIngredients = preferences.favoriteIngredients.map((ingredientValue: string) => {
+        const option = this.ingredientOptions.find(opt => opt.value === ingredientValue);
+        // If not found, create a temporary option with the value as both label and value
+        return option || {
+          label: this.formatEnumName(ingredientValue),
+          value: ingredientValue,
+          group: 'Other'
+        };
+      });
+    }
+
+    // Populate disliked ingredients
+    if (preferences.dislikedIngredients && preferences.dislikedIngredients.length) {
+      this.selectedDislikedIngredients = preferences.dislikedIngredients.map((ingredientValue: string) => {
+        const option = this.ingredientOptions.find(opt => opt.value === ingredientValue);
+        // If not found, create a temporary option with the value as both label and value
+        return option || {
+          label: this.formatEnumName(ingredientValue),
+          value: ingredientValue,
+          group: 'Other'
+        };
+      });
+    }
+  }
+
+  formatEnumName(enumName: string): string {
+    if (!enumName) return '';
+
+    return enumName
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
   }
 
   loadRecipeStats(): void {
@@ -301,7 +364,16 @@ export class ProfileComponent implements OnInit {
     }
 
     this.isSubmitting = true;
-    const preferences = this.preferencesForm.value;
+
+    // Get values from the form
+    const preferences = {
+      ...this.preferencesForm.value,
+      // Override with selected items values (for badges UI)
+      preferredCategories: this.selectedCategories.map(item => item.value),
+      preferredCuisines: this.selectedCuisines.map(item => item.value),
+      favoriteIngredients: this.selectedFavoriteIngredients.map(item => item.value),
+      dislikedIngredients: this.selectedDislikedIngredients.map(item => item.value)
+    };
 
     this.userService.updatePreferences(preferences)
       .pipe(finalize(() => this.isSubmitting = false))
@@ -341,10 +413,118 @@ export class ProfileComponent implements OnInit {
       preferSeasonalRecipes: false
     });
 
+    // Clear selected items arrays
+    this.selectedCategories = [];
+    this.selectedCuisines = [];
+    this.selectedFavoriteIngredients = [];
+    this.selectedDislikedIngredients = [];
+
     // Update slider display value
     this.prepTimeValue = 30;
   }
+
+  // Methods for handling selection changes
+  addSelectedCategory(option: SelectOption | null): void {
+    if (!option) return;
+
+    if (!this.selectedCategories.some(item => item.value === option.value)) {
+      this.selectedCategories.push(option);
+
+      // Update the form control
+      const currentValues = this.preferencesForm.get('preferredCategories')?.value || [];
+      this.preferencesForm.get('preferredCategories')?.setValue([
+        ...currentValues,
+        option.value
+      ]);
+    }
+  }
+
+  removeSelectedCategory(option: SelectOption): void {
+    this.selectedCategories = this.selectedCategories.filter(item => item.value !== option.value);
+
+    // Update the form control
+    const currentValues = this.preferencesForm.get('preferredCategories')?.value || [];
+    this.preferencesForm.get('preferredCategories')?.setValue(
+      currentValues.filter((value: string) => value !== option.value)
+    );
+  }
+
+  addSelectedCuisine(option: SelectOption | null): void {
+    if (!option) return;
+
+    if (!this.selectedCuisines.some(item => item.value === option.value)) {
+      this.selectedCuisines.push(option);
+
+      // Update the form control
+      const currentValues = this.preferencesForm.get('preferredCuisines')?.value || [];
+      this.preferencesForm.get('preferredCuisines')?.setValue([
+        ...currentValues,
+        option.value
+      ]);
+    }
+  }
+
+  removeSelectedCuisine(option: SelectOption): void {
+    this.selectedCuisines = this.selectedCuisines.filter(item => item.value !== option.value);
+
+    // Update the form control
+    const currentValues = this.preferencesForm.get('preferredCuisines')?.value || [];
+    this.preferencesForm.get('preferredCuisines')?.setValue(
+      currentValues.filter((value: string) => value !== option.value)
+    );
+  }
+
+  addSelectedFavoriteIngredient(option: SelectOption | null): void {
+    if (!option) return;
+
+    if (!this.selectedFavoriteIngredients.some(item => item.value === option.value)) {
+      this.selectedFavoriteIngredients.push(option);
+
+      // Update the form control
+      const currentValues = this.preferencesForm.get('favoriteIngredients')?.value || [];
+      this.preferencesForm.get('favoriteIngredients')?.setValue([
+        ...currentValues,
+        option.value
+      ]);
+    }
+  }
+
+  removeSelectedFavoriteIngredient(option: SelectOption): void {
+    this.selectedFavoriteIngredients = this.selectedFavoriteIngredients.filter(item => item.value !== option.value);
+
+    // Update the form control
+    const currentValues = this.preferencesForm.get('favoriteIngredients')?.value || [];
+    this.preferencesForm.get('favoriteIngredients')?.setValue(
+      currentValues.filter((value: string) => value !== option.value)
+    );
+  }
+
+  addSelectedDislikedIngredient(option: SelectOption | null): void {
+    if (!option) return;
+
+    if (!this.selectedDislikedIngredients.some(item => item.value === option.value)) {
+      this.selectedDislikedIngredients.push(option);
+
+      // Update the form control
+      const currentValues = this.preferencesForm.get('dislikedIngredients')?.value || [];
+      this.preferencesForm.get('dislikedIngredients')?.setValue([
+        ...currentValues,
+        option.value
+      ]);
+    }
+  }
+
+  removeSelectedDislikedIngredient(option: SelectOption): void {
+    this.selectedDislikedIngredients = this.selectedDislikedIngredients.filter(item => item.value !== option.value);
+
+    // Update the form control
+    const currentValues = this.preferencesForm.get('dislikedIngredients')?.value || [];
+    this.preferencesForm.get('dislikedIngredients')?.setValue(
+      currentValues.filter((value: string) => value !== option.value)
+    );
+  }
 }
+
 
 
 
