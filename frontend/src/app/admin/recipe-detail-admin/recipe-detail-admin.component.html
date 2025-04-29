@@ -1,0 +1,447 @@
+```html
+<div class="recipe-detail-admin-container">
+  <div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="admin-title">Recipe Details</h1>
+        <p class="admin-subtitle">View and edit recipe information</p>
+      </div>
+      <div class="action-buttons">
+        <button class="btn btn-outline-secondary me-2" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i> Back to Recipe List
+        </button>
+        <button class="btn btn-info" (click)="viewOnSite()">
+          <i class="bi bi-eye"></i> View on Site
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success message -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Loading recipe details...</p>
+  </div>
+
+  <!-- Recipe Form -->
+  <div *ngIf="!isLoading && recipe" class="card recipe-card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Recipe Information</h5>
+      <div>
+        <button *ngIf="!isEditing" class="btn btn-primary me-2" (click)="toggleEditMode()">
+          <i class="bi bi-pencil"></i> Edit
+        </button>
+        <button class="btn btn-danger" (click)="deleteRecipe()">
+          <i class="bi bi-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()">
+        <div class="row mb-4">
+          <!-- Recipe Image Display -->
+          <div class="col-md-4 mb-4 mb-md-0">
+            <div class="recipe-image-container">
+              <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
+            </div>
+          </div>
+
+          <!-- Basic Recipe Info -->
+          <div class="col-md-8">
+            <div class="row">
+              <!-- Title -->
+              <div class="col-12 mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input
+                  type="text"
+                  id="title"
+                  class="form-control"
+                  formControlName="title"
+                  [readOnly]="!isEditing"
+                  [ngClass]="{'is-invalid': recipeForm.get('title')?.invalid && recipeForm.get('title')?.touched}"
+                >
+                <div class="invalid-feedback" *ngIf="recipeForm.get('title')?.errors?.['required']">
+                  Title is required
+                </div>
+                <div class="invalid-feedback" *ngIf="recipeForm.get('title')?.errors?.['maxlength']">
+                  Title must be less than 100 characters
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div class="col-12 mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea
+                  id="description"
+                  class="form-control"
+                  formControlName="description"
+                  [readOnly]="!isEditing"
+                  rows="3"
+                  [ngClass]="{'is-invalid': recipeForm.get('description')?.invalid && recipeForm.get('description')?.touched}"
+                ></textarea>
+                <div class="invalid-feedback" *ngIf="recipeForm.get('description')?.errors?.['maxlength']">
+                  Description must be less than 500 characters
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recipe Characteristics -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <h5 class="section-title">Recipe Characteristics</h5>
+            <div class="row">
+              <!-- Category -->
+              <div class="col-md-3 mb-3">
+                <label for="category" class="form-label">Category</label>
+                <select
+                  id="category"
+                  class="form-select"
+                  formControlName="category"
+                  [disabled]="!isEditing"
+                >
+                  <option value="">Select Category</option>
+                  <option *ngFor="let category of categories" [value]="category.value">{{ category.label }}</option>
+                </select>
+              </div>
+
+              <!-- Cuisine -->
+              <div class="col-md-3 mb-3">
+                <label for="cuisine" class="form-label">Cuisine</label>
+                <select
+                  id="cuisine"
+                  class="form-select"
+                  formControlName="cuisine"
+                  [disabled]="!isEditing"
+                >
+                  <option value="">Select Cuisine</option>
+                  <option *ngFor="let cuisine of cuisines" [value]="cuisine.value">{{ cuisine.label }}</option>
+                </select>
+              </div>
+
+              <!-- Servings -->
+              <div class="col-md-2 mb-3">
+                <label for="servings" class="form-label">Servings</label>
+                <input
+                  type="number"
+                  id="servings"
+                  class="form-control"
+                  formControlName="servings"
+                  [readOnly]="!isEditing"
+                  min="1"
+                  [ngClass]="{'is-invalid': recipeForm.get('servings')?.invalid && recipeForm.get('servings')?.touched}"
+                >
+                <div class="invalid-feedback" *ngIf="recipeForm.get('servings')?.errors?.['min']">
+                  Servings must be at least 1
+                </div>
+              </div>
+
+              <!-- Difficulty -->
+              <div class="col-md-2 mb-3">
+                <label for="difficulty" class="form-label">Difficulty</label>
+                <select
+                  id="difficulty"
+                  class="form-select"
+                  formControlName="difficulty"
+                  [disabled]="!isEditing"
+                >
+                  <option value="">Select Difficulty</option>
+                  <option *ngFor="let difficulty of difficulties" [value]="difficulty.value">{{ difficulty.label }}</option>
+                </select>
+              </div>
+
+              <!-- Cost Rating -->
+              <div class="col-md-2 mb-3">
+                <label for="costRating" class="form-label">Cost</label>
+                <select
+                  id="costRating"
+                  class="form-select"
+                  formControlName="costRating"
+                  [disabled]="!isEditing"
+                >
+                  <option value="">Select Cost</option>
+                  <option *ngFor="let cost of costRatings" [value]="cost.value">{{ cost.label }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recipe Times -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <h5 class="section-title">Preparation Times</h5>
+            <div class="row">
+              <!-- Prep Time -->
+              <div class="col-md-4 mb-3">
+                <label for="prepTime" class="form-label">Prep Time (minutes)</label>
+                <input
+                  type="number"
+                  id="prepTime"
+                  class="form-control"
+                  formControlName="prepTime"
+                  [readOnly]="!isEditing"
+                  min="0"
+                  [ngClass]="{'is-invalid': recipeForm.get('prepTime')?.invalid && recipeForm.get('prepTime')?.touched}"
+                >
+                <div class="invalid-feedback" *ngIf="recipeForm.get('prepTime')?.errors?.['min']">
+                  Prep time cannot be negative
+                </div>
+              </div>
+
+              <!-- Cook Time -->
+              <div class="col-md-4 mb-3">
+                <label for="cookTime" class="form-label">Cook Time (minutes)</label>
+                <input
+                  type="number"
+                  id="cookTime"
+                  class="form-control"
+                  formControlName="cookTime"
+                  [readOnly]="!isEditing"
+                  min="0"
+                  [ngClass]="{'is-invalid': recipeForm.get('cookTime')?.invalid && recipeForm.get('cookTime')?.touched}"
+                >
+                <div class="invalid-feedback" *ngIf="recipeForm.get('cookTime')?.errors?.['min']">
+                  Cook time cannot be negative
+                </div>
+              </div>
+
+              <!-- Baking Time -->
+              <div class="col-md-4 mb-3">
+                <label for="bakingTime" class="form-label">Baking Time (minutes)</label>
+                <input
+                  type="number"
+                  id="bakingTime"
+                  class="form-control"
+                  formControlName="bakingTime"
+                  [readOnly]="!isEditing"
+                  min="0"
+                  [ngClass]="{'is-invalid': recipeForm.get('bakingTime')?.invalid && recipeForm.get('bakingTime')?.touched}"
+                >
+                <div class="invalid-feedback" *ngIf="recipeForm.get('bakingTime')?.errors?.['min']">
+                  Baking time cannot be negative
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ingredients -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="section-title mb-0">Ingredients</h5>
+              <button *ngIf="isEditing" type="button" class="btn btn-sm btn-outline-primary" (click)="addIngredient()">
+                <i class="bi bi-plus-circle"></i> Add Ingredient
+              </button>
+            </div>
+
+            <div class="ingredients-list" formArrayName="ingredients">
+              <div *ngIf="ingredientsArray.length === 0" class="text-muted text-center p-3">
+                No ingredients added yet.
+              </div>
+
+              <div *ngFor="let ingredient of ingredientsArray.controls; let i = index" [formGroupName]="i" class="ingredient-item mb-3 p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="mb-0">Ingredient #{{ i + 1 }}</h6>
+                  <button *ngIf="isEditing" type="button" class="btn btn-sm btn-outline-danger" (click)="removeIngredient(i)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-3 mb-2">
+                    <label class="form-label">Type</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="type"
+                      [readOnly]="!isEditing"
+                      [ngClass]="{'is-invalid': ingredient.get('type')?.invalid && ingredient.get('type')?.touched}"
+                    >
+                    <div class="invalid-feedback" *ngIf="ingredient.get('type')?.errors?.['required']">
+                      Type is required
+                    </div>
+                  </div>
+
+                  <div class="col-md-3 mb-2">
+                    <label class="form-label">Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="name"
+                      [readOnly]="!isEditing"
+                    >
+                  </div>
+
+                  <div class="col-md-3 mb-2">
+                    <label class="form-label">Amount</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="amount"
+                      [readOnly]="!isEditing"
+                    >
+                  </div>
+
+                  <div class="col-md-3 mb-2">
+                    <label class="form-label">Unit</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="unit"
+                      [readOnly]="!isEditing"
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Steps -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="section-title mb-0">Instructions</h5>
+              <button *ngIf="isEditing" type="button" class="btn btn-sm btn-outline-primary" (click)="addStep()">
+                <i class="bi bi-plus-circle"></i> Add Step
+              </button>
+            </div>
+
+            <div class="steps-list" formArrayName="steps">
+              <div *ngIf="stepsArray.length === 0" class="text-muted text-center p-3">
+                No steps added yet.
+              </div>
+
+              <div *ngFor="let step of stepsArray.controls; let i = index" [formGroupName]="i" class="step-item mb-3 p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="mb-0">Step #{{ i + 1 }}</h6>
+                  <button *ngIf="isEditing" type="button" class="btn btn-sm btn-outline-danger" (click)="removeStep(i)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-2 mb-2">
+                    <label class="form-label">Step Number</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      formControlName="stepNumber"
+                      [readOnly]="!isEditing || true" <!-- Always readonly, managed by component -->
+                    [ngClass]="{'is-invalid': step.get('stepNumber')?.invalid && step.get('stepNumber')?.touched}"
+                    >
+                    <div class="invalid-feedback" *ngIf="step.get('stepNumber')?.errors?.['required']">
+                      Step number is required
+                    </div>
+                  </div>
+
+                  <div class="col-md-10 mb-2">
+                    <label class="form-label">Instruction</label>
+                    <textarea
+                      class="form-control"
+                      formControlName="instruction"
+                      [readOnly]="!isEditing"
+                      rows="2"
+                      [ngClass]="{'is-invalid': step.get('instruction')?.invalid && step.get('instruction')?.touched}"
+                    ></textarea>
+                    <div class="invalid-feedback" *ngIf="step.get('instruction')?.errors?.['required']">
+                      Instruction is required
+                    </div>
+                    <div class="invalid-feedback" *ngIf="step.get('instruction')?.errors?.['maxlength']">
+                      Instruction must be less than 1000 characters
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div *ngIf="isEditing" class="d-flex justify-content-end mt-4">
+          <button type="button" class="btn btn-outline-secondary me-2" (click)="toggleEditMode()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="recipeForm.invalid || isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Recipe Stats Card -->
+  <div *ngIf="!isLoading && recipe" class="card recipe-stats-card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">Recipe Statistics</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <div class="stat-box">
+            <div class="stat-icon">
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <div class="stat-info">
+              <h4 class="stat-value">{{ recipe.averageRating || 0 | number:'1.1-1' }}</h4>
+              <p class="stat-label">Average Rating ({{ recipe.totalRatings || 0 }} ratings)</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="stat-box">
+            <div class="stat-icon">
+              <i class="bi bi-chat-dots-fill"></i>
+            </div>
+            <div class="stat-info">
+              <h4 class="stat-value">{{ recipe.totalComments || 0 }}</h4>
+              <p class="stat-label">Comments</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="stat-box">
+            <div class="stat-icon">
+              <i class="bi bi-eye-fill"></i>
+            </div>
+            <div class="stat-info">
+              <h4 class="stat-value">{{ recipe.viewCount || 0 }}</h4>
+              <p class="stat-label">Views</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recipe Not Found -->
+  <div *ngIf="!isLoading && !recipe && !error" class="card">
+    <div class="card-body text-center p-5">
+      <div class="empty-state-icon mb-4">
+        <i class="bi bi-journal-x"></i>
+      </div>
+      <h3>Recipe Not Found</h3>
+      <p class="text-muted">The requested recipe does not exist or has been deleted.</p>
+      <button class="btn btn-primary" (click)="goBack()">
+        Return to Recipe List
+      </button>
+    </div>
+  </div>
+</div>
+```

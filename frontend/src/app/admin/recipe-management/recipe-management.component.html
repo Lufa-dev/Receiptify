@@ -1,0 +1,159 @@
+```html
+<div class="recipe-management-container">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="admin-title">Recipe Management</h1>
+      <p class="admin-subtitle">View, edit, and moderate recipes</p>
+    </div>
+  </div>
+
+  <!-- Success message -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Search and Controls -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="input-group">
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search recipes by title or description..."
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+        >
+        <button class="btn btn-primary" type="button" (click)="onSearch()">
+          <i class="bi bi-search"></i> Search
+        </button>
+        <button *ngIf="isSearching" class="btn btn-outline-secondary" type="button" (click)="clearSearch()">
+          <i class="bi bi-x-circle"></i> Clear
+        </button>
+      </div>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+      <button class="btn btn-outline-primary" (click)="loadRecipes(0)">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Loading recipes...</p>
+  </div>
+
+  <!-- Recipes Table -->
+  <div *ngIf="!isLoading && recipes.length > 0" class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="m-0">Recipe List</h5>
+      <span class="badge bg-primary">{{ totalRecipes }} {{ totalRecipes === 1 ? 'Recipe' : 'Recipes' }}</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Image</th>
+          <th>Title</th>
+          <th>Author</th>
+          <th>Category</th>
+          <th>Ratings/Comments</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let recipe of recipes" (click)="viewRecipeDetails(recipe.id!)" style="cursor: pointer;">
+          <td>{{ recipe.id }}</td>
+          <td>
+            <div class="recipe-thumbnail">
+              <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}">
+            </div>
+          </td>
+          <td>{{ recipe.title }}</td>
+          <td>{{ recipe.user?.username }}</td>
+          <td>
+            <span class="badge bg-info text-dark" *ngIf="recipe.category">{{ recipe.category }}</span>
+            <span class="text-muted" *ngIf="!recipe.category">-</span>
+          </td>
+          <td>
+            <div class="d-flex align-items-center">
+                <span class="me-3">
+                  <i class="bi bi-star-fill text-warning"></i> {{ recipe.averageRating || 0 | number:'1.1-1' }}
+                  ({{ recipe.totalRatings || 0 }})
+                </span>
+              <span>
+                  <i class="bi bi-chat-dots-fill text-secondary"></i> {{ recipe.totalComments || 0 }}
+                </span>
+            </div>
+          </td>
+          <td>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-primary" (click)="viewRecipeDetails(recipe.id!); $event.stopPropagation()">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-info" (click)="viewRecipeOnSite(recipe.id!, $event)" title="View on site">
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="deleteRecipe(recipe.id!, $event)" title="Delete Recipe">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer d-flex justify-content-between align-items-center">
+      <div>
+        <span class="text-muted">Showing {{ recipes.length }} of {{ totalRecipes }} recipes</span>
+      </div>
+      <nav aria-label="Recipe pagination">
+        <ul class="pagination mb-0">
+          <li class="page-item" [class.disabled]="currentPage === 0">
+            <button class="page-link" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 0">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+          </li>
+          <li class="page-item" *ngFor="let page of pages" [class.active]="currentPage === page">
+            <button class="page-link" (click)="onPageChange(page)">{{ page + 1 }}</button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages - 1">
+            <button class="page-link" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages - 1">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- No Recipes Message -->
+  <div *ngIf="!isLoading && recipes.length === 0" class="card">
+    <div class="card-body text-center p-5">
+      <div class="empty-state-icon mb-4">
+        <i class="bi bi-journal-x"></i>
+      </div>
+      <h3>No Recipes Found</h3>
+      <p class="text-muted">
+        {{ isSearching ? 'No recipes match your search criteria.' : 'There are no recipes in the system.' }}
+      </p>
+      <button *ngIf="isSearching" class="btn btn-primary" (click)="clearSearch()">
+        Clear Search
+      </button>
+    </div>
+  </div>
+</div>
+```
