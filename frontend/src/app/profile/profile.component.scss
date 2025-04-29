@@ -1,4 +1,4 @@
-.profile-container {
+scss.profile-container {
   padding: 2rem 0;
 
   .profile-content {
@@ -114,6 +114,39 @@
     }
   }
 
+  // Selected items display (badges)
+  .selected-items {
+    min-height: 38px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+
+      &:hover {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn-close {
+        width: 0.5em;
+        height: 0.5em;
+        margin-left: 0.5rem;
+        opacity: 0.7;
+
+        &:hover {
+          opacity: 1;
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+
   .form-check-input {
     width: 2.5em;
     height: 1.25em;
@@ -177,7 +210,7 @@
 
   // Custom styling for the searchable select component
   ::ng-deep .searchable-select {
-    margin-bottom: 1rem;
+    margin-bottom: 0.25rem;
 
     .select-trigger {
       border: 1px solid #ced4da;
@@ -235,6 +268,29 @@
     }
   }
 
+  // Badge styling for different types of preferences
+  .badge {
+    &.bg-primary {
+      // For categories
+      background-color: #0d6efd !important;
+    }
+
+    &.bg-info {
+      // For cuisines
+      background-color: #0dcaf0 !important;
+    }
+
+    &.bg-success {
+      // For favorite ingredients
+      background-color: #198754 !important;
+    }
+
+    &.bg-danger {
+      // For disliked ingredients
+      background-color: #dc3545 !important;
+    }
+  }
+
   // Responsive adjustments
   @media (max-width: 767.98px) {
     .profile-stats {
@@ -248,6 +304,13 @@
 
       .btn {
         flex-basis: 50%;
+      }
+    }
+
+    .selected-items {
+      .badge {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.75rem;
       }
     }
   }

@@ -204,6 +204,14 @@
                       formControlName="preferredCategories"
                       [clearAfterSelect]="false">
                     </app-searchable-select>
+
+                    <div class="selected-items mt-2">
+                      <span *ngFor="let category of selectedCategories" class="badge bg-primary me-2 mb-2">
+                        {{ category.label }}
+                        <button type="button" class="btn-close btn-close-white"
+                                (click)="removeSelectedCategory(category)"></button>
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -213,9 +221,17 @@
                     <app-searchable-select
                       [options]="cuisineOptions"
                       [placeholder]="'Select cuisines'"
-                      formControlName="preferredCuisines"
-                      [clearAfterSelect]="false">
+                      (selectionChange)="addSelectedCuisine($event)"
+                      [clearAfterSelect]="true">
                     </app-searchable-select>
+
+                    <div class="selected-items mt-2">
+                      <span *ngFor="let cuisine of selectedCuisines" class="badge bg-info text-dark me-2 mb-2">
+                        {{ cuisine.label }}
+                        <button type="button" class="btn-close btn-close-white"
+                                (click)="removeSelectedCuisine(cuisine)"></button>
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -227,9 +243,17 @@
                       [options]="ingredientOptions"
                       [placeholder]="'Search ingredients you love'"
                       [grouped]="true"
-                      formControlName="favoriteIngredients"
-                      [clearAfterSelect]="false">
+                      (selectionChange)="addSelectedFavoriteIngredient($event)"
+                      [clearAfterSelect]="true">
                     </app-searchable-select>
+
+                    <div class="selected-items mt-2">
+                      <span *ngFor="let ingredient of selectedFavoriteIngredients" class="badge bg-success me-2 mb-2">
+                        {{ ingredient.label }}
+                        <button type="button" class="btn-close btn-close-white"
+                                (click)="removeSelectedFavoriteIngredient(ingredient)"></button>
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -240,9 +264,17 @@
                       [options]="ingredientOptions"
                       [placeholder]="'Search ingredients to avoid'"
                       [grouped]="true"
-                      formControlName="dislikedIngredients"
-                      [clearAfterSelect]="false">
+                      (selectionChange)="addSelectedDislikedIngredient($event)"
+                      [clearAfterSelect]="true">
                     </app-searchable-select>
+
+                    <div class="selected-items mt-2">
+                      <span *ngFor="let ingredient of selectedDislikedIngredients" class="badge bg-danger me-2 mb-2">
+                        {{ ingredient.label }}
+                        <button type="button" class="btn-close btn-close-white"
+                                (click)="removeSelectedDislikedIngredient(ingredient)"></button>
+                      </span>
+                    </div>
                   </div>
                 </div>
 
