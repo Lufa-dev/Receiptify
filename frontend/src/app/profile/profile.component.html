@@ -87,18 +87,18 @@
               <div class="row g-3">
                 <!-- Username (readonly) -->
                 <div class="col-md-6">
-                  <div class="form-floating">
-                    <input type="text" id="username" class="form-control bg-light" formControlName="username" readonly>
+                  <div class="form-group mb-3">
                     <label for="username">Username</label>
+                    <input type="text" id="username" class="form-control bg-light" formControlName="username" readonly>
                   </div>
                 </div>
 
                 <!-- Email -->
                 <div class="col-md-6">
-                  <div class="form-floating">
+                  <div class="form-group mb-3">
+                    <label for="email">Email</label>
                     <input type="email" id="email" class="form-control" formControlName="email"
                            [ngClass]="{'is-invalid': submitted && f['email'].errors}">
-                    <label for="email">Email</label>
                     <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
                       <div *ngIf="f['email'].errors?.['required']">Email is required</div>
                       <div *ngIf="f['email'].errors?.['email']">Please enter a valid email address</div>
@@ -108,10 +108,10 @@
 
                 <!-- First Name -->
                 <div class="col-md-6">
-                  <div class="form-floating">
+                  <div class="form-group mb-3">
+                    <label for="firstName">First Name</label>
                     <input type="text" id="firstName" class="form-control" formControlName="firstName"
                            [ngClass]="{'is-invalid': submitted && f['firstName'].errors}">
-                    <label for="firstName">First Name</label>
                     <div *ngIf="submitted && f['firstName'].errors" class="invalid-feedback">
                       <div *ngIf="f['firstName'].errors?.['required']">First name is required</div>
                     </div>
@@ -120,10 +120,10 @@
 
                 <!-- Last Name -->
                 <div class="col-md-6">
-                  <div class="form-floating">
+                  <div class="form-group mb-3">
+                    <label for="lastName">Last Name</label>
                     <input type="text" id="lastName" class="form-control" formControlName="lastName"
                            [ngClass]="{'is-invalid': submitted && f['lastName'].errors}">
-                    <label for="lastName">Last Name</label>
                     <div *ngIf="submitted && f['lastName'].errors" class="invalid-feedback">
                       <div *ngIf="f['lastName'].errors?.['required']">Last name is required</div>
                     </div>
@@ -137,25 +137,23 @@
 
                 <!-- Current Password -->
                 <div class="col-md-12">
-                  <div class="form-floating">
+                  <div class="form-group mb-3">
+                    <label for="currentPassword">Current Password</label>
                     <input type="password" id="currentPassword" class="form-control" formControlName="currentPassword"
                            [ngClass]="{'is-invalid': submitted && passwordChangeAttempted && f['currentPassword'].errors}">
-                    <label for="currentPassword">Current Password</label>
                     <div *ngIf="submitted && passwordChangeAttempted && f['currentPassword'].errors"
                          class="invalid-feedback">
-                      <div *ngIf="f['currentPassword'].errors?.['required']">Current password is required to change
-                        password
-                      </div>
+                      <div *ngIf="f['currentPassword'].errors?.['required']">Current password is required to change password</div>
                     </div>
                   </div>
                 </div>
 
                 <!-- New Password -->
                 <div class="col-md-6">
-                  <div class="form-floating">
+                  <div class="form-group mb-3">
+                    <label for="newPassword">New Password</label>
                     <input type="password" id="newPassword" class="form-control" formControlName="newPassword"
                            [ngClass]="{'is-invalid': submitted && passwordChangeAttempted && f['newPassword'].errors}">
-                    <label for="newPassword">New Password</label>
                     <div *ngIf="submitted && passwordChangeAttempted && f['newPassword'].errors"
                          class="invalid-feedback">
                       <div *ngIf="f['newPassword'].errors?.['minlength']">Password must be at least 6 characters</div>
@@ -165,10 +163,10 @@
 
                 <!-- Confirm Password -->
                 <div class="col-md-6">
-                  <div class="form-floating">
+                  <div class="form-group mb-3">
+                    <label for="confirmPassword">Confirm Password</label>
                     <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword"
                            [ngClass]="{'is-invalid': submitted && passwordChangeAttempted && f['confirmPassword'].errors}">
-                    <label for="confirmPassword">Confirm Password</label>
                     <div *ngIf="submitted && passwordChangeAttempted && f['confirmPassword'].errors"
                          class="invalid-feedback">
                       <div *ngIf="f['confirmPassword'].errors?.['matching']">Passwords must match</div>
@@ -198,46 +196,54 @@
               <div class="row g-3">
                 <!-- Categories & Cuisines -->
                 <div class="col-md-6">
-                  <label class="form-label">Preferred Categories</label>
-                  <app-searchable-select
-                    [options]="categoryOptions"
-                    [placeholder]="'Select categories'"
-                    formControlName="preferredCategories"
-                    [clearAfterSelect]="false">
-                  </app-searchable-select>
+                  <div class="form-group mb-3">
+                    <label class="form-label">Preferred Categories</label>
+                    <app-searchable-select
+                      [options]="categoryOptions"
+                      [placeholder]="'Select categories'"
+                      formControlName="preferredCategories"
+                      [clearAfterSelect]="false">
+                    </app-searchable-select>
+                  </div>
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label">Preferred Cuisines</label>
-                  <app-searchable-select
-                    [options]="cuisineOptions"
-                    [placeholder]="'Select cuisines'"
-                    formControlName="preferredCuisines"
-                    [clearAfterSelect]="false">
-                  </app-searchable-select>
+                  <div class="form-group mb-3">
+                    <label class="form-label">Preferred Cuisines</label>
+                    <app-searchable-select
+                      [options]="cuisineOptions"
+                      [placeholder]="'Select cuisines'"
+                      formControlName="preferredCuisines"
+                      [clearAfterSelect]="false">
+                    </app-searchable-select>
+                  </div>
                 </div>
 
                 <!-- Ingredients -->
                 <div class="col-md-6">
-                  <label class="form-label">Favorite Ingredients</label>
-                  <app-searchable-select
-                    [options]="ingredientOptions"
-                    [placeholder]="'Search ingredients you love'"
-                    [grouped]="true"
-                    formControlName="favoriteIngredients"
-                    [clearAfterSelect]="false">
-                  </app-searchable-select>
+                  <div class="form-group mb-3">
+                    <label class="form-label">Favorite Ingredients</label>
+                    <app-searchable-select
+                      [options]="ingredientOptions"
+                      [placeholder]="'Search ingredients you love'"
+                      [grouped]="true"
+                      formControlName="favoriteIngredients"
+                      [clearAfterSelect]="false">
+                    </app-searchable-select>
+                  </div>
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label">Disliked Ingredients</label>
-                  <app-searchable-select
-                    [options]="ingredientOptions"
-                    [placeholder]="'Search ingredients to avoid'"
-                    [grouped]="true"
-                    formControlName="dislikedIngredients"
-                    [clearAfterSelect]="false">
-                  </app-searchable-select>
+                  <div class="form-group mb-3">
+                    <label class="form-label">Disliked Ingredients</label>
+                    <app-searchable-select
+                      [options]="ingredientOptions"
+                      [placeholder]="'Search ingredients to avoid'"
+                      [grouped]="true"
+                      formControlName="dislikedIngredients"
+                      [clearAfterSelect]="false">
+                    </app-searchable-select>
+                  </div>
                 </div>
 
                 <div class="col-12">
@@ -246,37 +252,41 @@
 
                 <!-- Preparation Time -->
                 <div class="col-md-6">
-                  <label class="form-label d-flex justify-content-between">
-                    <span>Maximum Preparation Time</span>
-                    <span class="prep-time-value">{{ prepTimeValue }} min</span>
-                  </label>
-                  <input type="range" class="form-range" formControlName="maxPrepTime" min="5" max="120" step="5"
-                         (input)="updatePrepTimeLabel()">
+                  <div class="form-group mb-3">
+                    <label class="form-label d-flex justify-content-between">
+                      <span>Maximum Preparation Time</span>
+                      <span class="prep-time-value">{{ prepTimeValue }} min</span>
+                    </label>
+                    <input type="range" class="form-range" formControlName="maxPrepTime" min="5" max="120" step="5"
+                           (input)="updatePrepTimeLabel()">
+                  </div>
                 </div>
 
                 <!-- Difficulty -->
                 <div class="col-md-6">
-                  <label class="form-label">Difficulty Preference</label>
-                  <div class="btn-group d-flex" role="group">
-                    <!-- Radio button for "Any" difficulty -->
-                    <input type="radio" class="btn-check" id="difficultyAny"
-                           formControlName="difficultyPreference" [value]="''">
-                    <label class="btn btn-outline-secondary" for="difficultyAny">Any</label>
+                  <div class="form-group mb-3">
+                    <label class="form-label">Difficulty Preference</label>
+                    <div class="btn-group d-flex" role="group">
+                      <!-- Radio button for "Any" difficulty -->
+                      <input type="radio" class="btn-check" id="difficultyAny"
+                             formControlName="difficultyPreference" [value]="''">
+                      <label class="btn btn-outline-secondary" for="difficultyAny">Any</label>
 
-                    <!-- Radio button for "Easy" difficulty -->
-                    <input type="radio" class="btn-check" id="difficultyEasy"
-                           formControlName="difficultyPreference" [value]="'easy'">
-                    <label class="btn btn-outline-secondary" for="difficultyEasy">Easy</label>
+                      <!-- Radio button for "Easy" difficulty -->
+                      <input type="radio" class="btn-check" id="difficultyEasy"
+                             formControlName="difficultyPreference" [value]="'easy'">
+                      <label class="btn btn-outline-secondary" for="difficultyEasy">Easy</label>
 
-                    <!-- Radio button for "Medium" difficulty -->
-                    <input type="radio" class="btn-check" id="difficultyMedium"
-                           formControlName="difficultyPreference" [value]="'medium'">
-                    <label class="btn btn-outline-secondary" for="difficultyMedium">Medium</label>
+                      <!-- Radio button for "Medium" difficulty -->
+                      <input type="radio" class="btn-check" id="difficultyMedium"
+                             formControlName="difficultyPreference" [value]="'medium'">
+                      <label class="btn btn-outline-secondary" for="difficultyMedium">Medium</label>
 
-                    <!-- Radio button for "Hard" difficulty -->
-                    <input type="radio" class="btn-check" id="difficultyHard"
-                           formControlName="difficultyPreference" [value]="'hard'">
-                    <label class="btn btn-outline-secondary" for="difficultyHard">Hard</label>
+                      <!-- Radio button for "Hard" difficulty -->
+                      <input type="radio" class="btn-check" id="difficultyHard"
+                             formControlName="difficultyPreference" [value]="'hard'">
+                      <label class="btn btn-outline-secondary" for="difficultyHard">Hard</label>
+                    </div>
                   </div>
                 </div>
 
