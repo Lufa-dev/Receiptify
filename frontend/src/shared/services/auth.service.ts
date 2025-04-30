@@ -165,12 +165,14 @@ export class AuthService {
       const tokenParts = token.split('.');
       if (tokenParts.length === 3) {
         const payload = JSON.parse(atob(tokenParts[1]));
+        console.log('JWT payload:', payload); // Add this line
+
         // Check for admin role - the actual property name might differ based on your JWT structure
-        // Common names: roles, authorities, scope, etc.
         const hasAdminRole = payload.roles?.includes('ADMIN') ||
           payload.authorities?.includes('ADMIN') ||
           payload.roles === 'ADMIN';
 
+        console.log('Has admin role:', hasAdminRole); // Add this line
         this.isAdminSubject.next(!!hasAdminRole);
         return;
       }
@@ -184,22 +186,28 @@ export class AuthService {
 
   // Method to check if user is admin - used by other services
   checkAdminRole(): Observable<boolean> {
+    console.log('Checking admin role');
+
     // First check if we already know if user is admin
     const currentValue = this.isAdminSubject.getValue();
     if (currentValue) {
+      console.log('Already know user is admin');
       return of(true);
     }
 
     // If not, make a backend call to check
+    console.log('Making backend call to check admin status');
     return this.http.get<{isAdmin: boolean}>(`${environment.API_URL}/api/admin/check-role`, {
       headers: this.getAuthHeaders()
     }).pipe(
       map(response => {
-        const isAdmin = !!response.isAdmin;
+        console.log('Admin check response:', response);
+        const isAdmin = response.isAdmin;
         this.isAdminSubject.next(isAdmin);
         return isAdmin;
       }),
-      catchError(() => {
+      catchError(error => {
+        console.error('Admin check error:', error);
         this.isAdminSubject.next(false);
         return of(false);
       })

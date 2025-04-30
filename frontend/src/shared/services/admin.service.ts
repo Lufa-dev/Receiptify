@@ -116,7 +116,18 @@ export class AdminService {
   getDashboardStats(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/dashboard/stats`, {
       headers: this.getAuthHeaders()
-    });
+    }).pipe(
+      catchError(error => {
+        console.error('Error retrieving dashboard stats:', error);
+        return of({
+          totalUsers: 0,
+          totalRecipes: 0,
+          totalComments: 0,
+          newUsers: 0,
+          recentActivity: []
+        });
+      })
+    );
   }
 
   // Search functionality
