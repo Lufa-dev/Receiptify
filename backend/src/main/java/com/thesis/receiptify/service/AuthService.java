@@ -48,6 +48,8 @@ public class AuthService {
                 .created(LocalDateTime.now())
                 .password(passwordEncoder.encode(registrationRequest.getPassword()))
                 .username(registrationRequest.getUsername())
+                .firstName(registrationRequest.getFirstName())
+                .lastName(registrationRequest.getLastName())
                 .roles(Role.USER)
                 .build();
         Profile savedProfile = profileRepository.save(profile);

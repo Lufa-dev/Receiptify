@@ -171,15 +171,26 @@ export class AuthService {
           authority: string;
         }
 
-        // Updated to check various formats of role information in JWT with proper type checking
-        const hasAdminRole =
-          (Array.isArray(payload.auth) && payload.auth.includes('ROLE_ADMIN')) ||
-          (Array.isArray(payload.authorities) && payload.authorities.some((auth: Authority) => auth.authority === 'ROLE_ADMIN')) ||
-          payload.roles === 'ADMIN' ||
-          (typeof payload.auth === 'string' && payload.auth.includes('ADMIN'));
+        let hasAdminRole = false;
+
+        // Check if auth is an array of objects with authority property
+        if (Array.isArray(payload.auth)) {
+          hasAdminRole = payload.auth.some((auth: any) =>
+            (typeof auth === 'string' && auth === 'ROLE_ADMIN') ||
+            (auth && auth.authority && auth.authority === 'ROLE_ADMIN')
+          );
+        }
+
+        // Check other possible formats
+        if (!hasAdminRole) {
+          hasAdminRole =
+            (Array.isArray(payload.authorities) && payload.authorities.some((auth: Authority) => auth.authority === 'ROLE_ADMIN')) ||
+            payload.roles === 'ADMIN' ||
+            (typeof payload.auth === 'string' && payload.auth.includes('ADMIN'));
+        }
 
         console.log('Has admin role:', hasAdminRole);
-        this.isAdminSubject.next(!!hasAdminRole);
+        this.isAdminSubject.next(hasAdminRole);
         return;
       }
     } catch (error) {

@@ -43,10 +43,10 @@ export class UserDetailComponent implements OnInit {
   createUserForm(): FormGroup {
     return this.fb.group({
       username: [{value: '', disabled: true}],
-      email: ['', [Validators.required, Validators.email]],
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      roles: ['USER']
+      email: [{value: '', disabled: !this.isEditing}, [Validators.required, Validators.email]],
+      firstName: [{value: '', disabled: !this.isEditing}, Validators.required],
+      lastName: [{value: '', disabled: !this.isEditing}, Validators.required],
+      roles: [{value: 'USER', disabled: !this.isEditing}]
     });
   }
 
@@ -59,13 +59,7 @@ export class UserDetailComponent implements OnInit {
       .subscribe({
         next: (user) => {
           this.user = user;
-          this.userForm.patchValue({
-            username: user.username,
-            email: user.email || '',
-            firstName: user.firstName || '',
-            lastName: user.lastName || '',
-            roles: user.roles || 'USER'
-          });
+          this.updateFormWithUser(user);
         },
         error: (error) => {
           console.error('Error loading user details:', error);
@@ -74,18 +68,35 @@ export class UserDetailComponent implements OnInit {
       });
   }
 
+  updateFormWithUser(user: User): void {
+    this.userForm.patchValue({
+      username: user.username,
+      email: user.email || '',
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      roles: user.roles || 'USER'
+    });
+  }
+
   toggleEditMode(): void {
     this.isEditing = !this.isEditing;
 
-    if (!this.isEditing && this.user) {
-      // Reset form to original values when canceling edit
-      this.userForm.patchValue({
-        username: this.user.username,
-        email: this.user.email || '',
-        firstName: this.user.firstName || '',
-        lastName: this.user.lastName || '',
-        roles: this.user.roles || 'USER'
-      });
+    if (this.isEditing) {
+      // Enable form controls for editing
+      this.userForm.get('email')?.enable();
+      this.userForm.get('firstName')?.enable();
+      this.userForm.get('lastName')?.enable();
+      this.userForm.get('roles')?.enable();
+    } else {
+      // Disable form controls when not editing and reset to original values
+      this.userForm.get('email')?.disable();
+      this.userForm.get('firstName')?.disable();
+      this.userForm.get('lastName')?.disable();
+      this.userForm.get('roles')?.disable();
+
+      if (this.user) {
+        this.updateFormWithUser(this.user);
+      }
     }
   }
 
@@ -112,6 +123,7 @@ export class UserDetailComponent implements OnInit {
           this.user = updatedUser;
           this.successMessage = 'User updated successfully';
           this.isEditing = false;
+          this.toggleEditMode(); // This will disable the form
         },
         error: (error) => {
           console.error('Error updating user:', error);
@@ -148,3 +160,4 @@ export class UserDetailComponent implements OnInit {
     this.router.navigate(['/admin/users']);
   }
 }
+
