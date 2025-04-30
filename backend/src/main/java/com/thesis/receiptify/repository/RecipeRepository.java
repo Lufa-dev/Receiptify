@@ -30,4 +30,8 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long>, JpaSpecif
 
     @Query("SELECT DISTINCT r.cuisine FROM Recipe r WHERE r.cuisine IS NOT NULL")
     List<String> findDistinctCuisines();
+
+    Page<Recipe> findByFeaturedTrue(Pageable pageable);
+
+    Page<Recipe> findByFeaturedTrueOrderByFeaturedAtDesc(Pageable pageable);
 }

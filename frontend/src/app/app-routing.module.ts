@@ -12,6 +12,7 @@ import {CollectionsComponent} from "./collections/collections.component";
 import {CollectionDetailComponent} from "./collection-detail/collection-detail.component";
 import {AdvancedSearchComponent} from "./advanced-search/advanced-search.component";
 import {ShoppingListComponent} from "./shopping-list/shopping-list.component";
+import {AdminGuard} from "../shared/services/admin-guard";
 
 
 const routes: Routes = [
@@ -27,6 +28,11 @@ const routes: Routes = [
   { path: 'collections/:id', component: CollectionDetailComponent, canActivate: [AuthGuard] },
   { path: 'advanced-search', component: AdvancedSearchComponent },
   { path: 'shopping-list', component: ShoppingListComponent, canActivate: [AuthGuard] },
+  {
+    path: 'admin',
+    canActivate: [AuthGuard, AdminGuard],
+    loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
+  }
 ];
 
 @NgModule({

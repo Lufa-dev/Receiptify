@@ -172,4 +172,17 @@ public class RecipeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    /**
+     * Get featured recipes
+     */
+    @GetMapping("/featured")
+    public ResponseEntity<Page<RecipeDTO>> getFeaturedRecipes(Pageable pageable) {
+        try {
+            Page<RecipeDTO> featuredRecipes = recipeService.getFeaturedRecipes(pageable);
+            return ResponseEntity.ok(featuredRecipes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

@@ -63,6 +63,10 @@ public class Recipe {
     private Integer panSize;
     private String bakingMethod;
 
+    private Boolean featured = false;
+    private LocalDateTime featuredAt;
+    private String adminNotes;
+
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();

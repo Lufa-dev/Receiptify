@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -56,4 +57,11 @@ public class RecipeDTO {
     private Integer userRating;
 
     private RecipeSeasonalityDTO seasonalityInfo;
+
+    private Boolean featured;
+    private LocalDateTime featuredAt;
+    private String adminNotes;
+
+    // Used for tracking in the admin panel
+    private Integer viewCount;
 }

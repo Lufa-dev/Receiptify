@@ -273,6 +273,12 @@ public class RecipeService {
                 recipePage.getTotalElements());
     }
 
+    @Transactional(readOnly = true)
+    public Page<RecipeDTO> getFeaturedRecipes(Pageable pageable) {
+        return recipeRepository.findByFeaturedTrueOrderByFeaturedAtDesc(pageable)
+                .map(recipe -> mapToDTO(recipe, null));
+    }
+
     // Helper methods to map between entities and DTOs
     private RecipeDTO mapToDTO(Recipe recipe, Integer userRating) {
         List<IngredientDTO> ingredientDTOs = recipe.getIngredients().stream()

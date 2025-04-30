@@ -35,6 +35,12 @@ public class Comment {
 
     private LocalDateTime updatedAt;
 
+    @Column(length = 50)
+    private String moderationStatus;
+
+    @Column(length = 500)
+    private String adminNotes;
+
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();

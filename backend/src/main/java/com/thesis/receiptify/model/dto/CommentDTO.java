@@ -24,5 +24,8 @@ public class CommentDTO {
     private Long recipeId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private String moderationStatus;
+    private String adminNotes;
 }
 
