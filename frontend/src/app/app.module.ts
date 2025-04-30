@@ -34,6 +34,7 @@ import { IngredientSeasonalityComponent } from './ingredient-seasonality/ingredi
 import { NutritionDisplayComponent } from './nutrition-display/nutrition-display.component';
 import { RecommendedRecipesComponent } from './recommended-recipes/recommended-recipes.component';
 import { SimilarRecipesComponent } from './similar-recipes/similar-recipes.component';
+import {AdminModule} from "./admin/admin.module";
 
 export function clearStorageInitializer() {
   return () => {
@@ -80,7 +81,8 @@ export function clearStorageInitializer() {
         AppRoutingModule,
         RouterModule,
         BrowserAnimationsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        AdminModule
     ],
   providers: [AuthService, PortionCalculatorService,
     {

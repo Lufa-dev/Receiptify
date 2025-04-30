@@ -1,4 +1,3 @@
-```html
 <div class="recipe-detail-admin-container">
   <div class="row mb-4">
     <div class="col-12 d-flex justify-content-between align-items-center">
@@ -72,8 +71,7 @@
                   class="form-control"
                   formControlName="title"
                   [readOnly]="!isEditing"
-                  [ngClass]="{'is-invalid': recipeForm.get('title')?.invalid && recipeForm.get('title')?.touched}"
-                >
+                  [ngClass]="{'is-invalid': recipeForm.get('title')?.invalid && recipeForm.get('title')?.touched}">
                 <div class="invalid-feedback" *ngIf="recipeForm.get('title')?.errors?.['required']">
                   Title is required
                 </div>
@@ -91,8 +89,7 @@
                   formControlName="description"
                   [readOnly]="!isEditing"
                   rows="3"
-                  [ngClass]="{'is-invalid': recipeForm.get('description')?.invalid && recipeForm.get('description')?.touched}"
-                ></textarea>
+                  [ngClass]="{'is-invalid': recipeForm.get('description')?.invalid && recipeForm.get('description')?.touched}"></textarea>
                 <div class="invalid-feedback" *ngIf="recipeForm.get('description')?.errors?.['maxlength']">
                   Description must be less than 500 characters
                 </div>
@@ -113,8 +110,7 @@
                   id="category"
                   class="form-select"
                   formControlName="category"
-                  [disabled]="!isEditing"
-                >
+                  [disabled]="!isEditing">
                   <option value="">Select Category</option>
                   <option *ngFor="let category of categories" [value]="category.value">{{ category.label }}</option>
                 </select>
@@ -127,8 +123,7 @@
                   id="cuisine"
                   class="form-select"
                   formControlName="cuisine"
-                  [disabled]="!isEditing"
-                >
+                  [disabled]="!isEditing">
                   <option value="">Select Cuisine</option>
                   <option *ngFor="let cuisine of cuisines" [value]="cuisine.value">{{ cuisine.label }}</option>
                 </select>
@@ -144,8 +139,7 @@
                   formControlName="servings"
                   [readOnly]="!isEditing"
                   min="1"
-                  [ngClass]="{'is-invalid': recipeForm.get('servings')?.invalid && recipeForm.get('servings')?.touched}"
-                >
+                  [ngClass]="{'is-invalid': recipeForm.get('servings')?.invalid && recipeForm.get('servings')?.touched}">
                 <div class="invalid-feedback" *ngIf="recipeForm.get('servings')?.errors?.['min']">
                   Servings must be at least 1
                 </div>
@@ -158,8 +152,7 @@
                   id="difficulty"
                   class="form-select"
                   formControlName="difficulty"
-                  [disabled]="!isEditing"
-                >
+                  [disabled]="!isEditing">
                   <option value="">Select Difficulty</option>
                   <option *ngFor="let difficulty of difficulties" [value]="difficulty.value">{{ difficulty.label }}</option>
                 </select>
@@ -172,8 +165,7 @@
                   id="costRating"
                   class="form-select"
                   formControlName="costRating"
-                  [disabled]="!isEditing"
-                >
+                  [disabled]="!isEditing">
                   <option value="">Select Cost</option>
                   <option *ngFor="let cost of costRatings" [value]="cost.value">{{ cost.label }}</option>
                 </select>
@@ -197,8 +189,7 @@
                   formControlName="prepTime"
                   [readOnly]="!isEditing"
                   min="0"
-                  [ngClass]="{'is-invalid': recipeForm.get('prepTime')?.invalid && recipeForm.get('prepTime')?.touched}"
-                >
+                  [ngClass]="{'is-invalid': recipeForm.get('prepTime')?.invalid && recipeForm.get('prepTime')?.touched}">
                 <div class="invalid-feedback" *ngIf="recipeForm.get('prepTime')?.errors?.['min']">
                   Prep time cannot be negative
                 </div>
@@ -214,8 +205,7 @@
                   formControlName="cookTime"
                   [readOnly]="!isEditing"
                   min="0"
-                  [ngClass]="{'is-invalid': recipeForm.get('cookTime')?.invalid && recipeForm.get('cookTime')?.touched}"
-                >
+                  [ngClass]="{'is-invalid': recipeForm.get('cookTime')?.invalid && recipeForm.get('cookTime')?.touched}">
                 <div class="invalid-feedback" *ngIf="recipeForm.get('cookTime')?.errors?.['min']">
                   Cook time cannot be negative
                 </div>
@@ -231,8 +221,7 @@
                   formControlName="bakingTime"
                   [readOnly]="!isEditing"
                   min="0"
-                  [ngClass]="{'is-invalid': recipeForm.get('bakingTime')?.invalid && recipeForm.get('bakingTime')?.touched}"
-                >
+                  [ngClass]="{'is-invalid': recipeForm.get('bakingTime')?.invalid && recipeForm.get('bakingTime')?.touched}">
                 <div class="invalid-feedback" *ngIf="recipeForm.get('bakingTime')?.errors?.['min']">
                   Baking time cannot be negative
                 </div>
@@ -272,8 +261,7 @@
                       class="form-control"
                       formControlName="type"
                       [readOnly]="!isEditing"
-                      [ngClass]="{'is-invalid': ingredient.get('type')?.invalid && ingredient.get('type')?.touched}"
-                    >
+                      [ngClass]="{'is-invalid': ingredient.get('type')?.invalid && ingredient.get('type')?.touched}">
                     <div class="invalid-feedback" *ngIf="ingredient.get('type')?.errors?.['required']">
                       Type is required
                     </div>
@@ -285,8 +273,7 @@
                       type="text"
                       class="form-control"
                       formControlName="name"
-                      [readOnly]="!isEditing"
-                    >
+                      [readOnly]="!isEditing">
                   </div>
 
                   <div class="col-md-3 mb-2">
@@ -295,8 +282,7 @@
                       type="text"
                       class="form-control"
                       formControlName="amount"
-                      [readOnly]="!isEditing"
-                    >
+                      [readOnly]="!isEditing">
                   </div>
 
                   <div class="col-md-3 mb-2">
@@ -305,8 +291,7 @@
                       type="text"
                       class="form-control"
                       formControlName="unit"
-                      [readOnly]="!isEditing"
-                    >
+                      [readOnly]="!isEditing">
                   </div>
                 </div>
               </div>
@@ -344,9 +329,8 @@
                       type="number"
                       class="form-control"
                       formControlName="stepNumber"
-                      [readOnly]="!isEditing || true" <!-- Always readonly, managed by component -->
-                    [ngClass]="{'is-invalid': step.get('stepNumber')?.invalid && step.get('stepNumber')?.touched}"
-                    >
+                      [readOnly]="!isEditing || true"
+                      [ngClass]="{'is-invalid': step.get('stepNumber')?.invalid && step.get('stepNumber')?.touched}">
                     <div class="invalid-feedback" *ngIf="step.get('stepNumber')?.errors?.['required']">
                       Step number is required
                     </div>
@@ -359,8 +343,7 @@
                       formControlName="instruction"
                       [readOnly]="!isEditing"
                       rows="2"
-                      [ngClass]="{'is-invalid': step.get('instruction')?.invalid && step.get('instruction')?.touched}"
-                    ></textarea>
+                      [ngClass]="{'is-invalid': step.get('instruction')?.invalid && step.get('instruction')?.touched}"></textarea>
                     <div class="invalid-feedback" *ngIf="step.get('instruction')?.errors?.['required']">
                       Instruction is required
                     </div>
@@ -444,4 +427,3 @@
     </div>
   </div>
 </div>
-```

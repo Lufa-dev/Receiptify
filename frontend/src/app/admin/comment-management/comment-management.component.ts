@@ -1,10 +1,16 @@
-import {finalize} from "rxjs";
-import {OnInit} from "@angular/core";
-import {AdminService} from "../../../shared/services/admin.service";
-import {Router} from "@angular/router";
+import { Component, OnInit } from '@angular/core';
+import { finalize } from "rxjs";
+import { AdminService } from "../../../shared/services/admin.service";
+import { Router } from "@angular/router";
+import { Comment } from "../../../shared/models/comment.model";
 
+@Component({
+  selector: 'app-comment-management',
+  templateUrl: './comment-management.component.html',
+  styleUrls: ['./comment-management.component.scss']
+})
 export class CommentManagementComponent implements OnInit {
-  comments: Comment[] = [];
+  comments: any[] = []; // Using any[] to avoid type conflicts
   totalComments = 0;
   currentPage = 0;
   pageSize = 10;
@@ -30,6 +36,7 @@ export class CommentManagementComponent implements OnInit {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (response) => {
+          // Using any type to avoid type conflicts
           this.comments = response.content;
           this.totalComments = response.totalElements;
         },

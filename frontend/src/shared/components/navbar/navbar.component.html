@@ -33,6 +33,11 @@
             <i class="bi bi-cart3"></i> Shopping List
           </a>
         </li>
+        <li class="nav-item" *ngIf="isAdmin">
+          <a class="nav-link" routerLink="/admin" routerLinkActive="active">
+            <i class="bi bi-shield-lock"></i> Admin
+          </a>
+        </li>
       </ng-container>
     </ul>
 

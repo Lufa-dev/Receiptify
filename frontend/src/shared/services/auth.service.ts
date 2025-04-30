@@ -12,11 +12,21 @@ import {map, tap} from "rxjs/operators";
 export class AuthService {
   private userSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public user$: Observable<User> = this.userSubject.asObservable();
+  private isAdminSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public isAdmin$: Observable<boolean> = this.isAdminSubject.asObservable();
 
   constructor(
     private http: HttpClient,
     private router: Router,
-  ) {}
+  ) {
+    // Check if user is logged in from sessionStorage
+    const token = this.getToken();
+    const username = sessionStorage.getItem('profileName');
+    if (token && username) {
+      this.userSubject.next({ username, token });
+      this.checkForAdminRole(token);
+    }
+  }
 
   getAuthHeaders(): HttpHeaders {
     const token = this.getToken();
@@ -44,6 +54,7 @@ export class AuthService {
           sessionStorage.setItem('token', token);
           sessionStorage.setItem('profileName', userObj.username);
           this.userSubject.next(userObj);
+          this.checkForAdminRole(token);
           this.startLogOutTimer();
           return userObj;
         }
@@ -97,6 +108,7 @@ export class AuthService {
       map((response) => {
         if (response.ok) {
           this.userSubject.next(null);
+          this.isAdminSubject.next(false);
           sessionStorage.clear();
           return true;
         }
@@ -145,4 +157,53 @@ export class AuthService {
       })
     );
   }
+
+  // New method to check for admin role in JWT token
+  private checkForAdminRole(token: string): void {
+    try {
+      // Parse the JWT token to check for roles
+      const tokenParts = token.split('.');
+      if (tokenParts.length === 3) {
+        const payload = JSON.parse(atob(tokenParts[1]));
+        // Check for admin role - the actual property name might differ based on your JWT structure
+        // Common names: roles, authorities, scope, etc.
+        const hasAdminRole = payload.roles?.includes('ADMIN') ||
+          payload.authorities?.includes('ADMIN') ||
+          payload.roles === 'ADMIN';
+
+        this.isAdminSubject.next(!!hasAdminRole);
+        return;
+      }
+    } catch (error) {
+      console.error('Error parsing JWT token:', error);
+    }
+
+    // Default to non-admin if we can't parse the token
+    this.isAdminSubject.next(false);
+  }
+
+  // Method to check if user is admin - used by other services
+  checkAdminRole(): Observable<boolean> {
+    // First check if we already know if user is admin
+    const currentValue = this.isAdminSubject.getValue();
+    if (currentValue) {
+      return of(true);
+    }
+
+    // If not, make a backend call to check
+    return this.http.get<{isAdmin: boolean}>(`${environment.API_URL}/api/admin/check-role`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
+      map(response => {
+        const isAdmin = !!response.isAdmin;
+        this.isAdminSubject.next(isAdmin);
+        return isAdmin;
+      }),
+      catchError(() => {
+        this.isAdminSubject.next(false);
+        return of(false);
+      })
+    );
+  }
 }
+

@@ -26,12 +26,8 @@ export class AdminService {
 
   // Check if current user has admin role
   isUserAdmin(): Observable<boolean> {
-    return this.http.get<{isAdmin: boolean}>(`${this.apiUrl}/check-admin`, {
-      headers: this.getAuthHeaders()
-    }).pipe(
-      map(response => response.isAdmin),
-      catchError(() => of(false))
-    );
+    // Use the AuthService's checkAdminRole method which handles caching
+    return this.authService.checkAdminRole();
   }
 
   // User management
@@ -136,3 +132,4 @@ export class AdminService {
     });
   }
 }
+

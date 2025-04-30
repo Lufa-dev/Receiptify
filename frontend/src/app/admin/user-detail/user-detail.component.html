@@ -1,4 +1,3 @@
-```html
 <div class="user-detail-container">
   <div class="row mb-4">
     <div class="col-12 d-flex justify-content-between align-items-center">
@@ -184,37 +183,46 @@
   </div>
 
   <!-- User's Recent Recipes -->
-  <div *ngIf="!isLoading && user?.recentRecipes?.length" class="card mb-4">
-    <div class="card-header">
-      <h5 class="mb-0">Recent Recipes</h5>
-    </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-          <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Created</th>
-            <th>Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let recipe of user.recentRecipes">
-            <td>{{ recipe.id }}</td>
-            <td>{{ recipe.title }}</td>
-            <td>{{ recipe.createdAt | date:'medium' }}</td>
-            <td>
-              <button class="btn btn-sm btn-outline-primary me-2" [routerLink]="['/admin/recipes', recipe.id]">
-                <i class="bi bi-eye"></i> View
-              </button>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+  <ng-container *ngIf="!isLoading && user">
+    <div *ngIf="user.recentRecipes && user.recentRecipes.length > 0" class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0">Recent Recipes</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <ng-container *ngFor="let recipe of user.recentRecipes">
+              <tr>
+                <td>{{ recipe.id }}</td>
+                <td>{{ recipe.title }}</td>
+                <td>{{ recipe.createdAt | date:'medium' }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary me-2" [routerLink]="['/admin/recipes', recipe.id]">
+                    <i class="bi bi-eye"></i> View
+                  </button>
+                </td>
+              </tr>
+            </ng-container>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
+    <div *ngIf="!user.recentRecipes || user.recentRecipes.length === 0" class="card mb-4">
+      <div class="card-body text-center p-4">
+        <p class="text-muted mb-0">This user hasn't created any recipes yet.</p>
+      </div>
+    </div>
+  </ng-container>
 
   <!-- User Not Found -->
   <div *ngIf="!isLoading && !user && !error" class="card">
@@ -230,4 +238,3 @@
     </div>
   </div>
 </div>
-```

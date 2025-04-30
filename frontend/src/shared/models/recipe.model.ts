@@ -45,6 +45,7 @@ export interface RecipeDTO {
   totalRatings?: number;
   totalComments?: number;
   userRating?: number;
+  viewCount?: number;
 
   seasonalityInfo?: RecipeSeasonality;
 
