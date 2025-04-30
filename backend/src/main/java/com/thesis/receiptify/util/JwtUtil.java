@@ -58,6 +58,7 @@ public class JwtUtil {
 
         String token = Jwts.builder()
                 .setSubject(userDetails.getUsername())
+                .claim("auth", userDetails.getAuthorities())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();

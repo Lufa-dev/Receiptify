@@ -161,18 +161,24 @@ export class AuthService {
   // New method to check for admin role in JWT token
   private checkForAdminRole(token: string): void {
     try {
-      // Parse the JWT token to check for roles
       const tokenParts = token.split('.');
       if (tokenParts.length === 3) {
         const payload = JSON.parse(atob(tokenParts[1]));
-        console.log('JWT payload:', payload); // Add this line
+        console.log('JWT payload:', payload);
 
-        // Check for admin role - the actual property name might differ based on your JWT structure
-        const hasAdminRole = payload.roles?.includes('ADMIN') ||
-          payload.authorities?.includes('ADMIN') ||
-          payload.roles === 'ADMIN';
+        // Define an interface for authority objects
+        interface Authority {
+          authority: string;
+        }
 
-        console.log('Has admin role:', hasAdminRole); // Add this line
+        // Updated to check various formats of role information in JWT with proper type checking
+        const hasAdminRole =
+          (Array.isArray(payload.auth) && payload.auth.includes('ROLE_ADMIN')) ||
+          (Array.isArray(payload.authorities) && payload.authorities.some((auth: Authority) => auth.authority === 'ROLE_ADMIN')) ||
+          payload.roles === 'ADMIN' ||
+          (typeof payload.auth === 'string' && payload.auth.includes('ADMIN'));
+
+        console.log('Has admin role:', hasAdminRole);
         this.isAdminSubject.next(!!hasAdminRole);
         return;
       }
@@ -180,7 +186,6 @@ export class AuthService {
       console.error('Error parsing JWT token:', error);
     }
 
-    // Default to non-admin if we can't parse the token
     this.isAdminSubject.next(false);
   }
 
