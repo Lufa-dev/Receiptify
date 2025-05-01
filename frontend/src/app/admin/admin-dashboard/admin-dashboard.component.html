@@ -99,7 +99,6 @@
             <table class="table table-hover">
               <thead>
               <tr>
-                <th>ID</th>
                 <th>Recipe</th>
                 <th>Created By</th>
                 <th>Date</th>
@@ -108,7 +107,6 @@
               </thead>
               <tbody>
               <tr *ngFor="let activity of stats.recentActivity">
-                <td>{{ activity.id }}</td>
                 <td>{{ activity.title }}</td>
                 <td>{{ activity.username }}</td>
                 <td>{{ activity.createdAt | date:'short' }}</td>

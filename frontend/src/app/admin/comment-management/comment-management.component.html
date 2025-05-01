@@ -45,7 +45,6 @@
       <table class="table table-hover mb-0">
         <thead>
         <tr>
-          <th>ID</th>
           <th>Content</th>
           <th>User</th>
           <th>Recipe</th>
@@ -55,7 +54,6 @@
         </thead>
         <tbody>
         <tr *ngFor="let comment of comments" (click)="viewCommentDetails(comment.id!)" style="cursor: pointer;">
-          <td>{{ comment.id }}</td>
           <td>{{ getContentPreview(comment.content) }}</td>
           <td>
             <a href="#" (click)="viewUser(comment.user?.id!, $event)" class="text-primary user-link">

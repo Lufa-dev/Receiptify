@@ -63,7 +63,6 @@
       <table class="table table-hover mb-0">
         <thead>
         <tr>
-          <th>ID</th>
           <th>Image</th>
           <th>Title</th>
           <th>Author</th>
@@ -74,7 +73,6 @@
         </thead>
         <tbody>
         <tr *ngFor="let recipe of recipes" (click)="viewRecipeDetails(recipe.id!)" style="cursor: pointer;">
-          <td>{{ recipe.id }}</td>
           <td>
             <div class="recipe-thumbnail">
               <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}">

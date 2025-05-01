@@ -39,7 +39,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody AuthRequest authRequest) {
-        System.out.println("Login request received for user: " + authRequest.getUsername());
         try {
             HttpHeaders headers = new HttpHeaders();
             String token = authService.authenticate(authRequest);

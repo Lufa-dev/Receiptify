@@ -25,7 +25,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String authorizationHeader = request.getHeader("Authorization");
-        System.out.println("Auth header: " + authorizationHeader); // Debug line
 
         String username = null;
         String jwt = null;
@@ -35,7 +34,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             jwt = splittedToken[1];
             try {
                 username = jwtUtil.extractUsername(jwt);
-                System.out.println("Extracted username: " + username); // Debug line
             } catch (Exception e) {
                 System.out.println("Token validation error: " + e.getMessage()); // Debug line
                 filterChain.doFilter(request, response);
@@ -44,7 +42,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         if (jwt == null) {
-            System.out.println("No JWT token found"); // Debug line
             filterChain.doFilter(request, response);
             return;
         }
@@ -52,14 +49,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 User userDetails = (User) this.userDetailsService.loadUserByUsername(username);
-                System.out.println("User loaded: " + userDetails.getUsername()); // Debug line
 
                 if (jwtUtil.validateToken(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    System.out.println("Authentication set in SecurityContext"); // Debug line
                 } else {
                     System.out.println("Token validation failed"); // Debug line
                 }

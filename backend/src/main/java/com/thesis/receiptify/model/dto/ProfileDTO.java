@@ -19,6 +19,7 @@ public class ProfileDTO {
     private String firstName;
     private String lastName;
     private String email;
+    private String roles;
 
     // Preference fields
     private Set<String> preferredCategories = new HashSet<>();

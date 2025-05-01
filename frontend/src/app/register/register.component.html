@@ -75,6 +75,21 @@
               </div>
             </div>
 
+            <div class="form-group mb-3">
+              <label for="confirmPassword">Confirm Password*</label>
+              <input
+                type="password"
+                class="form-control"
+                id="confirmPassword"
+                formControlName="confirmPassword"
+                [ngClass]="{ 'is-invalid': registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.invalid }"
+              />
+              <div class="invalid-feedback" *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.invalid">
+                <span *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Please confirm your password</span>
+                <span *ngIf="registerForm.get('confirmPassword')?.errors?.['passwordMismatch']">Passwords do not match</span>
+              </div>
+            </div>
+
             <div class="d-grid">
               <button
                 type="submit"

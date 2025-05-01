@@ -13,9 +13,11 @@ import com.thesis.receiptify.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -54,6 +56,13 @@ public class AdminService {
         long totalUsers = profileRepository.count();
         stats.put("totalUsers", totalUsers);
 
+        // Calculate new users this month
+        LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        long newUsers = profileRepository.findAll().stream()
+                .filter(profile -> profile.getCreated() != null && profile.getCreated().isAfter(startOfMonth))
+                .count();
+        stats.put("newUsers", newUsers);
+
         // Recipe statistics
         long totalRecipes = recipeRepository.count();
         stats.put("totalRecipes", totalRecipes);
@@ -62,16 +71,11 @@ public class AdminService {
         long totalComments = commentRepository.count();
         stats.put("totalComments", totalComments);
 
-        // Rating statistics
-        long totalRatings = ratingRepository.count();
-        stats.put("totalRatings", totalRatings);
+        // Recent activity - get newest recipes first
+        // Use a sorted page request to get the newest recipes first
+        Pageable pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<Recipe> recentRecipes = recipeRepository.findAll(pageRequest).getContent();
 
-        // Collection statistics
-        long totalCollections = collectionRepository.count();
-        stats.put("totalCollections", totalCollections);
-
-        // Recent activity - last 10 recipes
-        List<Recipe> recentRecipes = recipeRepository.findAll(Pageable.ofSize(10)).getContent();
         List<Map<String, Object>> recentRecipeData = recentRecipes.stream()
                 .map(recipe -> {
                     Map<String, Object> data = new HashMap<>();
@@ -83,21 +87,6 @@ public class AdminService {
                 })
                 .collect(Collectors.toList());
         stats.put("recentActivity", recentRecipeData);
-
-        // Monthly statistics - recipes per month in the current year
-        Map<Month, Long> recipesByMonth = new HashMap<>();
-        LocalDateTime startOfYear = LocalDateTime.now().withMonth(1).withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
-
-        List<Recipe> thisYearRecipes = recipeRepository.findAll().stream()
-                .filter(recipe -> recipe.getCreatedAt() != null && recipe.getCreatedAt().isAfter(startOfYear))
-                .collect(Collectors.toList());
-
-        for (Recipe recipe : thisYearRecipes) {
-            Month month = recipe.getCreatedAt().getMonth();
-            recipesByMonth.put(month, recipesByMonth.getOrDefault(month, 0L) + 1);
-        }
-
-        stats.put("recipesByMonth", recipesByMonth);
 
         return stats;
     }
@@ -372,6 +361,7 @@ public class AdminService {
                 .firstName(profile.getFirstName())
                 .lastName(profile.getLastName())
                 .email(profile.getEmail())
+                .roles(profile.getRoles() != null ? profile.getRoles().name() : "USER")
                 .preferredCategories(profile.getPreferredCategories())
                 .preferredCuisines(profile.getPreferredCuisines())
                 .favoriteIngredients(profile.getFavoriteIngredients().stream()
