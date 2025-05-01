@@ -56,14 +56,14 @@
         <tr *ngFor="let comment of comments" (click)="viewCommentDetails(comment.id!)" style="cursor: pointer;">
           <td>{{ getContentPreview(comment.content) }}</td>
           <td>
-            <a href="#" (click)="viewUser(comment.user?.id!, $event)" class="text-primary user-link">
+            <button class="btn btn-link p-0 text-primary user-link" (click)="viewUser(comment.user?.id!, $event)">
               {{ comment.user?.username }}
-            </a>
+            </button>
           </td>
           <td>
-            <a href="#" (click)="viewRecipe(comment.recipeId, $event)" class="text-primary recipe-link">
+            <button class="btn btn-link p-0 text-primary recipe-link" (click)="viewRecipe(comment.recipeId, $event)">
               {{ comment.recipeId }}
-            </a>
+            </button>
           </td>
           <td>{{ formatDate(comment.createdAt || '') }}</td>
           <td>

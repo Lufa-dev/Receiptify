@@ -116,6 +116,34 @@ export class UserDetailComponent implements OnInit {
       roles: this.userForm.get('roles')?.value
     };
 
+    // First check if the role has changed
+    const roleChanged = this.user?.roles !== userData.roles;
+    if (roleChanged) {
+      // If the role changed, use the specific role update API
+      const makeAdmin = userData.roles === 'ADMIN';
+      this.adminService.toggleAdminRole(this.userId, makeAdmin)
+        .pipe(finalize(() => {
+          // After role is updated, update other user data
+          this.updateUserData(userData);
+        }))
+        .subscribe({
+          next: (updatedUser) => {
+            console.log('Role updated successfully', updatedUser);
+            // The user data update will be handled by the updateUserData method
+          },
+          error: (error) => {
+            console.error('Error updating user role:', error);
+            this.error = 'Failed to update user role. Please try again.';
+            this.isSubmitting = false;
+          }
+        });
+    } else {
+      // If role didn't change, just update the user data
+      this.updateUserData(userData);
+    }
+  }
+
+  updateUserData(userData: any): void {
     this.adminService.updateUser(this.userId, userData)
       .pipe(finalize(() => this.isSubmitting = false))
       .subscribe({
@@ -123,7 +151,11 @@ export class UserDetailComponent implements OnInit {
           this.user = updatedUser;
           this.successMessage = 'User updated successfully';
           this.isEditing = false;
-          this.toggleEditMode(); // This will disable the form
+          // Disable form controls
+          this.userForm.get('email')?.disable();
+          this.userForm.get('firstName')?.disable();
+          this.userForm.get('lastName')?.disable();
+          this.userForm.get('roles')?.disable();
         },
         error: (error) => {
           console.error('Error updating user:', error);
@@ -160,4 +192,5 @@ export class UserDetailComponent implements OnInit {
     this.router.navigate(['/admin/users']);
   }
 }
+
 

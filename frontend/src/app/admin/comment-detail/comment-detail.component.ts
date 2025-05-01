@@ -45,10 +45,11 @@ export class CommentDetailComponent implements OnInit {
   }
 
   createCommentForm(): FormGroup {
+    // All form controls start disabled since we're in view mode by default
     return this.fb.group({
-      content: ['', [Validators.required, Validators.maxLength(1000)]],
-      status: ['active'],
-      adminNotes: ['']
+      content: [{value: '', disabled: true}, [Validators.required, Validators.maxLength(1000)]],
+      moderationStatus: [{value: 'active', disabled: true}],
+      adminNotes: [{value: '', disabled: true}]
     });
   }
 
@@ -61,11 +62,7 @@ export class CommentDetailComponent implements OnInit {
       .subscribe({
         next: (comment) => {
           this.comment = comment;
-          this.commentForm.patchValue({
-            content: comment.content,
-            status: comment.status || 'active',
-            adminNotes: comment.adminNotes || ''
-          });
+          this.updateFormWithComment(comment);
 
           // Load the associated recipe
           if (comment.recipeId) {
@@ -77,6 +74,16 @@ export class CommentDetailComponent implements OnInit {
           this.error = 'Failed to load comment details. Please try again.';
         }
       });
+  }
+
+  updateFormWithComment(comment: Comment): void {
+    // Update form values while maintaining the enabled/disabled state
+    // Map status to moderationStatus for the backend
+    this.commentForm.patchValue({
+      content: comment.content,
+      moderationStatus: comment.moderationStatus || 'active',
+      adminNotes: comment.adminNotes || ''
+    });
   }
 
   loadRecipeDetails(recipeId: number): void {
@@ -95,18 +102,30 @@ export class CommentDetailComponent implements OnInit {
   toggleEditMode(): void {
     this.isEditing = !this.isEditing;
 
-    if (!this.isEditing && this.comment) {
+    if (this.isEditing) {
+      // Enable form controls for editing mode
+      this.commentForm.get('content')?.enable();
+      this.commentForm.get('moderationStatus')?.enable();
+      this.commentForm.get('adminNotes')?.enable();
+    } else {
+      // Disable form controls when exiting edit mode
+      this.commentForm.get('content')?.disable();
+      this.commentForm.get('moderationStatus')?.disable();
+      this.commentForm.get('adminNotes')?.disable();
+
       // Reset form to original values when canceling edit
-      this.commentForm.patchValue({
-        content: this.comment.content,
-        status: this.comment.status || 'active',
-        adminNotes: this.comment.adminNotes || ''
-      });
+      if (this.comment) {
+        this.updateFormWithComment(this.comment);
+      }
     }
   }
 
   onSubmit(): void {
     if (this.commentForm.invalid) {
+      Object.keys(this.commentForm.controls).forEach(key => {
+        const control = this.commentForm.get(key);
+        control?.markAsTouched();
+      });
       return;
     }
 
@@ -114,11 +133,17 @@ export class CommentDetailComponent implements OnInit {
     this.error = '';
     this.successMessage = '';
 
+    // Need to get raw value since controls might be disabled
+    const formValue = this.commentForm.getRawValue();
+
+    // Use correct field names for backend
     const commentData = {
-      content: this.commentForm.get('content')?.value,
-      status: this.commentForm.get('status')?.value,
-      adminNotes: this.commentForm.get('adminNotes')?.value
+      content: formValue.content,
+      moderationStatus: formValue.moderationStatus, // Match backend field name
+      adminNotes: formValue.adminNotes
     };
+
+    console.log('Sending comment data to backend:', commentData);
 
     this.adminService.updateComment(this.commentId, commentData)
       .pipe(finalize(() => this.isSubmitting = false))
@@ -127,6 +152,7 @@ export class CommentDetailComponent implements OnInit {
           this.comment = updatedComment;
           this.successMessage = 'Comment updated successfully';
           this.isEditing = false;
+          this.toggleEditMode(); // This will disable the form controls
         },
         error: (error) => {
           console.error('Error updating comment:', error);
@@ -192,3 +218,4 @@ export class CommentDetailComponent implements OnInit {
     return new Date(date).toLocaleString();
   }
 }
+

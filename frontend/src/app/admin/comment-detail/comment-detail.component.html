@@ -117,15 +117,13 @@
             </div>
           </div>
 
-          <!-- Status (future feature) -->
+          <!-- Status (moderation status) -->
           <div class="col-md-6 mb-3">
-            <label for="status" class="form-label">Status</label>
+            <label for="moderationStatus" class="form-label">Status</label>
             <select
-              id="status"
+              id="moderationStatus"
               class="form-select"
-              formControlName="status"
-              [disabled]="!isEditing"
-            >
+              formControlName="moderationStatus">
               <option value="active">Active</option>
               <option value="flagged">Flagged</option>
               <option value="hidden">Hidden</option>
@@ -140,9 +138,7 @@
               class="form-control"
               formControlName="content"
               rows="5"
-              [readOnly]="!isEditing"
-              [ngClass]="{'is-invalid': commentForm.get('content')?.invalid && commentForm.get('content')?.touched}"
-            ></textarea>
+              [ngClass]="{'is-invalid': commentForm.get('content')?.invalid && commentForm.get('content')?.touched}"></textarea>
             <div class="invalid-feedback" *ngIf="commentForm.get('content')?.errors?.['required']">
               Comment content is required
             </div>
@@ -158,9 +154,7 @@
               id="adminNotes"
               class="form-control"
               formControlName="adminNotes"
-              rows="3"
-              [readOnly]="!isEditing"
-            ></textarea>
+              rows="3"></textarea>
             <small class="form-text text-muted">These notes are only visible to admins</small>
           </div>
         </div>

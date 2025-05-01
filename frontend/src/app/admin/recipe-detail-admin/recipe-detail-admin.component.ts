@@ -48,17 +48,18 @@ export class RecipeDetailAdminComponent implements OnInit {
   }
 
   createRecipeForm(): FormGroup {
+    // All form controls start as disabled since we begin in view mode, not edit mode
     return this.fb.group({
-      title: ['', [Validators.required, Validators.maxLength(100)]],
-      description: ['', Validators.maxLength(500)],
-      category: [''],
-      cuisine: [''],
-      servings: [null, [Validators.min(1)]],
-      difficulty: [''],
-      costRating: [''],
-      prepTime: [null, [Validators.min(0)]],
-      cookTime: [null, [Validators.min(0)]],
-      bakingTime: [null, [Validators.min(0)]],
+      title: [{value: '', disabled: true}, [Validators.required, Validators.maxLength(100)]],
+      description: [{value: '', disabled: true}, Validators.maxLength(500)],
+      category: [{value: '', disabled: true}],
+      cuisine: [{value: '', disabled: true}],
+      servings: [{value: null, disabled: true}, [Validators.min(1)]],
+      difficulty: [{value: '', disabled: true}],
+      costRating: [{value: '', disabled: true}],
+      prepTime: [{value: null, disabled: true}, [Validators.min(0)]],
+      cookTime: [{value: null, disabled: true}, [Validators.min(0)]],
+      bakingTime: [{value: null, disabled: true}, [Validators.min(0)]],
       ingredients: this.fb.array([]),
       steps: this.fb.array([])
     });
@@ -96,11 +97,11 @@ export class RecipeDetailAdminComponent implements OnInit {
     if (recipe.ingredients && recipe.ingredients.length) {
       recipe.ingredients.forEach(ingredient => {
         this.ingredientsArray.push(this.fb.group({
-          id: [ingredient.id],
-          type: [ingredient.type, Validators.required],
-          name: [ingredient.name],
-          amount: [ingredient.amount],
-          unit: [ingredient.unit]
+          id: [{value: ingredient.id, disabled: !this.isEditing}],
+          type: [{value: ingredient.type, disabled: !this.isEditing}, Validators.required],
+          name: [{value: ingredient.name, disabled: !this.isEditing}],
+          amount: [{value: ingredient.amount, disabled: !this.isEditing}],
+          unit: [{value: ingredient.unit, disabled: !this.isEditing}]
         }));
       });
     }
@@ -109,9 +110,11 @@ export class RecipeDetailAdminComponent implements OnInit {
     if (recipe.steps && recipe.steps.length) {
       recipe.steps.forEach(step => {
         this.stepsArray.push(this.fb.group({
-          id: [step.id],
-          stepNumber: [step.stepNumber, [Validators.required, Validators.min(0)]],
-          instruction: [step.instruction, [Validators.required, Validators.maxLength(1000)]]
+          id: [{value: step.id, disabled: !this.isEditing}],
+          stepNumber: [{value: step.stepNumber, disabled: !this.isEditing},
+            [Validators.required, Validators.min(0)]],
+          instruction: [{value: step.instruction, disabled: !this.isEditing},
+            [Validators.required, Validators.maxLength(1000)]]
         }));
       });
     }
@@ -141,11 +144,11 @@ export class RecipeDetailAdminComponent implements OnInit {
 
   addIngredient(): void {
     this.ingredientsArray.push(this.fb.group({
-      id: [null],
-      type: ['', Validators.required],
-      name: [''],
-      amount: [''],
-      unit: ['']
+      id: [{value: null, disabled: !this.isEditing}],
+      type: [{value: '', disabled: !this.isEditing}, Validators.required],
+      name: [{value: '', disabled: !this.isEditing}],
+      amount: [{value: '', disabled: !this.isEditing}],
+      unit: [{value: '', disabled: !this.isEditing}]
     }));
   }
 
@@ -156,9 +159,11 @@ export class RecipeDetailAdminComponent implements OnInit {
   addStep(): void {
     const nextStepNumber = this.stepsArray.length;
     this.stepsArray.push(this.fb.group({
-      id: [null],
-      stepNumber: [nextStepNumber, [Validators.required, Validators.min(0)]],
-      instruction: ['', [Validators.required, Validators.maxLength(1000)]]
+      id: [{value: null, disabled: !this.isEditing}],
+      stepNumber: [{value: nextStepNumber, disabled: !this.isEditing},
+        [Validators.required, Validators.min(0)]],
+      instruction: [{value: '', disabled: !this.isEditing},
+        [Validators.required, Validators.maxLength(1000)]]
     }));
   }
 
@@ -167,16 +172,67 @@ export class RecipeDetailAdminComponent implements OnInit {
 
     // Update step numbers for remaining steps
     for (let i = index; i < this.stepsArray.length; i++) {
-      this.stepsArray.at(i).get('stepNumber')?.setValue(i);
+      const control = this.stepsArray.at(i).get('stepNumber');
+      if (control) {
+        control.setValue(i);
+      }
     }
   }
 
   toggleEditMode(): void {
     this.isEditing = !this.isEditing;
 
-    if (!this.isEditing && this.recipe) {
+    if (this.isEditing) {
+      // Enable all form controls when entering edit mode
+      Object.keys(this.recipeForm.controls).forEach(key => {
+        const control = this.recipeForm.get(key);
+        if (control && !(control instanceof FormArray)) {
+          control.enable();
+        }
+      });
+
+      // Enable controls in form arrays
+      for (let i = 0; i < this.ingredientsArray.length; i++) {
+        const ingredientGroup = this.ingredientsArray.at(i) as FormGroup;
+        Object.keys(ingredientGroup.controls).forEach(key => {
+          ingredientGroup.get(key)?.enable();
+        });
+      }
+
+      for (let i = 0; i < this.stepsArray.length; i++) {
+        const stepGroup = this.stepsArray.at(i) as FormGroup;
+        Object.keys(stepGroup.controls).forEach(key => {
+          stepGroup.get(key)?.enable();
+        });
+      }
+    } else {
+      // Disable all form controls when exiting edit mode
+      Object.keys(this.recipeForm.controls).forEach(key => {
+        const control = this.recipeForm.get(key);
+        if (control && !(control instanceof FormArray)) {
+          control.disable();
+        }
+      });
+
+      // Disable controls in form arrays
+      for (let i = 0; i < this.ingredientsArray.length; i++) {
+        const ingredientGroup = this.ingredientsArray.at(i) as FormGroup;
+        Object.keys(ingredientGroup.controls).forEach(key => {
+          ingredientGroup.get(key)?.disable();
+        });
+      }
+
+      for (let i = 0; i < this.stepsArray.length; i++) {
+        const stepGroup = this.stepsArray.at(i) as FormGroup;
+        Object.keys(stepGroup.controls).forEach(key => {
+          stepGroup.get(key)?.disable();
+        });
+      }
+
       // Reset form to original values when canceling edit
-      this.updateFormWithRecipe(this.recipe);
+      if (this.recipe) {
+        this.updateFormWithRecipe(this.recipe);
+      }
     }
   }
 
@@ -191,8 +247,11 @@ export class RecipeDetailAdminComponent implements OnInit {
     this.error = '';
     this.successMessage = '';
 
+    // Get raw values from form since some controls may be disabled
+    const formValue = this.recipeForm.getRawValue();
+
     const updatedRecipe: RecipeDTO = {
-      ...this.recipeForm.value,
+      ...formValue,
       id: this.recipeId
     };
 
@@ -203,7 +262,7 @@ export class RecipeDetailAdminComponent implements OnInit {
           this.recipe = recipe;
           this.successMessage = 'Recipe updated successfully';
           this.isEditing = false;
-          this.updateFormWithRecipe(recipe);
+          this.toggleEditMode(); // This will disable the form controls
         },
         error: (error) => {
           console.error('Error updating recipe:', error);

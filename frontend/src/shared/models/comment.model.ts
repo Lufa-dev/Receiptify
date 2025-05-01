@@ -10,6 +10,6 @@ export interface Comment {
   recipeId: number;
   createdAt?: string;
   updatedAt?: string;
-  status?: string;        // Added for admin functionality
-  adminNotes?: string;    // Added for admin functionality
+  moderationStatus?: string;
+  adminNotes?: string;
 }

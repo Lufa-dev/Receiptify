@@ -80,12 +80,20 @@ export class CommentManagementComponent implements OnInit {
   }
 
   viewRecipe(recipeId: number, event: Event): void {
+    // Prevent the event from bubbling up to the row click handler
+    event.preventDefault();
     event.stopPropagation();
-    this.router.navigate(['/recipe', recipeId]);
+
+    // Navigate to the recipe detail page in admin panel
+    this.router.navigate(['/admin/recipes', recipeId]);
   }
 
   viewUser(userId: number, event: Event): void {
+    // Prevent the event from bubbling up to the row click handler
+    event.preventDefault();
     event.stopPropagation();
+
+    // Navigate to the user detail page in admin panel
     this.router.navigate(['/admin/users', userId]);
   }
 
@@ -115,3 +123,4 @@ export class CommentManagementComponent implements OnInit {
     return content.substring(0, maxLength) + '...';
   }
 }
+
