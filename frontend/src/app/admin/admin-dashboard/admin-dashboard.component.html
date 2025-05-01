@@ -92,36 +92,29 @@
     <div class="col-12">
       <div class="card">
         <div class="card-header">
-          <h5 class="mb-0">Recent Activity</h5>
+          <h5 class="mb-0">Recent Recipes</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover">
               <thead>
               <tr>
-                <th>Type</th>
-                <th>Description</th>
-                <th>User</th>
+                <th>ID</th>
+                <th>Recipe</th>
+                <th>Created By</th>
                 <th>Date</th>
                 <th>Actions</th>
               </tr>
               </thead>
               <tbody>
               <tr *ngFor="let activity of stats.recentActivity">
-                <td>
-                    <span [ngClass]="{'badge bg-primary': activity.type === 'USER',
-                                    'badge bg-success': activity.type === 'RECIPE',
-                                    'badge bg-info': activity.type === 'COMMENT'}">
-                      {{ activity.type || 'Unknown' }}
-                    </span>
-                </td>
-                <td>{{ activity.description }}</td>
+                <td>{{ activity.id }}</td>
+                <td>{{ activity.title }}</td>
                 <td>{{ activity.username }}</td>
-                <td>{{ activity.timestamp | date:'short' }}</td>
+                <td>{{ activity.createdAt | date:'short' }}</td>
                 <td>
-                  <!-- Fixed version with null checks -->
-                  <button class="btn btn-sm btn-outline-primary" [routerLink]="['/admin', activity.type ? (activity.type.toLowerCase() + 's') : '', activity.entityId || '']">
-                    View Details
+                  <button class="btn btn-sm btn-outline-primary" [routerLink]="['/admin/recipes', activity.id]">
+                    View Recipe
                   </button>
                 </td>
               </tr>
