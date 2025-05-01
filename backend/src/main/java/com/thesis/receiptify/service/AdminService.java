@@ -336,6 +336,9 @@ public class AdminService {
         comment.setContent(commentDTO.getContent());
         comment.setUpdatedAt(LocalDateTime.now());
 
+        comment.setModerationStatus(commentDTO.getModerationStatus());
+        comment.setAdminNotes(commentDTO.getAdminNotes());
+
         // Additional admin-specific fields could be added
 
         Comment updatedComment = commentRepository.save(comment);
