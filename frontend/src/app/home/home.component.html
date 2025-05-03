@@ -38,9 +38,9 @@
     </div>
   </div>
 
-  <!-- All Recipes Section -->
+  <!-- Browse Recipes Section -->
   <div class="all-recipes-section">
-    <h2 class="section-title mt-4">All Recipes</h2>
+    <h2 class="section-title mt-4">Browse Recipes</h2>
     <div *ngIf="isLoading && !recipes.length" class="loading">Loading recipes...</div>
 
     <div class="recipes-container">
@@ -52,6 +52,14 @@
 
     <div *ngIf="recipes.length === 0 && !isLoading" class="no-recipes">
       No recipes found. Why not <a routerLink="/submit-recipe">add one</a>?
+    </div>
+
+    <!-- Load More Button -->
+    <div class="text-center mt-4 mb-5" *ngIf="hasMoreRecipes">
+      <button class="btn btn-outline-primary" (click)="loadMoreRecipes()" [disabled]="isLoadingMore">
+        <span *ngIf="isLoadingMore" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        Load More Recipes
+      </button>
     </div>
   </div>
 </div>

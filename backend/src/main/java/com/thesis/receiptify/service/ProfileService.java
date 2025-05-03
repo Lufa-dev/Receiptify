@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class ProfileService {
     private final ProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RecipeRepository recipeRepository;
 
     @Transactional(readOnly = true)
     public Profile getProfileByUsername(String username) {
@@ -79,10 +80,47 @@ public class ProfileService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> getUserRecipeStats(String username) {
-        // Implementation depends on your specific requirements
-        // This is a placeholder for your existing implementation
+        Profile user = profileRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
         Map<String, Object> stats = new HashMap<>();
-        // Populate stats based on user's recipes, interactions, etc.
+
+        // Get all user's recipes
+        List<Recipe> userRecipes = recipeRepository.findByUserOrderByCreatedAtDesc(user);
+
+        // Count total recipes
+        int totalRecipes = userRecipes.size();
+        stats.put("total", totalRecipes);
+
+        // Count recipes created this month
+        LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        long thisMonthRecipes = userRecipes.stream()
+                .filter(recipe -> recipe.getCreatedAt() != null && recipe.getCreatedAt().isAfter(startOfMonth))
+                .count();
+        stats.put("thisMonth", thisMonthRecipes);
+
+        // Find most used ingredient (top ingredient)
+        if (!userRecipes.isEmpty()) {
+            Map<String, Long> ingredientCounts = new HashMap<>();
+
+            userRecipes.forEach(recipe -> {
+                recipe.getIngredients().forEach(ingredient -> {
+                    String ingredientName = ingredient.getName();
+                    ingredientCounts.put(ingredientName,
+                            ingredientCounts.getOrDefault(ingredientName, 0L) + 1);
+                });
+            });
+
+            String topIngredient = ingredientCounts.entrySet().stream()
+                    .max(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElse("");
+
+            stats.put("topIngredient", topIngredient);
+        } else {
+            stats.put("topIngredient", "");
+        }
+
         return stats;
     }
 

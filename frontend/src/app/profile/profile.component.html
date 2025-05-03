@@ -20,6 +20,7 @@
 
   <div *ngIf="!isLoading" class="profile-content">
     <div class="row">
+      <!-- Profile Summary Column -->
       <div class="col-md-4 mb-4">
         <!-- Profile Summary Card -->
         <div class="card profile-card mb-4">
@@ -27,20 +28,33 @@
             <div class="profile-avatar mb-3">
               <i class="bi bi-person-circle"></i>
             </div>
-            <h3
-              class="profile-name">{{ profileForm.get('firstName')?.value || '' }} {{ profileForm.get('lastName')?.value || '' }}</h3>
+            <h3 class="profile-name">{{ profileForm.get('firstName')?.value || '' }} {{ profileForm.get('lastName')?.value || '' }}</h3>
             <p class="profile-username text-muted">&#64;{{ profileForm.get('username')?.value || '' }}</p>
-            <div class="profile-stats">
-              <div class="stat-item">
-                <div class="stat-value">{{ recipeStats.total || 0 }}</div>
-                <div class="stat-label">Recipes</div>
+
+            <!-- Recipe Stats -->
+            <div class="recipe-stats mt-4">
+              <div class="row">
+                <div class="col-6">
+                  <div class="stat-item">
+                    <div class="stat-value">{{ recipeStats.total || 0 }}</div>
+                    <div class="stat-label">Total Recipes</div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="stat-item">
+                    <div class="stat-value">{{ recipeStats.thisMonth || 0 }}</div>
+                    <div class="stat-label">This Month</div>
+                  </div>
+                </div>
               </div>
-              <div class="stat-item">
-                <div class="stat-value">{{ recipeStats.thisMonth || 0 }}</div>
-                <div class="stat-label">This Month</div>
+
+              <div *ngIf="recipeStats.topIngredient" class="top-ingredient mt-3">
+                <span class="label">Most Used Ingredient:</span>
+                <span class="ingredient-badge">{{ recipeStats.topIngredient }}</span>
               </div>
             </div>
-            <div class="mt-3">
+
+            <div class="mt-4">
               <a routerLink="/my-recipes" class="btn btn-primary btn-sm">
                 <i class="bi bi-journal-text me-1"></i> My Recipes
               </a>
@@ -48,30 +62,6 @@
                 <i class="bi bi-collection me-1"></i> Collections
               </a>
             </div>
-          </div>
-        </div>
-
-        <!-- Recipe Stats Card -->
-        <div class="card stats-card mb-4">
-          <div class="card-header">
-            <h5 class="mb-0"><i class="bi bi-bar-chart-line me-2"></i>Recipe Stats</h5>
-          </div>
-          <div class="card-body p-0">
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>Total Recipes</span>
-                <span class="badge bg-primary rounded-pill">{{ recipeStats.total || 0 }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>Created This Month</span>
-                <span class="badge bg-success rounded-pill">{{ recipeStats.thisMonth || 0 }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center"
-                  *ngIf="recipeStats.topIngredient">
-                <span>Most Used Ingredient</span>
-                <span class="ingredient-badge">{{ recipeStats.topIngredient }}</span>
-              </li>
-            </ul>
           </div>
         </div>
       </div>

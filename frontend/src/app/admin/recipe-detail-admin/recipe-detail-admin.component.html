@@ -52,10 +52,22 @@
     <div class="card-body">
       <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()">
         <div class="row mb-4">
-          <!-- Recipe Image Display -->
+          <!-- Recipe Image Display with Upload -->
           <div class="col-md-4 mb-4 mb-md-0">
             <div class="recipe-image-container">
-              <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
+              <img [src]="imagePreview || recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
+            </div>
+
+            <!-- Add Image Upload Controls - only show when editing -->
+            <div *ngIf="isEditing" class="mt-3">
+              <label for="image" class="form-label">Update Image</label>
+              <input
+                type="file"
+                id="image"
+                class="form-control"
+                accept="image/*"
+                (change)="onImageSelected($event)">
+              <small class="form-text text-muted">Select a new image to update</small>
             </div>
           </div>
 
@@ -244,19 +256,18 @@
                 </div>
 
                 <div class="row">
-                  <!-- Type - Use SearchableSelect component instead of text input -->
+                  <!-- Type - Use SearchableSelect component -->
                   <div class="col-md-3 mb-2">
                     <label class="form-label">Type</label>
-                    <!-- Only show select when editing, otherwise show text -->
-                    <div *ngIf="isEditing; else readOnlyType">
+                    <ng-container *ngIf="isEditing; else readOnlyType">
                       <app-searchable-select
                         [options]="ingredientTypeOptions"
                         placeholder="Select ingredient type"
-                        [disabled]="!isEditing"
                         (selectionChange)="onIngredientTypeChange(i, $event)"
-                        [formControlName]="'typeSelector'"
+                        formControlName="typeSelector"
+                        [grouped]="true"
                       ></app-searchable-select>
-                    </div>
+                    </ng-container>
                     <ng-template #readOnlyType>
                       <input
                         type="text"
@@ -283,12 +294,26 @@
                       formControlName="amount">
                   </div>
 
+                  <!-- Unit - Use SearchableSelect component -->
                   <div class="col-md-3 mb-2">
                     <label class="form-label">Unit</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      formControlName="unit">
+                    <ng-container *ngIf="isEditing; else readOnlyUnit">
+                      <app-searchable-select
+                        [options]="unitTypeOptions"
+                        placeholder="Select unit"
+                        (selectionChange)="onUnitTypeChange(i, $event)"
+                        formControlName="unitSelector"
+                        [grouped]="true"
+                      ></app-searchable-select>
+                    </ng-container>
+                    <ng-template #readOnlyUnit>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [value]="getUnitTypeDisplayName(ingredient.get('unit')?.value)"
+                        readonly>
+                    </ng-template>
+                    <input type="hidden" formControlName="unit">
                   </div>
                 </div>
               </div>
@@ -422,3 +447,4 @@
     </div>
   </div>
 </div>
+

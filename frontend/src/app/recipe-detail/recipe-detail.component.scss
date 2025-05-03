@@ -224,9 +224,10 @@
 
   /* Print styles */
   @media print {
-    /* Hide unnecessary elements */
     .navbar, .owner-actions, .user-actions, .print-controls,
-    .recipe-ratings-and-comments, .reset-servings, .btn {
+    .recipe-ratings-and-comments, .reset-servings, .btn,
+    app-similar-recipes,
+    .mt-5.mb-4:has(app-similar-recipes) {
       display: none !important;
     }
 

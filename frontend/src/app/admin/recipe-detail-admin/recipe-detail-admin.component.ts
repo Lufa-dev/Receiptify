@@ -9,6 +9,8 @@ import {SelectOption} from "../../../shared/components/searchable-select/searcha
 import {IngredientType} from "../../../shared/models/ingredient-type.model";
 import {IngredientService} from "../../../shared/services/ingredient.service";
 import {UnitService} from "../../../shared/services/unit.service";
+import {UnitType} from "../../../shared/models/unit-type.model";
+import {RecipeService} from "../../../shared/services/recipe.service";
 
 @Component({
   selector: 'app-recipe-detail-admin',
@@ -25,6 +27,10 @@ export class RecipeDetailAdminComponent implements OnInit {
   successMessage = '';
   isEditing = false;
 
+  // Image handling properties
+  imageFile: File | null = null;
+  imagePreview: string | ArrayBuffer | null = null;
+
   // Options for select dropdowns
   categories = RECIPE_CATEGORIES;
   cuisines = RECIPE_CUISINES;
@@ -35,11 +41,13 @@ export class RecipeDetailAdminComponent implements OnInit {
   ingredientTypeOptions: SelectOption[] = [];
   ingredientTypes: IngredientType[] = [];
   unitTypeOptions: SelectOption[] = [];
+  unitTypes: UnitType[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private adminService: AdminService,
+    private recipeService: RecipeService,
     private ingredientService: IngredientService,
     private unitService: UnitService,
     private fb: FormBuilder
@@ -69,37 +77,61 @@ export class RecipeDetailAdminComponent implements OnInit {
       this.ingredientTypes = types;
       this.ingredientTypeOptions = types.map(type => ({
         label: type.displayName,
-        value: type.name
+        value: type.name,
+        group: type.category
       }));
     });
   }
 
   loadUnitTypes(): void {
     this.unitService.getAllUnitTypes().subscribe(units => {
+      this.unitTypes = units;
       this.unitTypeOptions = units.map(unit => ({
-        label: unit.symbol,
-        value: unit.name
+        label: `${unit.symbol} ${unit.name !== unit.symbol ? '(' + this.formatUnitName(unit.name) + ')' : ''}`,
+        value: unit.name,
+        group: unit.category
       }));
     });
   }
 
   createRecipeForm(): FormGroup {
-    // All form controls start as disabled since we begin in view mode, not edit mode
     return this.fb.group({
-      title: [{value: '', disabled: true}, [Validators.required, Validators.maxLength(100)]],
-      description: [{value: '', disabled: true}, Validators.maxLength(500)],
-      category: [{value: '', disabled: true}],
-      cuisine: [{value: '', disabled: true}],
-      servings: [{value: null, disabled: true}, [Validators.min(1)]],
-      difficulty: [{value: '', disabled: true}],
-      costRating: [{value: '', disabled: true}],
-      prepTime: [{value: null, disabled: true}, [Validators.min(0)]],
-      cookTime: [{value: null, disabled: true}, [Validators.min(0)]],
-      bakingTime: [{value: null, disabled: true}, [Validators.min(0)]],
+      title: [{value: '', disabled: !this.isEditing}, [Validators.required, Validators.maxLength(100)]],
+      description: [{value: '', disabled: !this.isEditing}, Validators.maxLength(500)],
+      category: [{value: '', disabled: !this.isEditing}],
+      cuisine: [{value: '', disabled: !this.isEditing}],
+      servings: [{value: null, disabled: !this.isEditing}, [Validators.min(1)]],
+      difficulty: [{value: '', disabled: !this.isEditing}],
+      costRating: [{value: '', disabled: !this.isEditing}],
+      prepTime: [{value: null, disabled: !this.isEditing}, [Validators.min(0)]],
+      cookTime: [{value: null, disabled: !this.isEditing}, [Validators.min(0)]],
+      bakingTime: [{value: null, disabled: !this.isEditing}, [Validators.min(0)]],
       ingredients: this.fb.array([]),
       steps: this.fb.array([])
     });
   }
+
+
+  createIngredientFormGroup(): FormGroup {
+    return this.fb.group({
+      id: [{value: null, disabled: !this.isEditing}],
+      type: [{value: '', disabled: !this.isEditing}, Validators.required],
+      typeSelector: [{value: '', disabled: !this.isEditing}],
+      name: [{value: '', disabled: !this.isEditing}],
+      amount: [{value: '', disabled: !this.isEditing}],
+      unit: [{value: '', disabled: !this.isEditing}],
+      unitSelector: [{value: '', disabled: !this.isEditing}]
+    });
+  }
+
+  createStepFormGroup(stepNumber: number): FormGroup {
+    return this.fb.group({
+      id: [{value: null, disabled: !this.isEditing}],
+      stepNumber: [{value: stepNumber, disabled: !this.isEditing}, [Validators.required, Validators.min(0)]],
+      instruction: [{value: '', disabled: !this.isEditing}, [Validators.required, Validators.maxLength(1000)]]
+    });
+  }
+
 
   loadRecipeDetails(): void {
     this.isLoading = true;
@@ -129,30 +161,33 @@ export class RecipeDetailAdminComponent implements OnInit {
       this.stepsArray.removeAt(0);
     }
 
-    // Add ingredients
+    // Add ingredients with proper disabled state
     if (recipe.ingredients && recipe.ingredients.length) {
       recipe.ingredients.forEach(ingredient => {
-        this.ingredientsArray.push(this.fb.group({
+        const group = this.fb.group({
           id: [{value: ingredient.id, disabled: !this.isEditing}],
           type: [{value: ingredient.type, disabled: !this.isEditing}, Validators.required],
           typeSelector: [{value: ingredient.type, disabled: !this.isEditing}],
           name: [{value: ingredient.name, disabled: !this.isEditing}],
           amount: [{value: ingredient.amount, disabled: !this.isEditing}],
-          unit: [{value: ingredient.unit, disabled: !this.isEditing}]
-        }));
+          unit: [{value: ingredient.unit, disabled: !this.isEditing}],
+          unitSelector: [{value: ingredient.unit, disabled: !this.isEditing}]
+        });
+        this.ingredientsArray.push(group);
       });
     }
 
-    // Add steps
+    // Add steps with proper disabled state
     if (recipe.steps && recipe.steps.length) {
       recipe.steps.forEach(step => {
-        this.stepsArray.push(this.fb.group({
+        const group = this.fb.group({
           id: [{value: step.id, disabled: !this.isEditing}],
           stepNumber: [{value: step.stepNumber, disabled: !this.isEditing},
             [Validators.required, Validators.min(0)]],
           instruction: [{value: step.instruction, disabled: !this.isEditing},
             [Validators.required, Validators.maxLength(1000)]]
-        }));
+        });
+        this.stepsArray.push(group);
       });
     }
 
@@ -171,6 +206,7 @@ export class RecipeDetailAdminComponent implements OnInit {
     });
   }
 
+
   get ingredientsArray(): FormArray {
     return this.recipeForm.get('ingredients') as FormArray;
   }
@@ -180,14 +216,7 @@ export class RecipeDetailAdminComponent implements OnInit {
   }
 
   addIngredient(): void {
-    this.ingredientsArray.push(this.fb.group({
-      id: [{value: null, disabled: !this.isEditing}],
-      type: [{value: '', disabled: !this.isEditing}, Validators.required],
-      typeSelector: [{value: '', disabled: !this.isEditing}],
-      name: [{value: '', disabled: !this.isEditing}],
-      amount: [{value: '', disabled: !this.isEditing}],
-      unit: [{value: '', disabled: !this.isEditing}]
-    }));
+    this.ingredientsArray.push(this.createIngredientFormGroup());
   }
 
   removeIngredient(index: number): void {
@@ -196,19 +225,12 @@ export class RecipeDetailAdminComponent implements OnInit {
 
   addStep(): void {
     const nextStepNumber = this.stepsArray.length;
-    this.stepsArray.push(this.fb.group({
-      id: [{value: null, disabled: !this.isEditing}],
-      stepNumber: [{value: nextStepNumber, disabled: !this.isEditing},
-        [Validators.required, Validators.min(0)]],
-      instruction: [{value: '', disabled: !this.isEditing},
-        [Validators.required, Validators.maxLength(1000)]]
-    }));
+    this.stepsArray.push(this.createStepFormGroup(nextStepNumber));
   }
 
   removeStep(index: number): void {
     this.stepsArray.removeAt(index);
 
-    // Update step numbers for remaining steps
     for (let i = index; i < this.stepsArray.length; i++) {
       const control = this.stepsArray.at(i).get('stepNumber');
       if (control) {
@@ -217,109 +239,21 @@ export class RecipeDetailAdminComponent implements OnInit {
     }
   }
 
-  toggleEditMode(): void {
-    this.isEditing = !this.isEditing;
+  onImageSelected(event: Event): void {
+    const fileInput = event.target as HTMLInputElement;
+    if (fileInput.files && fileInput.files[0]) {
+      this.imageFile = fileInput.files[0];
 
-    if (this.isEditing) {
-      // Enable all form controls when entering edit mode
-      Object.keys(this.recipeForm.controls).forEach(key => {
-        const control = this.recipeForm.get(key);
-        if (control && !(control instanceof FormArray)) {
-          control.enable();
-        }
-      });
-
-      // Enable controls in form arrays
-      for (let i = 0; i < this.ingredientsArray.length; i++) {
-        const ingredientGroup = this.ingredientsArray.at(i) as FormGroup;
-        Object.keys(ingredientGroup.controls).forEach(key => {
-          ingredientGroup.get(key)?.enable();
-        });
-      }
-
-      for (let i = 0; i < this.stepsArray.length; i++) {
-        const stepGroup = this.stepsArray.at(i) as FormGroup;
-        Object.keys(stepGroup.controls).forEach(key => {
-          stepGroup.get(key)?.enable();
-        });
-      }
-    } else {
-      // Disable all form controls when exiting edit mode
-      Object.keys(this.recipeForm.controls).forEach(key => {
-        const control = this.recipeForm.get(key);
-        if (control && !(control instanceof FormArray)) {
-          control.disable();
-        }
-      });
-
-      // Disable controls in form arrays
-      for (let i = 0; i < this.ingredientsArray.length; i++) {
-        const ingredientGroup = this.ingredientsArray.at(i) as FormGroup;
-        Object.keys(ingredientGroup.controls).forEach(key => {
-          ingredientGroup.get(key)?.disable();
-        });
-      }
-
-      for (let i = 0; i < this.stepsArray.length; i++) {
-        const stepGroup = this.stepsArray.at(i) as FormGroup;
-        Object.keys(stepGroup.controls).forEach(key => {
-          stepGroup.get(key)?.disable();
-        });
-      }
-
-      // Reset form to original values when canceling edit
-      if (this.recipe) {
-        this.updateFormWithRecipe(this.recipe);
-      }
-    }
-  }
-
-  onSubmit(): void {
-    if (this.recipeForm.invalid) {
-      // Mark all fields as touched to trigger validation messages
-      this.markFormGroupTouched(this.recipeForm);
-      return;
-    }
-
-    this.isSubmitting = true;
-    this.error = '';
-    this.successMessage = '';
-
-    // Get raw values from form since some controls may be disabled
-    const formValue = this.recipeForm.getRawValue();
-
-    // Process ingredients to ensure proper mapping
-    formValue.ingredients = formValue.ingredients.map((ingredient: any) => {
-      return {
-        ...ingredient,
-        type: ingredient.type,  // Use the type value from the hidden input
-        // Remove the typeSelector property as it's not needed on the backend
-        typeSelector: undefined
+      // Preview the image
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result;
       };
-    });
-
-    const updatedRecipe: RecipeDTO = {
-      ...formValue,
-      id: this.recipeId
-    };
-
-    this.adminService.updateRecipe(this.recipeId, updatedRecipe)
-      .pipe(finalize(() => this.isSubmitting = false))
-      .subscribe({
-        next: (recipe) => {
-          this.recipe = recipe;
-          this.successMessage = 'Recipe updated successfully';
-          this.isEditing = false;
-          this.toggleEditMode(); // This will disable the form controls
-        },
-        error: (error) => {
-          console.error('Error updating recipe:', error);
-          this.error = 'Failed to update recipe. Please try again.';
-        }
-      });
+      reader.readAsDataURL(this.imageFile);
+    }
   }
 
-  // Helper function for the searchable select component
+  // Helper function for the ingredient searchable select component
   onIngredientTypeChange(index: number, option: SelectOption | null): void {
     if (option) {
       const ingredientGroup = this.ingredientsArray.at(index) as FormGroup;
@@ -334,10 +268,148 @@ export class RecipeDetailAdminComponent implements OnInit {
     }
   }
 
+  // Helper function for the unit searchable select component
+  onUnitTypeChange(index: number, option: SelectOption | null): void {
+    if (option) {
+      const ingredientGroup = this.ingredientsArray.at(index) as FormGroup;
+      ingredientGroup.get('unit')?.setValue(option.value);
+    }
+  }
+
   // Helper function to get display name from ingredient type
   getIngredientTypeDisplayName(typeName: string): string {
     const type = this.ingredientTypes.find(t => t.name === typeName);
     return type?.displayName || typeName;
+  }
+
+  // Helper function to get display name from unit type
+  getUnitTypeDisplayName(unitName: string): string {
+    if (!unitName) return '';
+
+    const unit = this.unitTypes.find(u => u.name === unitName);
+    return unit ? unit.symbol : unitName;
+  }
+
+  // Helper function to format unit name
+  formatUnitName(unitName: string): string {
+    if (!unitName) return '';
+
+    return unitName
+      .split('_')
+      .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+      .join(' ');
+  }
+
+  toggleEditMode(): void {
+    this.isEditing = !this.isEditing;
+
+    if (this.isEditing) {
+      // Enable all form controls when entering edit mode
+      this.recipeForm.enable();
+
+      // Enable all controls in form arrays
+      for (let i = 0; i < this.ingredientsArray.length; i++) {
+        const ingredientGroup = this.ingredientsArray.at(i) as FormGroup;
+        ingredientGroup.enable();
+      }
+
+      for (let i = 0; i < this.stepsArray.length; i++) {
+        const stepGroup = this.stepsArray.at(i) as FormGroup;
+        stepGroup.enable();
+      }
+    } else {
+      // Disable all form controls when exiting edit mode
+      this.recipeForm.disable();
+
+      // Disable all controls in form arrays
+      for (let i = 0; i < this.ingredientsArray.length; i++) {
+        const ingredientGroup = this.ingredientsArray.at(i) as FormGroup;
+        ingredientGroup.disable();
+      }
+
+      for (let i = 0; i < this.stepsArray.length; i++) {
+        const stepGroup = this.stepsArray.at(i) as FormGroup;
+        stepGroup.disable();
+      }
+
+      // Reset form to original values when canceling edit
+      if (this.recipe) {
+        this.updateFormWithRecipe(this.recipe);
+        this.imagePreview = null;
+        this.imageFile = null;
+      }
+    }
+  }
+
+
+  onSubmit(): void {
+    if (this.recipeForm.invalid) {
+      // Mark all fields as touched to trigger validation messages
+      this.markFormGroupTouched(this.recipeForm);
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.error = '';
+    this.successMessage = '';
+
+    // First upload the image if there is a new one
+    if (this.imageFile) {
+      this.recipeService.uploadImage(this.imageFile).subscribe({
+        next: (imageUrl) => {
+          this.saveRecipe(imageUrl);
+        },
+        error: (error) => {
+          console.error('Failed to upload image', error);
+          this.error = 'Failed to upload image. Please try again.';
+          this.isSubmitting = false;
+        }
+      });
+    } else {
+      // No new image, use the existing one
+      this.saveRecipe(this.recipe?.imageUrl || '');
+    }
+  }
+
+  saveRecipe(imageUrl: string): void {
+    // Get raw values from form
+    const formValue = this.recipeForm.getRawValue();
+
+    // Process ingredients to ensure proper mapping
+    formValue.ingredients = formValue.ingredients.map((ingredient: any) => {
+      return {
+        ...ingredient,
+        type: ingredient.type,  // Use the type value from the hidden input
+        unit: ingredient.unit,  // Use the unit value from the hidden input
+        // Remove the selector properties as they're not needed on the backend
+        typeSelector: undefined,
+        unitSelector: undefined
+      };
+    });
+
+    const updatedRecipe: RecipeDTO = {
+      ...formValue,
+      id: this.recipeId,
+      imageUrl: imageUrl
+    };
+
+    this.adminService.updateRecipe(this.recipeId, updatedRecipe)
+      .pipe(finalize(() => this.isSubmitting = false))
+      .subscribe({
+        next: (recipe) => {
+          this.recipe = recipe;
+          this.successMessage = 'Recipe updated successfully';
+          this.isEditing = false;
+          this.toggleEditMode(); // This will disable the form controls
+          // Reset image preview
+          this.imagePreview = null;
+          this.imageFile = null;
+        },
+        error: (error) => {
+          console.error('Error updating recipe:', error);
+          this.error = 'Failed to update recipe. Please try again.';
+        }
+      });
   }
 
   // Helper function to mark all fields as touched
@@ -391,4 +463,5 @@ export class RecipeDetailAdminComponent implements OnInit {
     this.router.navigate(['/admin/recipes']);
   }
 }
+
 

@@ -151,11 +151,8 @@ export class RecipeService {
   }
 
   getUserRecipeStats(): Observable<any> {
-    // Return mock data for now
-    return of({
-      total: 0,
-      thisMonth: 0,
-      topIngredient: ''
+    return this.http.get<any>(`${environment.API_URL}/api/profile/recipe-stats`, {
+      headers: this.authService.getAuthHeaders()
     });
   }
 }

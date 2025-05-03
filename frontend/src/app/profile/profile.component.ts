@@ -268,10 +268,16 @@ export class ProfileComponent implements OnInit {
       .subscribe({
         next: (stats) => {
           this.recipeStats = stats;
+          console.log('Recipe stats loaded:', stats);
         },
         error: (error) => {
           console.error('Error loading recipe stats:', error);
-          // Don't show error to user since this is secondary information
+          // Set default values in case of error
+          this.recipeStats = {
+            total: 0,
+            thisMonth: 0,
+            topIngredient: ''
+          };
         }
       });
   }

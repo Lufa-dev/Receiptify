@@ -13,13 +13,18 @@ export class HomeComponent implements OnInit {
   recipes: RecipeDTO[] = [];
   seasonalRecipes: RecipeDTO[] = [];
   isLoading = false;
+  isLoadingMore = false;
   currentMonth = '';
   error = '';
+  currentPage = 0;
+  totalRecipes = 0;
+  hasMoreRecipes = false;
+  pageSize = 12; // Number of recipes per page
 
-  constructor(private recipeService: RecipeService,
-              private authService: AuthService
-              ) {
-  }
+  constructor(
+    private recipeService: RecipeService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadAllRecipes();
@@ -44,7 +49,7 @@ export class HomeComponent implements OnInit {
       });
 
     // Load regular recipes
-    this.recipeService.getAllRecipes(0, 12)
+    this.recipeService.getAllRecipes(this.currentPage, this.pageSize)
       .pipe(catchError(error => {
         console.error('Error loading regular recipes:', error);
         return of({content: [], totalElements: 0});
@@ -52,6 +57,8 @@ export class HomeComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.recipes = response.content;
+          this.totalRecipes = response.totalElements;
+          this.hasMoreRecipes = (this.currentPage + 1) * this.pageSize < this.totalRecipes;
           this.isLoading = false;
         }
       });
@@ -68,6 +75,27 @@ export class HomeComponent implements OnInit {
         next: (response) => {
           this.seasonalRecipes = response.content;
           console.log('Loaded seasonal recipes:', this.seasonalRecipes);
+        }
+      });
+  }
+
+  loadMoreRecipes(): void {
+    if (this.isLoadingMore) return;
+
+    this.isLoadingMore = true;
+    this.currentPage++;
+
+    this.recipeService.getAllRecipes(this.currentPage, this.pageSize)
+      .pipe(finalize(() => this.isLoadingMore = false))
+      .subscribe({
+        next: (response) => {
+          this.recipes = [...this.recipes, ...response.content];
+          this.hasMoreRecipes = (this.currentPage + 1) * this.pageSize < this.totalRecipes;
+        },
+        error: (error) => {
+          console.error('Error loading more recipes:', error);
+          this.error = 'Failed to load more recipes. Please try again.';
+          this.currentPage--; // Revert on error
         }
       });
   }
@@ -100,9 +128,9 @@ export class HomeComponent implements OnInit {
   }
 
   private formatMonth(month: string): string {
-    // Convert "JANUARY" to "January"
     return month.charAt(0) + month.slice(1).toLowerCase();
   }
 }
+
 
 
