@@ -57,9 +57,11 @@ export class HomeComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.recipes = response.content;
-          this.totalRecipes = response.totalElements;
+          this.totalRecipes = response.page.totalElements;
+          console.log('Total recipes count:', this.totalRecipes);
           this.hasMoreRecipes = (this.currentPage + 1) * this.pageSize < this.totalRecipes;
           this.isLoading = false;
+
         }
       });
 
@@ -90,6 +92,7 @@ export class HomeComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.recipes = [...this.recipes, ...response.content];
+          this.totalRecipes = response.page.totalElements;
           this.hasMoreRecipes = (this.currentPage + 1) * this.pageSize < this.totalRecipes;
         },
         error: (error) => {

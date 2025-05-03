@@ -55,10 +55,10 @@
     </div>
 
     <!-- Load More Button -->
-    <div class="text-center mt-4 mb-5" *ngIf="hasMoreRecipes">
-      <button class="btn btn-outline-primary" (click)="loadMoreRecipes()" [disabled]="isLoadingMore">
+    <div class="text-center mt-4 mb-5">
+      <button class="btn btn-outline-primary" (click)="loadMoreRecipes()" [disabled]="!hasMoreRecipes || isLoadingMore">
         <span *ngIf="isLoadingMore" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-        Load More Recipes
+        {{ hasMoreRecipes ? 'Load More Recipes' : 'No More Recipes' }}
       </button>
     </div>
   </div>
