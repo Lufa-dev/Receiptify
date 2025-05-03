@@ -11,6 +11,7 @@ import { UserDetailComponent } from './user-detail/user-detail.component';
 import { RecipeDetailAdminComponent } from './recipe-detail-admin/recipe-detail-admin.component';
 import { CommentDetailComponent } from './comment-detail/comment-detail.component';
 import {AdminRoutingModule} from "./admin-routing.module";
+import {SearchableSelectComponent} from "../../shared/components/searchable-select/searchable-select.component";
 
 
 
@@ -22,7 +23,8 @@ import {AdminRoutingModule} from "./admin-routing.module";
     CommentManagementComponent,
     UserDetailComponent,
     RecipeDetailAdminComponent,
-    CommentDetailComponent
+    CommentDetailComponent,
+    SearchableSelectComponent
   ],
   imports: [
     CommonModule,

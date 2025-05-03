@@ -244,16 +244,27 @@
                 </div>
 
                 <div class="row">
+                  <!-- Type - Use SearchableSelect component instead of text input -->
                   <div class="col-md-3 mb-2">
                     <label class="form-label">Type</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      formControlName="type"
-                      [ngClass]="{'is-invalid': ingredient.get('type')?.invalid && ingredient.get('type')?.touched}">
-                    <div class="invalid-feedback" *ngIf="ingredient.get('type')?.errors?.['required']">
-                      Type is required
+                    <!-- Only show select when editing, otherwise show text -->
+                    <div *ngIf="isEditing; else readOnlyType">
+                      <app-searchable-select
+                        [options]="ingredientTypeOptions"
+                        placeholder="Select ingredient type"
+                        [disabled]="!isEditing"
+                        (selectionChange)="onIngredientTypeChange(i, $event)"
+                        [formControlName]="'typeSelector'"
+                      ></app-searchable-select>
                     </div>
+                    <ng-template #readOnlyType>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [value]="getIngredientTypeDisplayName(ingredient.get('type')?.value)"
+                        readonly>
+                    </ng-template>
+                    <input type="hidden" formControlName="type">
                   </div>
 
                   <div class="col-md-3 mb-2">

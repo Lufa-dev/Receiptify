@@ -1,12 +1,7 @@
 package com.thesis.receiptify.service;
 
-import com.thesis.receiptify.model.Comment;
-import com.thesis.receiptify.model.Profile;
-import com.thesis.receiptify.model.Recipe;
-import com.thesis.receiptify.model.dto.CommentDTO;
-import com.thesis.receiptify.model.dto.ProfileDTO;
-import com.thesis.receiptify.model.dto.RecipeDTO;
-import com.thesis.receiptify.model.dto.UserDTO;
+import com.thesis.receiptify.model.*;
+import com.thesis.receiptify.model.dto.*;
 import com.thesis.receiptify.model.enums.IngredientType;
 import com.thesis.receiptify.model.enums.Role;
 import com.thesis.receiptify.repository.*;
@@ -243,7 +238,52 @@ public class AdminService {
         Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recipe not found"));
 
-        return mapToRecipeDTO(recipe);
+        // Get rating information
+        Double averageRating = ratingRepository.getAverageRatingByRecipeId(recipe.getId());
+        Integer totalRatings = ratingRepository.countByRecipeId(recipe.getId());
+        Integer totalComments = commentRepository.countByRecipeId(recipe.getId());
+
+        // Create DTO with all recipe details
+        RecipeDTO recipeDTO = RecipeDTO.builder()
+                .id(recipe.getId())
+                .title(recipe.getTitle())
+                .description(recipe.getDescription())
+                .imageUrl(recipe.getImageUrl())
+                .category(recipe.getCategory())
+                .cuisine(recipe.getCuisine())
+                .servings(recipe.getServings())
+                .difficulty(recipe.getDifficulty())
+                .costRating(recipe.getCostRating())
+                .prepTime(recipe.getPrepTime())
+                .cookTime(recipe.getCookTime())
+                .bakingTime(recipe.getBakingTime())
+                .bakingTemp(recipe.getBakingTemp())
+                .panSize(recipe.getPanSize())
+                .bakingMethod(recipe.getBakingMethod())
+                .user(UserDTO.builder()
+                        .id(recipe.getUser().getId())
+                        .username(recipe.getUser().getUsername())
+                        .firstName(recipe.getUser().getFirstName())
+                        .lastName(recipe.getUser().getLastName())
+                        .build())
+                .averageRating(averageRating != null ? averageRating : 0.0)
+                .totalRatings(totalRatings != null ? totalRatings : 0)
+                .totalComments(totalComments != null ? totalComments : 0)
+                .build();
+
+        // Add ingredients
+        List<IngredientDTO> ingredientDTOs = recipe.getIngredients().stream()
+                .map(this::mapToIngredientDTO)
+                .collect(Collectors.toList());
+        recipeDTO.setIngredients(ingredientDTOs);
+
+        // Add steps
+        List<RecipeStepDTO> stepDTOs = recipe.getSteps().stream()
+                .map(this::mapToStepDTO)
+                .collect(Collectors.toList());
+        recipeDTO.setSteps(stepDTOs);
+
+        return recipeDTO;
     }
 
     /**
@@ -271,10 +311,34 @@ public class AdminService {
         recipe.setBakingMethod(recipeDTO.getBakingMethod());
         recipe.setUpdatedAt(LocalDateTime.now());
 
-        // Ingredients and steps would be handled separately or use a service method
+        // Clear and re-add ingredients
+        recipe.getIngredients().clear();
+        if (recipeDTO.getIngredients() != null) {
+            for (IngredientDTO ingredientDTO : recipeDTO.getIngredients()) {
+                Ingredient ingredient = Ingredient.builder()
+                        .type(ingredientDTO.getType())
+                        .amount(ingredientDTO.getAmount())
+                        .unit(ingredientDTO.getUnit())
+                        .name(ingredientDTO.getName() != null ? ingredientDTO.getName() : ingredientDTO.getType().getDisplayName())
+                        .build();
+                recipe.addIngredient(ingredient);
+            }
+        }
+
+        // Clear and re-add steps
+        recipe.getSteps().clear();
+        if (recipeDTO.getSteps() != null) {
+            for (RecipeStepDTO stepDTO : recipeDTO.getSteps()) {
+                RecipeStep step = RecipeStep.builder()
+                        .stepNumber(stepDTO.getStepNumber())
+                        .instruction(stepDTO.getInstruction())
+                        .build();
+                recipe.addStep(step);
+            }
+        }
 
         Recipe updatedRecipe = recipeRepository.save(recipe);
-        return mapToRecipeDTO(updatedRecipe);
+        return getRecipeById(updatedRecipe.getId()); // Use the improved getRecipeById method
     }
 
     /**
@@ -380,7 +444,10 @@ public class AdminService {
     }
 
     private RecipeDTO mapToRecipeDTO(Recipe recipe) {
-        // This could be more complex with ingredients and steps
+        Double averageRating = ratingRepository.getAverageRatingByRecipeId(recipe.getId());
+        Integer totalRatings = ratingRepository.countByRecipeId(recipe.getId());
+        Integer totalComments = commentRepository.countByRecipeId(recipe.getId());
+
         return RecipeDTO.builder()
                 .id(recipe.getId())
                 .title(recipe.getTitle())
@@ -403,6 +470,9 @@ public class AdminService {
                         .firstName(recipe.getUser().getFirstName())
                         .lastName(recipe.getUser().getLastName())
                         .build())
+                .averageRating(averageRating != null ? averageRating : 0.0)
+                .totalRatings(totalRatings != null ? totalRatings : 0)
+                .totalComments(totalComments != null ? totalComments : 0)
                 .build();
     }
 
@@ -421,6 +491,27 @@ public class AdminService {
                 .updatedAt(comment.getUpdatedAt())
                 .moderationStatus(comment.getModerationStatus())
                 .adminNotes(comment.getAdminNotes())
+                .build();
+    }
+
+    private IngredientDTO mapToIngredientDTO(Ingredient ingredient) {
+        return IngredientDTO.builder()
+                .id(ingredient.getId())
+                .type(ingredient.getType())
+                .amount(ingredient.getAmount())
+                .unit(ingredient.getUnit())
+                .name(ingredient.getName())
+                .build();
+    }
+
+    /**
+     * Map RecipeStep entity to RecipeStepDTO
+     */
+    private RecipeStepDTO mapToStepDTO(RecipeStep step) {
+        return RecipeStepDTO.builder()
+                .id(step.getId())
+                .stepNumber(step.getStepNumber())
+                .instruction(step.getInstruction())
                 .build();
     }
 

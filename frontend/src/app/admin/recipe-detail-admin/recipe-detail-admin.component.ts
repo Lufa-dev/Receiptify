@@ -5,6 +5,10 @@ import { AdminService } from '../../../shared/services/admin.service';
 import { RecipeDTO } from '../../../shared/models/recipe.model';
 import { finalize } from 'rxjs/operators';
 import { RECIPE_CATEGORIES, RECIPE_CUISINES, RECIPE_DIFFICULTIES, RECIPE_COST_RATINGS } from '../../../shared/constants/recipe-options';
+import {SelectOption} from "../../../shared/components/searchable-select/searchable-select.component";
+import {IngredientType} from "../../../shared/models/ingredient-type.model";
+import {IngredientService} from "../../../shared/services/ingredient.service";
+import {UnitService} from "../../../shared/services/unit.service";
 
 @Component({
   selector: 'app-recipe-detail-admin',
@@ -27,16 +31,29 @@ export class RecipeDetailAdminComponent implements OnInit {
   difficulties = RECIPE_DIFFICULTIES;
   costRatings = RECIPE_COST_RATINGS;
 
+  // Options for searchable select component
+  ingredientTypeOptions: SelectOption[] = [];
+  ingredientTypes: IngredientType[] = [];
+  unitTypeOptions: SelectOption[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private adminService: AdminService,
+    private ingredientService: IngredientService,
+    private unitService: UnitService,
     private fb: FormBuilder
   ) {
     this.recipeForm = this.createRecipeForm();
   }
 
   ngOnInit(): void {
+    // Load ingredient types for dropdown
+    this.loadIngredientTypes();
+
+    // Load unit types for dropdown
+    this.loadUnitTypes();
+
     this.route.params.subscribe(params => {
       this.recipeId = +params['id'];
       if (this.recipeId) {
@@ -44,6 +61,25 @@ export class RecipeDetailAdminComponent implements OnInit {
       } else {
         this.error = 'Invalid recipe ID';
       }
+    });
+  }
+
+  loadIngredientTypes(): void {
+    this.ingredientService.getAllIngredientTypes().subscribe(types => {
+      this.ingredientTypes = types;
+      this.ingredientTypeOptions = types.map(type => ({
+        label: type.displayName,
+        value: type.name
+      }));
+    });
+  }
+
+  loadUnitTypes(): void {
+    this.unitService.getAllUnitTypes().subscribe(units => {
+      this.unitTypeOptions = units.map(unit => ({
+        label: unit.symbol,
+        value: unit.name
+      }));
     });
   }
 
@@ -99,6 +135,7 @@ export class RecipeDetailAdminComponent implements OnInit {
         this.ingredientsArray.push(this.fb.group({
           id: [{value: ingredient.id, disabled: !this.isEditing}],
           type: [{value: ingredient.type, disabled: !this.isEditing}, Validators.required],
+          typeSelector: [{value: ingredient.type, disabled: !this.isEditing}],
           name: [{value: ingredient.name, disabled: !this.isEditing}],
           amount: [{value: ingredient.amount, disabled: !this.isEditing}],
           unit: [{value: ingredient.unit, disabled: !this.isEditing}]
@@ -146,6 +183,7 @@ export class RecipeDetailAdminComponent implements OnInit {
     this.ingredientsArray.push(this.fb.group({
       id: [{value: null, disabled: !this.isEditing}],
       type: [{value: '', disabled: !this.isEditing}, Validators.required],
+      typeSelector: [{value: '', disabled: !this.isEditing}],
       name: [{value: '', disabled: !this.isEditing}],
       amount: [{value: '', disabled: !this.isEditing}],
       unit: [{value: '', disabled: !this.isEditing}]
@@ -250,6 +288,16 @@ export class RecipeDetailAdminComponent implements OnInit {
     // Get raw values from form since some controls may be disabled
     const formValue = this.recipeForm.getRawValue();
 
+    // Process ingredients to ensure proper mapping
+    formValue.ingredients = formValue.ingredients.map((ingredient: any) => {
+      return {
+        ...ingredient,
+        type: ingredient.type,  // Use the type value from the hidden input
+        // Remove the typeSelector property as it's not needed on the backend
+        typeSelector: undefined
+      };
+    });
+
     const updatedRecipe: RecipeDTO = {
       ...formValue,
       id: this.recipeId
@@ -269,6 +317,27 @@ export class RecipeDetailAdminComponent implements OnInit {
           this.error = 'Failed to update recipe. Please try again.';
         }
       });
+  }
+
+  // Helper function for the searchable select component
+  onIngredientTypeChange(index: number, option: SelectOption | null): void {
+    if (option) {
+      const ingredientGroup = this.ingredientsArray.at(index) as FormGroup;
+      ingredientGroup.get('type')?.setValue(option.value);
+
+      // Also update the name if it's empty or matches the previous type
+      const currentName = ingredientGroup.get('name')?.value;
+      const type = this.ingredientTypes.find(t => t.name === option.value);
+      if (!currentName || this.getIngredientTypeDisplayName(ingredientGroup.get('type')?.value) === currentName) {
+        ingredientGroup.get('name')?.setValue(type?.displayName || option.label);
+      }
+    }
+  }
+
+  // Helper function to get display name from ingredient type
+  getIngredientTypeDisplayName(typeName: string): string {
+    const type = this.ingredientTypes.find(t => t.name === typeName);
+    return type?.displayName || typeName;
   }
 
   // Helper function to mark all fields as touched
@@ -322,3 +391,4 @@ export class RecipeDetailAdminComponent implements OnInit {
     this.router.navigate(['/admin/recipes']);
   }
 }
+
