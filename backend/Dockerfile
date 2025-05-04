@@ -5,6 +5,7 @@ COPY src ./src
 COPY .mvn ./.mvn
 COPY mvnw .
 COPY mvnw.cmd .
+RUN chmod +x ./mvnw
 RUN ./mvnw clean package -DskipTests
 
 FROM openjdk:17-jdk-slim
