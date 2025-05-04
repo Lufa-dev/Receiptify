@@ -75,7 +75,6 @@ export function clearStorageInitializer() {
     AdminModule
   ],
   providers: [AuthService, PortionCalculatorService,
-    {provide: LocationStrategy, useClass: HashLocationStrategy},
     {
       provide: APP_INITIALIZER,
       useFactory: clearStorageInitializer,
