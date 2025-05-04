@@ -52,6 +52,11 @@
                 "glob": "serve.json",
                 "input": "src",
                 "output": "/"
+              },
+              {
+                "glob": "staticwebapp.config.json",
+                "input": ".",
+                "output": "/"
               }
             ],
             "styles": [
