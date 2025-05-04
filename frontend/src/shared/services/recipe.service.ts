@@ -88,7 +88,10 @@ export class RecipeService {
 
     console.log('Sending advanced search request:', { url, cleanCriteria });
 
-    return this.http.post(url, cleanCriteria);
+    // Add the auth headers
+    return this.http.post(url, cleanCriteria, {
+      headers: this.getAuthHeaders()
+    });
   }
 
   getSearchFilterOptions(): Observable<SearchFilterOptions> {

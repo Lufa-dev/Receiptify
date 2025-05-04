@@ -1,0 +1,800 @@
+INSERT INTO recipe (title, description, image_url, user_id, created_at, category, cuisine, servings, difficulty, cost_rating, prep_time, cook_time)
+VALUES (
+    'Classic Spaghetti Carbonara',
+    'A traditional Roman pasta dish with eggs, cheese, pancetta, and black pepper.',
+    'https://example.com/images/carbonara.jpg',
+    6,
+    NOW(), 'Main Course', 'Italian', 4, 'hard', 'moderate', 15, 20
+);
+
+DO $$
+DECLARE
+    carbonara_id BIGINT;
+BEGIN
+    SELECT id INTO carbonara_id FROM recipe WHERE title = 'Classic Spaghetti Carbonara'
+    ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO ingredient (type, amount, unit, name, recipe_id)
+    VALUES
+    ('PASTA', '400', 'GRAM', 'Spaghetti', carbonara_id),
+    ('EGGS', '4', 'PIECE', 'Large eggs', carbonara_id),
+    ('PARMESAN_CHEESE', '100', 'GRAM', 'Parmesan cheese, grated', carbonara_id),
+    ('BACON', '150', 'GRAM', 'Pancetta or guanciale, diced', carbonara_id),
+    ('GARLIC', '2', 'PIECE', 'Garlic cloves, minced', carbonara_id),
+    ('BLACK_PEPPER', '1', 'TEASPOON', 'Freshly ground black pepper', carbonara_id),
+    ('SALT', '1', 'TEASPOON', 'Salt', carbonara_id);
+
+    INSERT INTO recipe_step (step_number, instruction, recipe_id)
+    VALUES
+    (0, 'Bring a large pot of salted water to a boil and cook the spaghetti until al dente.', carbonara_id),
+    (1, 'While the pasta is cooking, whisk together the eggs, grated Parmesan, and black pepper in a bowl.', carbonara_id),
+    (2, 'In a large skillet, cook the pancetta over medium heat until crispy, about 5-7 minutes. Add the minced garlic and cook for 30 seconds until fragrant.', carbonara_id),
+    (3, 'Drain the cooked pasta, reserving 1/2 cup of pasta water.', carbonara_id),
+    (4, 'Working quickly, add the hot pasta to the skillet with the pancetta. Remove from heat.', carbonara_id),
+    (5, 'Pour the egg mixture over the pasta and toss quickly to coat all strands. The residual heat will cook the eggs without scrambling them.', carbonara_id),
+    (6, 'If needed, add a splash of reserved pasta water to create a creamy sauce.', carbonara_id),
+    (7, 'Serve immediately with extra grated Parmesan and black pepper on top.', carbonara_id);
+END $$;
+
+INSERT INTO recipe (title, description, image_url, user_id, created_at, category, cuisine, servings, difficulty, cost_rating, prep_time, cook_time)
+VALUES (
+    'Vegetarian Buddha Bowl',
+    'A nourishing bowl filled with roasted vegetables, grains, and a flavorful sauce. Perfect for meal prep!',
+    'https://example.com/images/buddha_bowl.jpg',
+    10,
+    NOW(), 'Main Course', 'Fusion', 2, 'medium', 'budget', 20, 25
+);
+
+DO $$
+DECLARE
+    buddha_bowl_id BIGINT;
+BEGIN
+    SELECT id INTO buddha_bowl_id FROM recipe WHERE title = 'Vegetarian Buddha Bowl'
+    ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO ingredient (type, amount, unit, name, recipe_id)
+    VALUES
+    ('SWEET_POTATOES', '1', 'PIECE', 'Sweet potato, diced', buddha_bowl_id),
+    ('CHICKPEAS', '400', 'GRAM', 'Chickpeas, rinsed and drained', buddha_bowl_id),
+    ('BROWN_RICE', '1', 'CUP', 'Cooked brown rice', buddha_bowl_id),
+    ('AVOCADO', '1', 'PIECE', 'Avocado, sliced', buddha_bowl_id),
+    ('KALE', '2', 'CUP', 'Kale, chopped', buddha_bowl_id),
+    ('CHERRY_TOMATOES', '1', 'CUP', 'Cherry tomatoes, halved', buddha_bowl_id),
+    ('OLIVE_OIL', '2', 'TABLESPOON', 'Olive oil', buddha_bowl_id),
+    ('TAHINI', '2', 'TABLESPOON', 'Tahini', buddha_bowl_id),
+    ('LEMONS', '1', 'PIECE', 'Lemon, juiced', buddha_bowl_id),
+    ('CUMIN', '1', 'TEASPOON', 'Ground cumin', buddha_bowl_id),
+    ('GARLIC', '1', 'PIECE', 'Garlic clove, minced', buddha_bowl_id),
+    ('SALT', '1', 'TEASPOON', 'Salt', buddha_bowl_id),
+    ('BLACK_PEPPER', '1/2', 'TEASPOON', 'Black pepper', buddha_bowl_id);
+
+    INSERT INTO recipe_step (step_number, instruction, recipe_id)
+    VALUES
+    (0, 'Preheat the oven to 425°F (220°C).', buddha_bowl_id),
+    (1, 'Toss diced sweet potato with 1 tablespoon olive oil, salt, and pepper. Spread on a baking sheet.', buddha_bowl_id),
+    (2, 'On another part of the baking sheet, add the chickpeas tossed with cumin, salt, and pepper.', buddha_bowl_id),
+    (3, 'Roast sweet potatoes and chickpeas for 20-25 minutes, stirring halfway through.', buddha_bowl_id),
+    (4, 'Massage the kale with a bit of olive oil and salt until softened.', buddha_bowl_id),
+    (5, 'Make the tahini sauce by whisking together tahini, lemon juice, minced garlic, salt, pepper, and a bit of water to thin.', buddha_bowl_id),
+    (6, 'Assemble the bowls: Start with a base of brown rice, add the roasted sweet potatoes, chickpeas, kale, cherry tomatoes, and avocado.', buddha_bowl_id),
+    (7, 'Drizzle with tahini sauce and serve.', buddha_bowl_id);
+END $$;
+
+INSERT INTO recipe (title, description, image_url, user_id, created_at, category, cuisine, servings, difficulty, cost_rating, prep_time, cook_time)
+VALUES (
+    'Classic Beef Stroganoff',
+    'Tender strips of beef in a rich, creamy mushroom sauce served over egg noodles.',
+    'https://example.com/images/stroganoff.jpg',
+    4,
+    NOW(), 'Main Course', 'Russian', 4, 'medium', 'moderate', 20, 30
+);
+
+DO $$
+DECLARE
+    stroganoff_id BIGINT;
+BEGIN
+    SELECT id INTO stroganoff_id FROM recipe WHERE title = 'Classic Beef Stroganoff'
+    ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO ingredient (type, amount, unit, name, recipe_id)
+    VALUES
+    ('BEEF_SIRLOIN', '1', 'POUND', 'Beef sirloin, thinly sliced', stroganoff_id),
+    ('MUSHROOMS', '8', 'OUNCE', 'Button mushrooms, sliced', stroganoff_id),
+    ('ONIONS', '1', 'PIECE', 'Large onion, diced', stroganoff_id),
+    ('GARLIC', '2', 'PIECE', 'Garlic cloves, minced', stroganoff_id),
+    ('BUTTER', '3', 'TABLESPOON', 'Butter', stroganoff_id),
+    ('FLOUR', '2', 'TABLESPOON', 'All-purpose flour', stroganoff_id),
+    ('BEEF_BROTH', '1.5', 'CUP', 'Beef broth', stroganoff_id),
+    ('SOUR_CREAM', '1', 'CUP', 'Sour cream', stroganoff_id),
+    ('DIJON_MUSTARD', '1', 'TABLESPOON', 'Dijon mustard', stroganoff_id),
+    ('NOODLES', '8', 'OUNCE', 'Egg noodles', stroganoff_id),
+    ('PAPRIKA', '1', 'TEASPOON', 'Paprika', stroganoff_id),
+    ('SALT', '1', 'TEASPOON', 'Salt', stroganoff_id),
+    ('BLACK_PEPPER', '1/2', 'TEASPOON', 'Black pepper', stroganoff_id);
+
+    INSERT INTO recipe_step (step_number, instruction, recipe_id)
+    VALUES
+    (0, 'Bring a large pot of salted water to a boil and cook egg noodles according to package directions. Drain and set aside.', stroganoff_id),
+    (1, 'Season beef slices with salt, pepper, and paprika.', stroganoff_id),
+    (2, 'In a large skillet, melt 1 tablespoon of butter over high heat. Quickly sear the beef on both sides until browned but still rare inside, about 1 minute per side. Remove from skillet and set aside.', stroganoff_id),
+    (3, 'In the same skillet, melt the remaining butter. Add the onions and cook until softened, about 3 minutes. Add the mushrooms and cook until they release their moisture and begin to brown, about 5-7 minutes.', stroganoff_id),
+    (4, 'Add garlic and cook for 30 seconds until fragrant.', stroganoff_id),
+    (5, 'Sprinkle flour over the vegetables and stir to coat. Cook for 1 minute.', stroganoff_id),
+    (6, 'Gradually whisk in the beef broth, scraping up any browned bits from the bottom of the pan. Bring to a simmer and cook until the sauce thickens, about 5 minutes.', stroganoff_id),
+    (7, 'Reduce heat to low. Stir in the Dijon mustard, then the sour cream, stirring continuously until combined.', stroganoff_id),
+    (8, 'Return the beef to the skillet along with any accumulated juices. Simmer gently for 1-2 minutes to warm the meat through.', stroganoff_id),
+    (9, 'Serve over cooked egg noodles, garnished with fresh parsley if desired.', stroganoff_id);
+END $$;
+
+INSERT INTO recipe (title, description, image_url, user_id, created_at, category, cuisine, servings, difficulty, cost_rating, prep_time, cook_time)
+VALUES (
+    'Fresh Summer Greek Salad',
+    'A refreshing and healthy salad with crisp vegetables, feta cheese, and a simple olive oil dressing.',
+    'https://example.com/images/greek_salad.jpg',
+    5,
+    NOW(), 'Salad', 'Greek', 4, 'easy', 'budget', 15, 0
+);
+
+DO $$
+DECLARE
+    greek_salad_id BIGINT;
+BEGIN
+    SELECT id INTO greek_salad_id FROM recipe WHERE title = 'Fresh Summer Greek Salad'
+    ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO ingredient (type, amount, unit, name, recipe_id)
+    VALUES
+    ('CUCUMBER', '1', 'PIECE', 'English cucumber, chopped', greek_salad_id),
+    ('TOMATOES', '4', 'PIECE', 'Roma tomatoes, chopped', greek_salad_id),
+    ('RED_ONION', '1/2', 'PIECE', 'Red onion, thinly sliced', greek_salad_id),
+    ('BELL_PEPPER', '1', 'PIECE', 'Green bell pepper, chopped', greek_salad_id),
+    ('FETA_CHEESE', '200', 'GRAM', 'Feta cheese, cubed', greek_salad_id),
+    ('OLIVES_BLACK', '1/2', 'CUP', 'Kalamata olives', greek_salad_id),
+    ('OLIVE_OIL', '1/4', 'CUP', 'Extra virgin olive oil', greek_salad_id),
+    ('RED_WINE_VINEGAR', '2', 'TABLESPOON', 'Red wine vinegar', greek_salad_id),
+    ('OREGANO', '1', 'TEASPOON', 'Dried oregano', greek_salad_id),
+    ('SALT', '1/2', 'TEASPOON', 'Salt', greek_salad_id),
+    ('BLACK_PEPPER', '1/4', 'TEASPOON', 'Freshly ground black pepper', greek_salad_id);
+
+    INSERT INTO recipe_step (step_number, instruction, recipe_id)
+    VALUES
+    (0, 'In a large bowl, combine the chopped cucumber, tomatoes, red onion, and bell pepper.', greek_salad_id),
+    (1, 'Add the olives and cubed feta cheese to the bowl.', greek_salad_id),
+    (2, 'In a small bowl, whisk together the olive oil, red wine vinegar, dried oregano, salt, and pepper to make the dressing.', greek_salad_id),
+    (3, 'Pour the dressing over the salad and toss gently to combine.', greek_salad_id),
+    (4, 'Let the salad sit for 10 minutes to allow the flavors to meld before serving.', greek_salad_id),
+    (5, 'Serve chilled or at room temperature, with an extra sprinkle of oregano on top if desired.', greek_salad_id);
+END $$;
+
+INSERT INTO recipe (title, description, image_url, user_id, created_at, category, cuisine, servings, difficulty, cost_rating, prep_time, cook_time, baking_time, baking_temp)
+VALUES (
+    'Homemade Chocolate Chip Cookies',
+    'Classic, chewy chocolate chip cookies with crisp edges and a soft center. The perfect treat!',
+    'https://example.com/images/choc_chip_cookies.jpg',
+    8,
+    NOW(), 'Dessert', 'American', 24, 'medium', 'budget', 15, 0, 12, 350
+);
+
+DO $$
+DECLARE
+    cookies_id BIGINT;
+BEGIN
+    SELECT id INTO cookies_id FROM recipe WHERE title = 'Homemade Chocolate Chip Cookies'
+    ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO ingredient (type, amount, unit, name, recipe_id)
+    VALUES
+    ('BUTTER', '1', 'CUP', 'Unsalted butter, softened', cookies_id),
+    ('BROWN_SUGAR', '1', 'CUP', 'Brown sugar, packed', cookies_id),
+    ('SUGAR', '1/2', 'CUP', 'Granulated sugar', cookies_id),
+    ('EGGS', '2', 'PIECE', 'Large eggs', cookies_id),
+    ('VANILLA_EXTRACT', '2', 'TEASPOON', 'Vanilla extract', cookies_id),
+    ('FLOUR', '3', 'CUP', 'All-purpose flour', cookies_id),
+    ('BAKING_SODA', '1', 'TEASPOON', 'Baking soda', cookies_id),
+    ('SALT', '1', 'TEASPOON', 'Salt', cookies_id),
+    ('CHOCOLATE_CHIPS', '2', 'CUP', 'Chocolate chips', cookies_id);
+
+    INSERT INTO recipe_step (step_number, instruction, recipe_id)
+    VALUES
+    (0, 'Preheat oven to 350°F (175°C). Line baking sheets with parchment paper.', cookies_id),
+    (1, 'In a large bowl, cream together the softened butter, brown sugar, and granulated sugar until light and fluffy.', cookies_id),
+    (2, 'Beat in the eggs one at a time, then stir in the vanilla extract.', cookies_id),
+    (3, 'In a separate bowl, whisk together the flour, baking soda, and salt.', cookies_id),
+    (4, 'Gradually add the dry ingredients to the wet ingredients, mixing just until combined.', cookies_id),
+    (5, 'Fold in the chocolate chips.', cookies_id),
+    (6, 'Drop rounded tablespoons of dough onto the prepared baking sheets, spacing them about 2 inches apart.', cookies_id),
+    (7, 'Bake for 10-12 minutes, or until the edges are lightly golden but the centers still look soft.', cookies_id),
+    (8, 'Allow cookies to cool on the baking sheet for 5 minutes before transferring to a wire rack to cool completely.', cookies_id);
+END $$;
+
+INSERT INTO recipe (title, description, image_url, user_id, created_at, category, cuisine, servings, difficulty, cost_rating, prep_time, cook_time)
+VALUES (
+    'Spicy Thai Green Curry',
+    'A fragrant and spicy Thai curry with vegetables and your choice of protein, served over jasmine rice.',
+    'https://example.com/images/thai_curry.jpg',
+    9,
+    NOW(), 'Main Course', 'Thai', 4, 'medium', 'moderate', 20, 25
+);
+
+DO $$
+DECLARE
+    thai_curry_id BIGINT;
+BEGIN
+    SELECT id INTO thai_curry_id FROM recipe WHERE title = 'Spicy Thai Green Curry'
+    ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO ingredient (type, amount, unit, name, recipe_id)
+    VALUES
+    ('CHICKEN_BREAST', '500', 'GRAM', 'Chicken breast, cut into pieces (or tofu for vegetarian)', thai_curry_id),
+    ('COCONUT_MILK_CANNED', '2', 'CUP', 'Coconut milk', thai_curry_id),
+    ('CURRY_PASTE', '3', 'TABLESPOON', 'Thai green curry paste', thai_curry_id),
+    ('BELL_PEPPER', '1', 'PIECE', 'Red bell pepper, sliced', thai_curry_id),
+    ('ONIONS', '1', 'PIECE', 'Onion, sliced', thai_curry_id),
+    ('ZUCCHINI', '1', 'PIECE', 'Zucchini, sliced', thai_curry_id),
+    ('GARLIC', '3', 'PIECE', 'Garlic cloves, minced', thai_curry_id),
+    ('GINGER', '1', 'TABLESPOON', 'Fresh ginger, minced', thai_curry_id),
+    ('FISH_SAUCE', '1', 'TABLESPOON', 'Fish sauce', thai_curry_id),
+    ('SOY_SAUCE', '1', 'TABLESPOON', 'Soy sauce', thai_curry_id),
+    ('BROWN_SUGAR', '1', 'TEASPOON', 'Brown sugar', thai_curry_id),
+    ('LIME', '1', 'PIECE', 'Lime, juiced', thai_curry_id),
+    ('BASIL', '1/2', 'CUP', 'Thai basil leaves', thai_curry_id),
+    ('RICE', '2', 'CUP', 'Jasmine rice', thai_curry_id),
+    ('VEGETABLE_BROTH', '1/2', 'CUP', 'Vegetable broth', thai_curry_id);
+
+    INSERT INTO recipe_step (step_number, instruction, recipe_id)
+    VALUES
+    (0, 'Cook jasmine rice according to package instructions. Set aside.', thai_curry_id),
+    (1, 'In a large skillet or wok, heat 2 tablespoons of oil over medium-high heat.', thai_curry_id),
+    (2, 'Add garlic and ginger, stir-fry for 30 seconds until fragrant.', thai_curry_id),
+    (3, 'Add the curry paste and cook for 1 minute, stirring constantly.', thai_curry_id),
+    (4, 'Add the chicken or tofu and cook until the outside is no longer pink, about 3-4 minutes.', thai_curry_id),
+    (5, 'Add the onion, bell pepper, and zucchini. Stir-fry for 2-3 minutes.', thai_curry_id),
+    (6, 'Pour in the coconut milk and vegetable broth. Bring to a simmer.', thai_curry_id),
+    (7, 'Add fish sauce, soy sauce, and brown sugar. Stir to combine.', thai_curry_id),
+    (8, 'Simmer for 10-15 minutes until the vegetables are tender and the sauce has thickened slightly.', thai_curry_id),
+    (9, 'Remove from heat and stir in lime juice and Thai basil leaves.', thai_curry_id),
+    (10, 'Serve hot over jasmine rice.', thai_curry_id);
+END $$;
+
+INSERT INTO recipe (title, description, image_url, user_id, created_at, category, cuisine, servings, difficulty, cost_rating, prep_time, cook_time)
+VALUES (
+    'Classic French Onion Soup',
+    'A rich, savory soup with caramelized onions and a cheesy toast topping. Pure comfort food!',
+    'https://example.com/images/onion_soup.jpg',
+    7,
+    NOW(), 'Soup', 'French', 6, 'easy', 'budget', 15, 60
+);
+
+DO $$
+DECLARE
+    onion_soup_id BIGINT;
+BEGIN
+    SELECT id INTO onion_soup_id FROM recipe WHERE title = 'Classic French Onion Soup'
+    ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO ingredient (type, amount, unit, name, recipe_id)
+    VALUES
+    ('ONIONS', '6', 'PIECE', 'Large yellow onions, thinly sliced', onion_soup_id),
+    ('BUTTER', '4', 'TABLESPOON', 'Butter', onion_soup_id),
+    ('OLIVE_OIL', '1', 'TABLESPOON', 'Olive oil', onion_soup_id),
+    ('GARLIC', '2', 'PIECE', 'Garlic cloves, minced', onion_soup_id),
+    ('FLOUR', '2', 'TABLESPOON', 'All-purpose flour', onion_soup_id),
+    ('BEEF_BROTH', '8', 'CUP', 'Beef broth', onion_soup_id),
+    ('RED_WINE', '1/2', 'CUP', 'Dry red wine', onion_soup_id),
+    ('BAY_LEAVES', '2', 'PIECE', 'Bay leaves', onion_soup_id),
+    ('THYME', '1', 'TEASPOON', 'Fresh thyme leaves', onion_soup_id),
+    ('BREAD', '6', 'SLICE', 'French baguette slices', onion_soup_id),
+    ('GRUYERE_CHEESE', '2', 'CUP', 'Gruyere cheese, grated', onion_soup_id),
+    ('SALT', '1', 'TEASPOON', 'Salt', onion_soup_id),
+    ('BLACK_PEPPER', '1/2', 'TEASPOON', 'Black pepper', onion_soup_id);
+
+    INSERT INTO recipe_step (step_number, instruction, recipe_id)
+    VALUES
+    (0, 'In a large Dutch oven or heavy-bottomed pot, melt the butter with the olive oil over medium heat.', onion_soup_id),
+    (1, 'Add the sliced onions and cook, stirring occasionally, for 45-50 minutes until deeply caramelized and golden brown. Be patient, this takes time but is essential for flavor.', onion_soup_id),
+    (2, 'Add the minced garlic and cook for 1 minute until fragrant.', onion_soup_id),
+    (3, 'Sprinkle the flour over the onions and stir to coat. Cook for 1-2 minutes.', onion_soup_id),
+    (4, 'Add the red wine and deglaze the pot, scraping up any browned bits from the bottom.', onion_soup_id),
+    (5, 'Add the beef broth, bay leaves, thyme, salt, and pepper. Bring to a simmer.', onion_soup_id),
+    (6, 'Reduce heat to low, cover partially, and simmer for 30 minutes to develop flavors.', onion_soup_id),
+    (7, 'Preheat the broiler. Place oven-safe soup bowls on a baking sheet.', onion_soup_id),
+    (8, 'Remove bay leaves from the soup. Ladle the soup into the bowls.', onion_soup_id),
+    (9, 'Place a slice of baguette on top of each bowl of soup, then sprinkle generously with grated Gruyere cheese.', onion_soup_id),
+    (10, 'Broil for 2-3 minutes until the cheese is melted, bubbly, and golden brown.', onion_soup_id),
+    (11, 'Serve immediately, being careful of the hot bowls.', onion_soup_id);
+END $$;
+
+INSERT INTO recipe (title, description, image_url, user_id, created_at, category, cuisine, servings, difficulty, cost_rating, prep_time, cook_time, baking_time, baking_temp)
+VALUES (
+    'Fresh Strawberry Cheesecake',
+    'Creamy New York-style cheesecake with a buttery graham cracker crust, topped with fresh strawberry sauce.',
+    'https://example.com/images/strawberry_cheesecake.jpg',
+    3,
+    NOW(), 'Dessert', 'American', 12, 'medium', 'moderate', 30, 0, 60, 325
+);
+
+DO $$
+DECLARE
+    cheesecake_id BIGINT;
+BEGIN
+    SELECT id INTO cheesecake_id FROM recipe WHERE title = 'Fresh Strawberry Cheesecake'
+    ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO ingredient (type, amount, unit, name, recipe_id)
+    VALUES
+    ('CRACKERS', '2', 'CUP', 'Graham cracker crumbs', cheesecake_id),
+    ('BUTTER', '1/2', 'CUP', 'Melted butter', cheesecake_id),
+    ('SUGAR', '1/4', 'CUP', 'Granulated sugar', cheesecake_id),
+    ('CREAM_CHEESE', '4', 'CUP', 'Cream cheese, softened (32 oz)', cheesecake_id),
+    ('SUGAR', '1.5', 'CUP', 'Granulated sugar', cheesecake_id),
+    ('VANILLA_EXTRACT', '2', 'TEASPOON', 'Vanilla extract', cheesecake_id),
+    ('EGGS', '4', 'PIECE', 'Large eggs', cheesecake_id),
+    ('SOUR_CREAM', '1', 'CUP', 'Sour cream', cheesecake_id),
+    ('STRAWBERRIES', '2', 'CUP', 'Fresh strawberries, hulled and sliced', cheesecake_id),
+    ('SUGAR', '1/4', 'CUP', 'Granulated sugar', cheesecake_id),
+    ('CORNSTARCH', '1', 'TABLESPOON', 'Cornstarch', cheesecake_id),
+    ('WATER', '2', 'TABLESPOON', 'Water', cheesecake_id),
+    ('LEMON_JUICE', '1', 'TABLESPOON', 'Lemon juice', cheesecake_id);
+
+    INSERT INTO recipe_step (step_number, instruction, recipe_id)
+    VALUES
+    (0, 'Preheat oven to 325°F (165°C). Grease a 9-inch springform pan and wrap the outside with aluminum foil to prevent water leakage.', cheesecake_id),
+    (1, 'In a medium bowl, combine graham cracker crumbs, melted butter, and 1/4 cup sugar. Press mixture into the bottom of the prepared pan.', cheesecake_id),
+    (2, 'Bake crust for 10 minutes. Remove from oven and let cool while preparing the filling.', cheesecake_id),
+    (3, 'In a large mixing bowl, beat cream cheese and 1.5 cups sugar until smooth and creamy, about 2 minutes.', cheesecake_id),
+    (4, 'Beat in vanilla extract. Add eggs one at a time, mixing on low speed just until each is incorporated.', cheesecake_id),
+    (5, 'Fold in sour cream until just combined. Pour filling over the crust.', cheesecake_id),
+    (6, 'Place the springform pan in a larger roasting pan. Fill the roasting pan with hot water to come halfway up the sides of the springform pan, creating a water bath.', cheesecake_id),
+    (7, 'Bake for 55-60 minutes, or until the edges are set but the center still has a slight jiggle.', cheesecake_id),
+    (8, 'Turn off the oven, crack the door open, and let the cheesecake cool in the oven for 1 hour.', cheesecake_id),
+    (9, 'Remove from oven and water bath. Run a knife around the edge of the cheesecake to loosen it from the pan. Cool completely on a wire rack.', cheesecake_id),
+    (10, 'Refrigerate for at least 4 hours or overnight.', cheesecake_id),
+    (11, 'For the topping, combine 1 cup of strawberries with 1/4 cup sugar in a saucepan. Cook over medium heat until strawberries break down, about 5 minutes.', cheesecake_id),
+    (12, 'Mix cornstarch with water to create a slurry. Add to the strawberry mixture and cook until thickened, about 1-2 minutes.', cheesecake_id),
+    (13, 'Remove from heat and add lemon juice. Cool completely.', cheesecake_id),
+    (14, 'Just before serving, fold the remaining fresh strawberries into the cooled sauce and spread over the cheesecake.', cheesecake_id);
+END $$;
+
+INSERT INTO recipe (title, description, image_url, user_id, created_at, category, cuisine, servings, difficulty, cost_rating, prep_time, cook_time, baking_time, baking_temp)
+VALUES (
+    'Homemade Margherita Pizza',
+    'Classic Italian pizza with a thin, crispy crust topped with fresh tomatoes, mozzarella, and basil.',
+    'https://example.com/images/margherita_pizza.jpg',
+    12,
+    NOW(), 'Main Course', 'Italian', 4, 'medium', 'budget', 30, 0, 15, 475
+);
+
+DO $
+DECLARE
+    pizza_id BIGINT;
+BEGIN
+    SELECT id INTO pizza_id FROM recipe WHERE title = 'Homemade Margherita Pizza'
+    ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO ingredient (type, amount, unit, name, recipe_id)
+    VALUES
+    ('FLOUR', '3.5', 'CUP', 'Bread flour or all-purpose flour', pizza_id),
+    ('YEAST', '1', 'TEASPOON', 'Active dry yeast', pizza_id),
+    ('SUGAR', '1', 'TEASPOON', 'Granulated sugar', pizza_id),
+    ('SALT', '1.5', 'TEASPOON', 'Salt', pizza_id),
+    ('OLIVE_OIL', '2', 'TABLESPOON', 'Extra virgin olive oil', pizza_id),
+    ('WATER', '1.5', 'CUP', 'Warm water (105-110°F)', pizza_id),
+    ('TOMATOES', '3', 'PIECE', 'Fresh Roma tomatoes, thinly sliced', pizza_id),
+    ('MOZZARELLA', '8', 'OUNCE', 'Fresh mozzarella cheese, torn into pieces', pizza_id),
+    ('BASIL', '1/4', 'CUP', 'Fresh basil leaves', pizza_id),
+    ('OLIVE_OIL', '2', 'TABLESPOON', 'Extra virgin olive oil for drizzling', pizza_id),
+    ('GARLIC', '2', 'PIECE', 'Garlic cloves, minced', pizza_id),
+    ('SALT', '1/2', 'TEASPOON', 'Sea salt', pizza_id),
+    ('BLACK_PEPPER', '1/4', 'TEASPOON', 'Freshly ground black pepper', pizza_id);
+
+    INSERT INTO recipe_step (step_number, instruction, recipe_id)
+    VALUES
+    (0, 'In a large bowl, mix flour, salt, and sugar. In a separate small bowl, combine warm water and yeast. Let it sit for 5 minutes until foamy.', pizza_id),
+    (1, 'Add the yeast mixture and olive oil to the flour mixture. Mix until a dough forms.', pizza_id),
+    (2, 'Turn dough out onto a floured surface and knead for about 5-7 minutes until smooth and elastic.', pizza_id),
+    (3, 'Place dough in an oiled bowl, cover with a damp cloth, and let rise in a warm place for 1-2 hours, or until doubled in size.', pizza_id),
+    (4, 'Preheat oven to 475°F (245°C). If you have a pizza stone, place it in the oven while preheating.', pizza_id),
+    (5, 'Punch down the dough and divide it into 2 equal portions. (You can freeze one portion for later use if desired).', pizza_id),
+    (6, 'On a floured surface, roll or stretch the dough into a 12-inch circle.', pizza_id),
+    (7, 'Transfer the dough to a pizza peel or baking sheet lined with parchment paper.', pizza_id),
+    (8, 'Brush the dough with olive oil and sprinkle with minced garlic.', pizza_id),
+    (9, 'Arrange tomato slices and mozzarella pieces evenly over the dough.', pizza_id),
+    (10, 'Sprinkle with salt and pepper.', pizza_id),
+    (11, 'Bake for 12-15 minutes, or until the crust is golden brown and the cheese is bubbly.', pizza_id),
+    (12, 'Remove from oven and immediately top with fresh basil leaves and a drizzle of olive oil.', pizza_id),
+    (13, 'Slice and serve hot.', pizza_id);
+END $;
+
+INSERT INTO recipe (title, description, image_url, user_id, created_at, category, cuisine, servings, difficulty, cost_rating, prep_time, cook_time)
+VALUES (
+    'Overnight Oats with Berries',
+    'A simple, healthy breakfast that you prepare the night before. Perfect for busy mornings!',
+    'https://example.com/images/overnight_oats.jpg',
+    7,
+    NOW(), 'Breakfast', 'International', 1, 'easy', 'budget', 10, 0
+);
+
+DO $
+DECLARE
+    oats_id BIGINT;
+BEGIN
+    SELECT id INTO oats_id FROM recipe WHERE title = 'Overnight Oats with Berries'
+    ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO ingredient (type, amount, unit, name, recipe_id)
+    VALUES
+    ('OATS', '1/2', 'CUP', 'Old-fashioned rolled oats', oats_id),
+    ('MILK', '1/2', 'CUP', 'Milk of choice (dairy or plant-based)', oats_id),
+    ('GREEK_YOGURT', '1/4', 'CUP', 'Greek yogurt', oats_id),
+    ('HONEY', '1', 'TABLESPOON', 'Honey or maple syrup', oats_id),
+    ('CHIA_SEEDS', '1', 'TEASPOON', 'Chia seeds', oats_id),
+    ('STRAWBERRIES', '1/4', 'CUP', 'Fresh strawberries, chopped', oats_id),
+    ('BLUEBERRIES', '1/4', 'CUP', 'Fresh blueberries', oats_id),
+    ('CINNAMON', '1/4', 'TEASPOON', 'Ground cinnamon', oats_id),
+    ('VANILLA_EXTRACT', '1/4', 'TEASPOON', 'Vanilla extract', oats_id),
+    ('ALMONDS', '1', 'TABLESPOON', 'Sliced almonds', oats_id);
+
+    INSERT INTO recipe_step (step_number, instruction, recipe_id)
+    VALUES
+    (0, 'In a mason jar or container with a lid, combine oats, milk, Greek yogurt, honey, chia seeds, cinnamon, and vanilla extract.', oats_id),
+    (1, 'Stir well to combine, making sure all the oats are moistened.', oats_id),
+    (2, 'Seal the container and refrigerate overnight, or for at least 4 hours.', oats_id),
+    (3, 'In the morning, give the oats a good stir. If they are too thick, add a splash more milk.', oats_id),
+    (4, 'Top with fresh berries and sliced almonds.', oats_id),
+    (5, 'Enjoy cold straight from the refrigerator.', oats_id);
+END $;
+
+INSERT INTO recipe (title, description, image_url, user_id, created_at, category, cuisine, servings, difficulty, cost_rating, prep_time, cook_time)
+VALUES (
+    'Creamy Tomato Basil Pasta',
+    'A simple yet elegant pasta dish with a velvety tomato sauce and fresh basil.',
+    'https://example.com/images/tomato_basil_pasta.jpg',
+    12,
+    NOW(), 'Main Course', 'Italian', 4, 'medium', 'budget', 10, 20
+);
+
+DO $
+DECLARE
+    pasta_id BIGINT;
+BEGIN
+    SELECT id INTO pasta_id FROM recipe WHERE title = 'Creamy Tomato Basil Pasta'
+    ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO ingredient (type, amount, unit, name, recipe_id)
+    VALUES
+    ('PASTA', '1', 'POUND', 'Penne or fettuccine pasta', pasta_id),
+    ('OLIVE_OIL', '2', 'TABLESPOON', 'Olive oil', pasta_id),
+    ('GARLIC', '3', 'PIECE', 'Garlic cloves, minced', pasta_id),
+    ('ONIONS', '1', 'PIECE', 'Small onion, finely diced', pasta_id),
+    ('TOMATOES', '28', 'OUNCE', 'Canned crushed tomatoes', pasta_id),
+    ('HEAVY_CREAM', '1/2', 'CUP', 'Heavy cream', pasta_id),
+    ('PARMESAN_CHEESE', '1/2', 'CUP', 'Grated Parmesan cheese', pasta_id),
+    ('BASIL', '1/4', 'CUP', 'Fresh basil leaves, chopped, plus more for garnish', pasta_id),
+    ('RED_PEPPER_FLAKES', '1/4', 'TEASPOON', 'Red pepper flakes (optional)', pasta_id),
+    ('SALT', '1', 'TEASPOON', 'Salt', pasta_id),
+    ('BLACK_PEPPER', '1/2', 'TEASPOON', 'Freshly ground black pepper', pasta_id);
+
+    INSERT INTO recipe_step (step_number, instruction, recipe_id)
+    VALUES
+    (0, 'Bring a large pot of salted water to a boil. Cook pasta according to package directions until al dente. Drain, reserving 1/2 cup of pasta water.', pasta_id),
+    (1, 'Meanwhile, heat olive oil in a large skillet over medium heat. Add onion and cook until softened, about 3-4 minutes.', pasta_id),
+    (2, 'Add garlic and red pepper flakes (if using) and cook for 30 seconds until fragrant.', pasta_id),
+    (3, 'Pour in the crushed tomatoes. Season with salt and pepper. Bring to a simmer and cook for 10 minutes.', pasta_id),
+    (4, 'Reduce heat to low and stir in the heavy cream. Simmer for 2-3 minutes until slightly thickened.', pasta_id),
+    (5, 'Add the drained pasta to the sauce and toss to coat. If the sauce is too thick, add a bit of the reserved pasta water.', pasta_id),
+    (6, 'Stir in the Parmesan cheese and chopped basil.', pasta_id),
+    (7, 'Serve hot, garnished with additional basil leaves and Parmesan cheese if desired.', pasta_id);
+END $;
+
+DO $
+DECLARE
+    carbonara_id BIGINT;
+    buddha_bowl_id BIGINT;
+    stroganoff_id BIGINT;
+    greek_salad_id BIGINT;
+    cookies_id BIGINT;
+    thai_curry_id BIGINT;
+    onion_soup_id BIGINT;
+    cheesecake_id BIGINT;
+    pizza_id BIGINT;
+    oats_id BIGINT;
+    pasta_id BIGINT;
+    bbq_id BIGINT;
+BEGIN
+    SELECT id INTO carbonara_id FROM recipe WHERE title = 'Classic Spaghetti Carbonara' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO buddha_bowl_id FROM recipe WHERE title = 'Vegetarian Buddha Bowl' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO stroganoff_id FROM recipe WHERE title = 'Classic Beef Stroganoff' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO greek_salad_id FROM recipe WHERE title = 'Fresh Summer Greek Salad' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO cookies_id FROM recipe WHERE title = 'Homemade Chocolate Chip Cookies' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO thai_curry_id FROM recipe WHERE title = 'Spicy Thai Green Curry' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO onion_soup_id FROM recipe WHERE title = 'Classic French Onion Soup' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO cheesecake_id FROM recipe WHERE title = 'Fresh Strawberry Cheesecake' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO pizza_id FROM recipe WHERE title = 'Homemade Margherita Pizza' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO oats_id FROM recipe WHERE title = 'Overnight Oats with Berries' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO pasta_id FROM recipe WHERE title = 'Creamy Tomato Basil Pasta' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO bbq_id FROM recipe WHERE title = 'BBQ Pulled Pork Sliders' ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO rating (stars, user_id, recipe_id, created_at)
+    VALUES
+    (5, 2, carbonara_id, NOW()),
+    (4, 3, carbonara_id, NOW()),
+    (5, 5, carbonara_id, NOW()),
+    (5, 2, buddha_bowl_id, NOW()),
+    (4, 4, buddha_bowl_id, NOW()),
+    (5, 7, buddha_bowl_id, NOW()),
+    (4, 3, stroganoff_id, NOW()),
+    (5, 5, stroganoff_id, NOW()),
+    (3, 9, stroganoff_id, NOW()),
+    (5, 2, greek_salad_id, NOW()),
+    (4, 6, greek_salad_id, NOW()),
+    (5, 8, cookies_id, NOW()),
+    (4, 3, cookies_id, NOW()),
+    (5, 10, cookies_id, NOW()),
+    (4, 2, thai_curry_id, NOW()),
+    (5, 6, thai_curry_id, NOW()),
+    (3, 8, thai_curry_id, NOW()),
+    (5, 4, onion_soup_id, NOW()),
+    (4, 5, onion_soup_id, NOW()),
+    (5, 2, cheesecake_id, NOW()),
+    (5, 6, cheesecake_id, NOW()),
+    (4, 9, cheesecake_id, NOW()),
+    (4, 3, pizza_id, NOW()),
+    (5, 5, pizza_id, NOW()),
+    (4, 7, pizza_id, NOW()),
+    (3, 9, oats_id, NOW()),
+    (4, 3, oats_id, NOW()),
+    (5, 2, pasta_id, NOW()),
+    (4, 8, pasta_id, NOW()),
+    (5, 3, bbq_id, NOW()),
+    (4, 6, bbq_id, NOW()),
+    (4, 7, bbq_id, NOW());
+
+END $;
+
+DO $
+DECLARE
+    user2_favorites BIGINT;
+    user3_favorites BIGINT;
+    user4_favorites BIGINT;
+    user5_favorites BIGINT;
+    user6_favorites BIGINT;
+    user7_favorites BIGINT;
+    user8_favorites BIGINT;
+    user9_favorites BIGINT;
+    user10_favorites BIGINT;
+    user11_favorites BIGINT;
+    user12_favorites BIGINT;
+    carbonara_id BIGINT;
+    buddha_bowl_id BIGINT;
+    stroganoff_id BIGINT;
+    greek_salad_id BIGINT;
+    cookies_id BIGINT;
+    thai_curry_id BIGINT;
+    onion_soup_id BIGINT;
+    cheesecake_id BIGINT;
+    pizza_id BIGINT;
+    oats_id BIGINT;
+    pasta_id BIGINT;
+    bbq_id BIGINT;
+BEGIN
+    SELECT id INTO carbonara_id FROM recipe WHERE title = 'Classic Spaghetti Carbonara' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO buddha_bowl_id FROM recipe WHERE title = 'Vegetarian Buddha Bowl' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO stroganoff_id FROM recipe WHERE title = 'Classic Beef Stroganoff' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO greek_salad_id FROM recipe WHERE title = 'Fresh Summer Greek Salad' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO cookies_id FROM recipe WHERE title = 'Homemade Chocolate Chip Cookies' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO thai_curry_id FROM recipe WHERE title = 'Spicy Thai Green Curry' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO onion_soup_id FROM recipe WHERE title = 'Classic French Onion Soup' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO cheesecake_id FROM recipe WHERE title = 'Fresh Strawberry Cheesecake' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO pizza_id FROM recipe WHERE title = 'Homemade Margherita Pizza' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO oats_id FROM recipe WHERE title = 'Overnight Oats with Berries' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO pasta_id FROM recipe WHERE title = 'Creamy Tomato Basil Pasta' ORDER BY created_at DESC LIMIT 1;
+    SELECT id INTO bbq_id FROM recipe WHERE title = 'BBQ Pulled Pork Sliders' ORDER BY created_at DESC LIMIT 1;
+
+    INSERT INTO collection (name, description, user_id, is_default, created_at)
+    SELECT 'My Recipes', 'Recipes created by you', id, true, NOW() FROM profile WHERE id NOT IN (SELECT DISTINCT user_id FROM collection WHERE name = 'My Recipes');
+
+    INSERT INTO collection (name, description, user_id, is_default, created_at)
+    SELECT 'Favorites', 'Your favorite recipes', id, true, NOW() FROM profile WHERE id NOT IN (SELECT DISTINCT user_id FROM collection WHERE name = 'Favorites');
+
+    SELECT id INTO user2_favorites FROM collection WHERE user_id = 2 AND name = 'Favorites' LIMIT 1;
+    SELECT id INTO user3_favorites FROM collection WHERE user_id = 3 AND name = 'Favorites' LIMIT 1;
+    SELECT id INTO user4_favorites FROM collection WHERE user_id = 4 AND name = 'Favorites' LIMIT 1;
+    SELECT id INTO user5_favorites FROM collection WHERE user_id = 5 AND name = 'Favorites' LIMIT 1;
+    SELECT id INTO user6_favorites FROM collection WHERE user_id = 6 AND name = 'Favorites' LIMIT 1;
+    SELECT id INTO user7_favorites FROM collection WHERE user_id = 7 AND name = 'Favorites' LIMIT 1;
+    SELECT id INTO user8_favorites FROM collection WHERE user_id = 8 AND name = 'Favorites' LIMIT 1;
+    SELECT id INTO user9_favorites FROM collection WHERE user_id = 9 AND name = 'Favorites' LIMIT 1;
+    SELECT id INTO user10_favorites FROM collection WHERE user_id = 10 AND name = 'Favorites' LIMIT 1;
+    SELECT id INTO user11_favorites FROM collection WHERE user_id = 11 AND name = 'Favorites' LIMIT 1;
+    SELECT id INTO user12_favorites FROM collection WHERE user_id = 12 AND name = 'Favorites' LIMIT 1;
+
+    IF user2_favorites IS NOT NULL THEN
+        INSERT INTO collection_recipes (collection_id, recipe_id)
+        VALUES
+        (user2_favorites, carbonara_id),
+        (user2_favorites, greek_salad_id),
+        (user2_favorites, cheesecake_id);
+    END IF;
+
+    IF user3_favorites IS NOT NULL THEN
+        INSERT INTO collection_recipes (collection_id, recipe_id)
+        VALUES
+        (user3_favorites, cookies_id),
+        (user3_favorites, pizza_id),
+        (user3_favorites, bbq_id);
+    END IF;
+
+    IF user4_favorites IS NOT NULL THEN
+        INSERT INTO collection_recipes (collection_id, recipe_id)
+        VALUES
+        (user4_favorites, buddha_bowl_id),
+        (user4_favorites, onion_soup_id);
+    END IF;
+
+    IF user5_favorites IS NOT NULL THEN
+        INSERT INTO collection_recipes (collection_id, recipe_id)
+        VALUES
+        (user5_favorites, carbonara_id),
+        (user5_favorites, pizza_id),
+        (user5_favorites, stroganoff_id);
+    END IF;
+
+    IF user6_favorites IS NOT NULL THEN
+        INSERT INTO collection_recipes (collection_id, recipe_id)
+        VALUES
+        (user6_favorites, thai_curry_id),
+        (user6_favorites, cheesecake_id),
+        (user6_favorites, greek_salad_id);
+    END IF;
+
+    IF user7_favorites IS NOT NULL THEN
+        INSERT INTO collection_recipes (collection_id, recipe_id)
+        VALUES
+        (user7_favorites, buddha_bowl_id),
+        (user7_favorites, pizza_id),
+        (user7_favorites, bbq_id);
+    END IF;
+
+    IF user8_favorites IS NOT NULL THEN
+        INSERT INTO collection_recipes (collection_id, recipe_id)
+        VALUES
+        (user8_favorites, cookies_id),
+        (user8_favorites, pasta_id);
+    END IF;
+
+    IF user9_favorites IS NOT NULL THEN
+        INSERT INTO collection_recipes (collection_id, recipe_id)
+        VALUES
+        (user9_favorites, thai_curry_id),
+        (user9_favorites, cheesecake_id);
+    END IF;
+
+    IF user10_favorites IS NOT NULL THEN
+        INSERT INTO collection_recipes (collection_id, recipe_id)
+        VALUES
+        (user10_favorites, buddha_bowl_id),
+        (user10_favorites, cookies_id);
+    END IF;
+
+    IF user11_favorites IS NOT NULL THEN
+        INSERT INTO collection_recipes (collection_id, recipe_id)
+        VALUES
+        (user11_favorites, bbq_id);
+    END IF;
+
+    INSERT INTO collection (name, description, user_id, is_default, created_at)
+    VALUES
+    ('Quick Meals', 'Recipes that take 30 minutes or less', 2, false, NOW()),
+    ('Italian Favorites', 'Best Italian recipes', 3, false, NOW()),
+    ('Healthy Options', 'Nutritious and delicious recipes', 5, false, NOW()),
+    ('Comfort Food', 'Soul-warming dishes', 6, false, NOW()),
+    ('Vegetarian', 'Meat-free dishes', 10, false, NOW());
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, carbonara_id FROM collection WHERE name = 'Italian Favorites' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, pizza_id FROM collection WHERE name = 'Italian Favorites' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, pasta_id FROM collection WHERE name = 'Italian Favorites' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, greek_salad_id FROM collection WHERE name = 'Quick Meals' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, pasta_id FROM collection WHERE name = 'Quick Meals' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, oats_id FROM collection WHERE name = 'Quick Meals' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, buddha_bowl_id FROM collection WHERE name = 'Healthy Options' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, greek_salad_id FROM collection WHERE name = 'Healthy Options' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, oats_id FROM collection WHERE name = 'Healthy Options' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, stroganoff_id FROM collection WHERE name = 'Comfort Food' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, cookies_id FROM collection WHERE name = 'Comfort Food' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, onion_soup_id FROM collection WHERE name = 'Comfort Food' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, bbq_id FROM collection WHERE name = 'Comfort Food' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, buddha_bowl_id FROM collection WHERE name = 'Vegetarian' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, greek_salad_id FROM collection WHERE name = 'Vegetarian' LIMIT 1;
+
+    INSERT INTO collection_recipes (collection_id, recipe_id)
+    SELECT id, pasta_id FROM collection WHERE name = 'Vegetarian' LIMIT 1;
+END $;
+
+INSERT INTO user_interaction (user_id, recipe_id, view_count, saved, first_interaction, last_interaction)
+VALUES
+(2, 1, 5, true, NOW() - interval '10 days', NOW()),
+(2, 2, 3, true, NOW() - interval '5 days', NOW()),
+(2, 3, 2, false, NOW() - interval '8 days', NOW()),
+(3, 1, 4, true, NOW() - interval '7 days', NOW()),
+(3, 4, 6, true, NOW() - interval '3 days', NOW()),
+(3, 5, 2, false, NOW() - interval '9 days', NOW()),
+(4, 2, 7, true, NOW() - interval '4 days', NOW()),
+(4, 6, 3, false, NOW() - interval '6 days', NOW()),
+(5, 3, 5, true, NOW() - interval '5 days', NOW()),
+(5, 7, 4, true, NOW() - interval '2 days', NOW()),
+(6, 1, 6, true, NOW() - interval '8 days', NOW()),
+(6, 5, 3, false, NOW() - interval '4 days', NOW()),
+(7, 2, 4, true, NOW() - interval '7 days', NOW()),
+(7, 6, 5, true, NOW() - interval '3 days', NOW()),
+(8, 4, 3, true, NOW() - interval '6 days', NOW()),
+(8, 7, 2, false, NOW() - interval '4 days', NOW()),
+(9, 5, 4, true, NOW() - interval '5 days', NOW()),
+(9, 8, 3, true, NOW() - interval '2 days', NOW()),
+(10, 2, 6, true, NOW() - interval '9 days', NOW()),
+(10, 6, 4, false, NOW() - interval '4 days', NOW()),
+(11, 8, 3, true, NOW() - interval '6 days', NOW()),
+(11, 10, 2, false, NOW() - interval '3 days', NOW()),
+(12, 1, 5, true, NOW() - interval '7 days', NOW()),
+(12, 3, 4, false, NOW() - interval '5 days', NOW()),
+(12, 9, 3, true, NOW() - interval '2 days', NOW()),
+(2, 6, 4, false, NOW() - interval '4 days', NOW()),
+(2, 8, 3, true, NOW() - interval '3 days', NOW()),
+(3, 7, 2, false, NOW() - interval '6 days', NOW()),
+(3, 9, 5, true, NOW() - interval '2 days', NOW()),
+(4, 5, 3, false, NOW() - interval '8 days', NOW()),
+(4, 10, 4, true, NOW() - interval '3 days', NOW()),
+(5, 1, 6, true, NOW() - interval '9 days', NOW()),
+(5, 9, 3, false, NOW() - interval '4 days', NOW()),
+(6, 3, 5, true, NOW() - interval '7 days', NOW()),
+(6, 6, 2, false, NOW() - interval '5 days', NOW()),
+(7, 4, 4, true, NOW() - interval '8 days', NOW()),
+(7, 8, 3, false, NOW() - interval '3 days', NOW()),
+(8, 2, 5, true, NOW() - interval '6 days', NOW()),
+(8, 9, 2, false, NOW() - interval '2 days', NOW()),
+(9, 3, 4, true, NOW() - interval '9 days', NOW()),
+(9, 6, 3, false, NOW() - interval '4 days', NOW()),
+(10, 4, 5, true, NOW() - interval '7 days', NOW()),
+(10, 8, 2, false, NOW() - interval '3 days', NOW());
+
+UPDATE recipe SET featured = true, featured_at = NOW() - interval '2 day' WHERE title = 'Classic Spaghetti Carbonara';
+UPDATE recipe SET featured = true, featured_at = NOW() - interval '5 day' WHERE title = 'Vegetarian Buddha Bowl';
+UPDATE recipe SET featured = true, featured_at = NOW() - interval '1 day' WHERE title = 'Fresh Strawberry Cheesecake';
+UPDATE recipe SET featured = true, featured_at = NOW() - interval '3 day' WHERE title = 'Homemade Margherita Pizza';
+VALUES (
+    'Classic Spaghetti Carbonara',
+    'A traditional Roman pasta dish with eggs, cheese, pancetta, and black pepper.',
+    'https://example.com/images/carbonara.jpg',
+    6,
+    NOW(), 'Main Course', 'Italian', 4, 'hard', 'moderate', 15, 20
+);
+
+
