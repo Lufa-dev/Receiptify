@@ -1,0 +1,59 @@
+.recipe-rating-container {
+  margin-bottom: 2rem;
+
+  .rating-summary {
+    .rating-header {
+      margin-bottom: 1.5rem;
+
+      h4 {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .rating-stats {
+        display: flex;
+        align-items: center;
+
+        .rating-count {
+          margin-left: 1rem;
+          color: #6c757d;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .user-rating-section {
+      background-color: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+
+      h5 {
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .login-prompt {
+        font-style: italic;
+        color: #6c757d;
+
+        a {
+          color: #0d6efd;
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+
+      .rate-recipe {
+        display: flex;
+        flex-direction: column;
+
+        small {
+          margin-top: 0.5rem;
+        }
+      }
+    }
+  }
+}

@@ -1,41 +1,37 @@
 package com.thesis.receiptify.repository;
 
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QuerySnapshot;
-import com.google.cloud.firestore.WriteResult;
-import com.google.firebase.cloud.FirestoreClient;
-import org.springframework.stereotype.Repository;
+import com.thesis.receiptify.model.Profile;
 import com.thesis.receiptify.model.Recipe;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 @Repository
-public class RecipeRepository {
+public interface RecipeRepository extends JpaRepository<Recipe, Long>, JpaSpecificationExecutor<Recipe> {
 
-    public Recipe saveRecipe(Recipe recipe) throws ExecutionException, InterruptedException {
-        Firestore db = FirestoreClient.getFirestore();
-        ApiFuture<WriteResult> future = db.collection("recipes").document(recipe.getId()).set(recipe);
-        future.get(); // Wait for the write to complete
-        return recipe;
-    }
+    List<Recipe> findByUserOrderByCreatedAtDesc(Profile user);
 
-    public List<Recipe> getRecipesByUserId(String userId) throws ExecutionException, InterruptedException {
-        Firestore db = FirestoreClient.getFirestore();
-        ApiFuture<QuerySnapshot> querySnapshot = db.collection("recipes").whereEqualTo("userId", userId).get();
-        return querySnapshot.get().getDocuments().stream()
-                .map(document -> document.toObject(Recipe.class))
-                .collect(Collectors.toList());
-    }
+    Page<Recipe> findByUserOrderByCreatedAtDesc(Profile user, Pageable pageable);
 
-    public List<Recipe> getAllRecipes() throws ExecutionException, InterruptedException {
-        Firestore db = FirestoreClient.getFirestore();
-        ApiFuture<QuerySnapshot> future = db.collection("recipes").get();
-        List<Recipe> recipes = future.get().getDocuments().stream()
-                .map(document -> document.toObject(Recipe.class))
-                .collect(Collectors.toList());
-        return recipes;
-    }
+    Page<Recipe> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+    @Query("SELECT r FROM Recipe r WHERE " +
+            "LOWER(r.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+            "LOWER(r.description) LIKE LOWER(CONCAT('%', :query, '%'))")
+    Page<Recipe> searchRecipes(String query, Pageable pageable);
+
+    @Query("SELECT DISTINCT r.category FROM Recipe r WHERE r.category IS NOT NULL")
+    List<String> findDistinctCategories();
+
+    @Query("SELECT DISTINCT r.cuisine FROM Recipe r WHERE r.cuisine IS NOT NULL")
+    List<String> findDistinctCuisines();
+
+    Page<Recipe> findByFeaturedTrue(Pageable pageable);
+
+    Page<Recipe> findByFeaturedTrueOrderByFeaturedAtDesc(Pageable pageable);
 }

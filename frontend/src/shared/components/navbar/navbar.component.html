@@ -1,4 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <!-- Logo/Brand -->
   <a class="navbar-brand" routerLink="/">
     <img src="assets/logo.webp" width="40" height="40" class="d-inline-block align-top" alt="Logo">
     Receiptify
@@ -6,28 +7,56 @@
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
+
+  <!-- Navigation Items -->
   <div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav mr-auto"></ul>
+    <!-- Left space -->
+    <ul class="navbar-nav me-auto"></ul>
+
+    <!-- Center menu -->
     <ul class="navbar-nav mx-auto">
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/submit-recipe">Submit Recipe</a>
-      </li>
-    </ul>
-    <ul class="navbar-nav">
-      <ng-container *ngIf="isLoggedIn$ | async; else loggedOut">
+      <ng-container *ngIf="isLoggedIn$">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/profile">Profile</a>
+          <a class="nav-link" routerLink="/advanced-search" routerLinkActive="active">Advanced Search</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link logout-link" (click)="logout()">Logout</a>
+          <a class="nav-link" routerLink="/submit-recipe" routerLinkActive="active">Submit Recipe</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/my-recipes" routerLinkActive="active">My Recipes</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/collections" routerLinkActive="active">Collections</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/shopping-list" routerLinkActive="active">
+            <i class="bi bi-cart3"></i> Shopping List
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="isAdmin">
+          <a class="nav-link" routerLink="/admin" routerLinkActive="active">
+            <i class="bi bi-shield-lock"></i> Admin
+          </a>
+        </li>
+      </ng-container>
+    </ul>
+
+    <!-- Right menu -->
+    <ul class="navbar-nav">
+      <ng-container *ngIf="isLoggedIn$; else loggedOut">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/profile" routerLinkActive="active">Profile</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link logout-link" (click)="logout()">Sign Out</a>
         </li>
       </ng-container>
       <ng-template #loggedOut>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/login">Login</a>
+          <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/register">Register</a>
+          <a class="nav-link" routerLink="/register" routerLinkActive="active">Register</a>
         </li>
       </ng-template>
     </ul>

@@ -1,0 +1,52 @@
+<div class="recommendations-container">
+  <h2 class="section-title">{{ title }}</h2>
+
+  <!-- Loading spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading recommendations...</span>
+    </div>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="alert alert-warning">
+    {{ error }}
+  </div>
+
+  <!-- Login prompt for personalized recommendations -->
+  <div *ngIf="recommendationType === 'personal' && !authService.isLoggedIn() && !isLoading" class="login-prompt">
+    <div class="card text-center p-4">
+      <h4>Get Personalized Recommendations</h4>
+      <p>Sign in to see recipe recommendations tailored to your preferences and browsing history.</p>
+      <div>
+        <a routerLink="/login" class="btn btn-primary">Sign In</a>
+        <a routerLink="/register" class="btn btn-outline-primary ms-2">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- No recommendations message -->
+  <div *ngIf="recipes.length === 0 && !isLoading && !error && authService.isLoggedIn() && recommendationType === 'personal'" class="no-results">
+    <p>We don't have enough data to make personalized recommendations yet. Try browsing more recipes!</p>
+  </div>
+
+  <!-- Recipe cards -->
+  <div *ngIf="recipes.length > 0" class="recipes-grid">
+    <div *ngFor="let recipe of recipes" class="recipe-card" (click)="navigateToRecipe(recipe.id!)">
+      <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
+      <div class="recipe-info">
+        <h3 class="recipe-title">{{ recipe.title }}</h3>
+        <p class="recipe-description">{{ recipe.description }}</p>
+        <div class="recipe-meta">
+          <span *ngIf="recipe.category" class="badge bg-secondary me-1">{{ recipe.category }}</span>
+          <span *ngIf="recipe.cuisine" class="badge bg-info me-1">{{ recipe.cuisine }}</span>
+          <div class="recipe-rating" *ngIf="recipe.averageRating">
+            <i class="bi bi-star-fill"></i>
+            <span>{{ recipe.averageRating | number:'1.1-1' }}</span>
+            <span class="text-muted small">({{ recipe.totalRatings }})</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

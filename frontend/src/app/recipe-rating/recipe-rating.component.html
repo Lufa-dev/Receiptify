@@ -1,0 +1,45 @@
+<div class="recipe-rating-container">
+  <div *ngIf="isLoading" class="loading">
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    <span class="ms-2">Loading ratings...</span>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = ''" aria-label="Close"></button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <div *ngIf="ratingSummary && !isLoading" class="rating-summary">
+    <div class="rating-header">
+      <h4>Ratings & Reviews</h4>
+      <div class="rating-stats">
+        <app-rating-stars [rating]="ratingSummary.averageRating" [readonly]="true" size="large"></app-rating-stars>
+        <span class="rating-count">{{ ratingSummary.totalRatings }} {{ ratingSummary.totalRatings === 1 ? 'rating' : 'ratings' }}</span>
+      </div>
+    </div>
+
+    <div class="user-rating-section" *ngIf="!isOwner">
+      <h5>Your Rating</h5>
+
+      <div *ngIf="!authService.isLoggedIn()" class="login-prompt">
+        <p>Please <a [routerLink]="['/login']" [queryParams]="{returnUrl: '/recipe/' + recipeId}">log in</a> to rate this recipe</p>
+      </div>
+
+      <div *ngIf="authService.isLoggedIn()" class="rate-recipe">
+        <app-rating-stars
+          [rating]="userRating"
+          [readonly]="false"
+          size="large"
+          (ratingChange)="onRatingChange($event)">
+        </app-rating-stars>
+        <small *ngIf="userRating" class="text-muted">Your rating: {{ userRating }} {{ userRating === 1 ? 'star' : 'stars' }}</small>
+        <small *ngIf="!userRating" class="text-muted">Click to rate this recipe</small>
+      </div>
+    </div>
+  </div>
+</div>

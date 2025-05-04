@@ -1,0 +1,209 @@
+<div class="comment-detail-container">
+  <div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="admin-title">Comment Details</h1>
+        <p class="admin-subtitle">View and moderate comment information</p>
+      </div>
+      <button class="btn btn-outline-secondary" (click)="goBack()">
+        <i class="bi bi-arrow-left"></i> Back to Comment List
+      </button>
+    </div>
+  </div>
+
+  <!-- Success message -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Loading comment details...</p>
+  </div>
+
+  <!-- Comment Details Card -->
+  <div *ngIf="!isLoading && comment" class="card comment-card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Comment Information</h5>
+      <div>
+        <button *ngIf="!isEditing" class="btn btn-primary me-2" (click)="toggleEditMode()">
+          <i class="bi bi-pencil"></i> Edit
+        </button>
+        <button class="btn btn-danger" (click)="deleteComment()">
+          <i class="bi bi-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="commentForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <!-- Comment ID -->
+          <div class="col-md-3 mb-3">
+            <label for="id" class="form-label">Comment ID</label>
+            <input
+              type="text"
+              id="id"
+              class="form-control"
+              [value]="comment.id"
+              readonly
+            >
+          </div>
+
+          <!-- Creation Date -->
+          <div class="col-md-3 mb-3">
+            <label for="createdAt" class="form-label">Created At</label>
+            <input
+              type="text"
+              id="createdAt"
+              class="form-control"
+              [value]="formatDate(comment.createdAt || '')"
+              readonly
+            >
+          </div>
+
+          <!-- Updated Date -->
+          <div class="col-md-3 mb-3">
+            <label for="updatedAt" class="form-label">Updated At</label>
+            <input
+              type="text"
+              id="updatedAt"
+              class="form-control"
+              [value]="comment.updatedAt ? formatDate(comment.updatedAt) : 'Not updated'"
+              readonly
+            >
+          </div>
+
+          <!-- Recipe ID -->
+          <div class="col-md-3 mb-3">
+            <label for="recipeId" class="form-label">Recipe ID</label>
+            <div class="input-group">
+              <input
+                type="text"
+                id="recipeId"
+                class="form-control"
+                [value]="comment.recipeId"
+                readonly
+              >
+              <button class="btn btn-outline-secondary" type="button" (click)="viewRecipe()">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- User Information -->
+          <div class="col-md-6 mb-3">
+            <label for="user" class="form-label">Author</label>
+            <div class="input-group">
+              <input
+                type="text"
+                id="user"
+                class="form-control"
+                [value]="getUserDisplayName()"
+                readonly
+              >
+              <button class="btn btn-outline-secondary" type="button" (click)="viewUser()">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Status (moderation status) -->
+          <div class="col-md-6 mb-3">
+            <label for="moderationStatus" class="form-label">Status</label>
+            <select
+              id="moderationStatus"
+              class="form-select"
+              formControlName="moderationStatus">
+              <option value="active">Active</option>
+              <option value="flagged">Flagged</option>
+              <option value="hidden">Hidden</option>
+            </select>
+          </div>
+
+          <!-- Comment Content -->
+          <div class="col-12 mb-3">
+            <label for="content" class="form-label">Content</label>
+            <textarea
+              id="content"
+              class="form-control"
+              formControlName="content"
+              rows="5"
+              [ngClass]="{'is-invalid': commentForm.get('content')?.invalid && commentForm.get('content')?.touched}"></textarea>
+            <div class="invalid-feedback" *ngIf="commentForm.get('content')?.errors?.['required']">
+              Comment content is required
+            </div>
+            <div class="invalid-feedback" *ngIf="commentForm.get('content')?.errors?.['maxlength']">
+              Comment must be less than 1000 characters
+            </div>
+          </div>
+
+          <!-- Admin Notes (for moderation) -->
+          <div class="col-12 mb-3">
+            <label for="adminNotes" class="form-label">Admin Notes</label>
+            <textarea
+              id="adminNotes"
+              class="form-control"
+              formControlName="adminNotes"
+              rows="3"></textarea>
+            <small class="form-text text-muted">These notes are only visible to admins</small>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div *ngIf="isEditing" class="d-flex justify-content-end mt-4">
+          <button type="button" class="btn btn-outline-secondary me-2" (click)="toggleEditMode()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="commentForm.invalid || isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Related Recipe Preview -->
+  <div *ngIf="!isLoading && comment && recipe" class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">Related Recipe</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3">
+          <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="img-fluid recipe-thumbnail">
+        </div>
+        <div class="col-md-9">
+          <h5 class="mb-2">{{ recipe.title }}</h5>
+          <p class="mb-1"><strong>Author:</strong> {{ recipe.user?.username }}</p>
+          <p class="mb-3">{{ recipe.description }}</p>
+          <button class="btn btn-sm btn-outline-primary" (click)="viewRecipe()">
+            View Full Recipe
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comment Not Found -->
+  <div *ngIf="!isLoading && !comment && !error" class="card">
+    <div class="card-body text-center p-5">
+      <div class="empty-state-icon mb-4">
+        <i class="bi bi-chat-square-x"></i>
+      </div>
+      <h3>Comment Not Found</h3>
+      <p class="text-muted">The requested comment does not exist or has been deleted.</p>
+      <button class="btn btn-primary" (click)="goBack()">
+        Return to Comment List
+      </button>
+    </div>
+  </div>
+</div>

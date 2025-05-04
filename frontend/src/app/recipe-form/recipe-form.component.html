@@ -1,0 +1,335 @@
+<div class="container mt-4">
+  <h2>{{ isEditMode ? 'Edit Recipe' : 'Create New Recipe' }}</h2>
+
+  <div *ngIf="isLoading" class="d-flex justify-content-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+    <div class="alert alert-danger" *ngIf="saveError">{{ saveError }}</div>
+
+    <!-- Basic Recipe Info -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4>Recipe Details</h4>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label for="title" class="form-label">Recipe Title*</label>
+          <input
+            type="text"
+            id="title"
+            class="form-control"
+            formControlName="title"
+            [ngClass]="{'is-invalid': submitted && recipeForm.get('title')?.invalid}"
+          >
+          <div class="invalid-feedback" *ngIf="submitted && recipeForm.get('title')?.errors?.['required']">
+            Title is required
+          </div>
+          <div class="invalid-feedback" *ngIf="submitted && recipeForm.get('title')?.errors?.['maxlength']">
+            Title must be less than 100 characters
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea
+            id="description"
+            class="form-control"
+            rows="3"
+            formControlName="description"
+            [ngClass]="{'is-invalid': submitted && recipeForm.get('description')?.invalid}"
+          ></textarea>
+          <div class="invalid-feedback" *ngIf="submitted && recipeForm.get('description')?.errors?.['maxlength']">
+            Description must be less than 500 characters
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="image" class="form-label">Recipe Image</label>
+          <input
+            type="file"
+            id="image"
+            class="form-control"
+            accept="image/*"
+            (change)="onImageSelected($event)"
+          >
+          <div class="mt-2" *ngIf="imagePreview">
+            <img [src]="imagePreview" alt="Recipe preview" class="img-thumbnail" style="max-height: 200px;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recipe Characteristics -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4>Characteristics</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <!-- Category -->
+          <div class="col-md-6 mb-3">
+            <label for="category" class="form-label">Category</label>
+            <select id="category" class="form-select" formControlName="category">
+              <option value="">Select a category</option>
+              <option value="appetizer">Appetizer</option>
+              <option value="breakfast">Breakfast</option>
+              <option value="main">Main Course</option>
+              <option value="soup">Soup</option>
+              <option value="salad">Salad</option>
+              <option value="side">Side Dish</option>
+              <option value="dessert">Dessert</option>
+              <option value="snack">Snack</option>
+              <option value="bread">Bread</option>
+              <option value="cake">Cake</option>
+              <option value="cookie">Cookie</option>
+              <option value="pastry">Pastry</option>
+              <option value="beverage">Beverage</option>
+              <option value="sauce">Sauce</option>
+              <option value="preserve">Preserve</option>
+            </select>
+          </div>
+
+          <!-- Cuisine -->
+          <div class="col-md-6 mb-3">
+            <label for="cuisine" class="form-label">Cuisine</label>
+            <select id="cuisine" class="form-select" formControlName="cuisine">
+              <option value="">Select a cuisine</option>
+              <option value="american">American</option>
+              <option value="italian">Italian</option>
+              <option value="french">French</option>
+              <option value="chinese">Chinese</option>
+              <option value="japanese">Japanese</option>
+              <option value="indian">Indian</option>
+              <option value="mexican">Mexican</option>
+              <option value="thai">Thai</option>
+              <option value="mediterranean">Mediterranean</option>
+              <option value="greek">Greek</option>
+              <option value="spanish">Spanish</option>
+              <option value="middle-eastern">Middle Eastern</option>
+              <option value="korean">Korean</option>
+              <option value="vietnamese">Vietnamese</option>
+              <option value="caribbean">Caribbean</option>
+              <option value="african">African</option>
+              <option value="german">German</option>
+              <option value="british">British</option>
+              <option value="fusion">Fusion</option>
+            </select>
+          </div>
+
+          <!-- Servings -->
+          <div class="col-md-4 mb-3">
+            <label for="servings" class="form-label">Servings</label>
+            <select id="servings" class="form-select" formControlName="servings">
+              <option value="">Select servings</option>
+              <option [value]="1">1 serving</option>
+              <option [value]="2">2 servings</option>
+              <option [value]="3">3 servings</option>
+              <option [value]="4">4 servings</option>
+              <option [value]="5">5 servings</option>
+              <option [value]="6">6 servings</option>
+              <option [value]="7">7 servings</option>
+              <option [value]="8">8 servings</option>
+              <option [value]="9">9 servings</option>
+              <option [value]="10">10 servings</option>
+              <option [value]="11">11 servings</option>
+              <option [value]="12">12 servings</option>
+            </select>
+          </div>
+
+          <!-- Difficulty -->
+          <div class="col-md-4 mb-3">
+            <label for="difficulty" class="form-label">Difficulty</label>
+            <select id="difficulty" class="form-select" formControlName="difficulty">
+              <option value="">Select difficulty</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+
+          <!-- Cost Rating -->
+          <div class="col-md-4 mb-3">
+            <label for="costRating" class="form-label">Cost per Serving</label>
+            <select id="costRating" class="form-select" formControlName="costRating">
+              <option value="">Select cost level</option>
+              <option value="budget">Budget</option>
+              <option value="moderate">Moderate</option>
+              <option value="expensive">Expensive</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recipe Values -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h4>Preparation Details</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <!-- Prep Time -->
+          <div class="col-md-4 mb-3">
+            <label for="prepTime" class="form-label">Prep Time (minutes)</label>
+            <input type="number" id="prepTime" class="form-control" formControlName="prepTime">
+          </div>
+
+          <!-- Cook Time -->
+          <div class="col-md-4 mb-3">
+            <label for="cookTime" class="form-label">Cook Time (minutes)</label>
+            <input type="number" id="cookTime" class="form-control" formControlName="cookTime">
+          </div>
+
+          <!-- Baking Time -->
+          <div class="col-md-4 mb-3">
+            <label for="bakingTime" class="form-label">Baking Time (minutes)</label>
+            <input type="number" id="bakingTime" class="form-control" formControlName="bakingTime">
+          </div>
+
+          <!-- Baking Temperature -->
+          <div class="col-md-4 mb-3">
+            <label for="bakingTemp" class="form-label">Baking Temperature (°C)</label>
+            <input type="number" id="bakingTemp" class="form-control" formControlName="bakingTemp">
+          </div>
+
+          <!-- Pan Size -->
+          <div class="col-md-4 mb-3">
+            <label for="panSize" class="form-label">Pan Size (cm)</label>
+            <input type="number" id="panSize" class="form-control" formControlName="panSize">
+          </div>
+
+          <!-- Baking Method -->
+          <div class="col-md-4 mb-3">
+            <label for="bakingMethod" class="form-label">Baking Method</label>
+            <select id="bakingMethod" class="form-select" formControlName="bakingMethod">
+              <option value="">Select baking method</option>
+              <option value="conventional">Conventional</option>
+              <option value="convection">Convection</option>
+              <option value="steam">Steam</option>
+              <option value="grill">Grill</option>
+              <option value="broil">Broil</option>
+              <option value="roast">Roast</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Updated Ingredients Section with searchable dropdown -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>Ingredients</h4>
+        <button type="button" class="btn btn-sm btn-primary" (click)="addIngredient()">
+          <i class="bi bi-plus-circle"></i> Add Ingredient
+        </button>
+      </div>
+      <div class="card-body">
+        <div formArrayName="ingredients">
+          <div *ngFor="let ingredient of ingredients.controls; let i = index" class="row mb-3" [formGroupName]="i">
+            <div class="col-md-5">
+              <label [for]="'ingredient-type-' + i" class="form-label">Ingredient*</label>
+              <app-searchable-select
+                [options]="ingredientOptions"
+                placeholder="Select Ingredient"
+                searchPlaceholder="Search ingredients..."
+                formControlName="type"
+                [grouped]="true"
+                [ngClass]="{'is-invalid': submitted && ingredient.get('type')?.invalid}"
+              ></app-searchable-select>
+              <div class="invalid-feedback" *ngIf="submitted && ingredient.get('type')?.errors?.['required']">
+                Ingredient is required
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <label [for]="'ingredient-amount-' + i" class="form-label">Amount</label>
+              <input
+                type="text"
+                [id]="'ingredient-amount-' + i"
+                class="form-control"
+                formControlName="amount"
+              >
+            </div>
+
+            <div class="col-md-3">
+              <label [for]="'ingredient-unit-' + i" class="form-label">Unit</label>
+              <app-searchable-select
+                [options]="unitOptions"
+                placeholder="Select Unit"
+                searchPlaceholder="Search units..."
+                formControlName="unit"
+                [grouped]="true"
+              ></app-searchable-select>
+            </div>
+
+            <div class="col-md-1 d-flex align-items-end">
+              <button
+                type="button"
+                class="btn btn-sm btn-danger mb-2"
+                (click)="removeIngredient(i)"
+                [disabled]="ingredients.length === 1"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Steps -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>Instructions</h4>
+        <button type="button" class="btn btn-sm btn-primary" (click)="addStep()">
+          <i class="bi bi-plus-circle"></i> Add Step
+        </button>
+      </div>
+      <div class="card-body">
+        <div formArrayName="steps">
+          <div *ngFor="let step of steps.controls; let i = index" [formGroupName]="i" class="mb-3">
+            <div class="d-flex mb-2 align-items-center">
+              <h5 class="mb-0 me-2">Step {{ i + 1 }}</h5>
+              <button
+                type="button"
+                class="btn btn-sm btn-danger"
+                (click)="removeStep(i)"
+                [disabled]="steps.length === 1"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+
+            <div class="mb-3">
+              <textarea
+                [id]="'step-instruction-' + i"
+                class="form-control"
+                rows="3"
+                formControlName="instruction"
+                [ngClass]="{'is-invalid': submitted && step.get('instruction')?.invalid}"
+              ></textarea>
+              <div class="invalid-feedback" *ngIf="submitted && step.get('instruction')?.errors?.['required']">
+                Instruction is required
+              </div>
+              <div class="invalid-feedback" *ngIf="submitted && step.get('instruction')?.errors?.['maxlength']">
+                Instruction must be less than 1000 characters
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-container d-flex justify-content-between mb-4">
+      <button type="button" class="btn btn-secondary" routerLink="/recipes">Cancel</button>
+      <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+        Save Recipe
+      </button>
+    </div>
+  </form>
+</div>

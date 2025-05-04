@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../../shared/services/auth.service';
-import { User } from '../../shared/models/user.model';
+import {AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -9,33 +9,76 @@ import { Router } from '@angular/router';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
-  firstName: string = '';
-  lastName: string = '';
-  email: string = '';
-  password: string = '';
-  confirmPassword: string = '';
+  registerForm: FormGroup;
+  error: string = '';
+  loading: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {
+    this.registerForm = this.formBuilder.group({
+      username: ['', [Validators.required]],
+      firstName: [''],
+      lastName: [''],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', [Validators.required]]
+    }, {
+      validators: this.passwordMatchValidator
+    });
+  }
 
-  async onSubmit() {
-    if (this.password !== this.confirmPassword) {
-      alert('Passwords do not match.');
+  // Custom validator to check if password and confirm password match
+  passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+    const password = control.get('password');
+    const confirmPassword = control.get('confirmPassword');
+
+    if (password?.value !== confirmPassword?.value) {
+      confirmPassword?.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true };
+    } else {
+      // If there's an error, manually clear it
+      // This ensures that if user corrects the mismatch, the error is removed
+      if (confirmPassword?.errors) {
+        const errors = { ...confirmPassword.errors };
+        delete errors['passwordMismatch'];
+        confirmPassword.setErrors(Object.keys(errors).length ? errors : null);
+      }
+      return null;
+    }
+  }
+
+  onSubmit() {
+    if (this.registerForm.invalid) {
+      // Mark all fields as touched to trigger validation display
+      Object.keys(this.registerForm.controls).forEach(key => {
+        const control = this.registerForm.get(key);
+        control?.markAsTouched();
+      });
       return;
     }
 
-    const user: User = {
-      firstName: this.firstName,
-      lastName: this.lastName,
-      email: this.email,
-      password: this.password
-    };
+    this.loading = true;
+    this.error = '';
 
-    try {
-      await this.authService.register(user);
-      this.router.navigate(['/']);
-    } catch (error) {
-      console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
-    }
+    // Extract form values without the confirmPassword field
+    const { confirmPassword, ...registrationData } = this.registerForm.value;
+
+    this.authService.register(registrationData).subscribe({
+      next: (username) => {
+        if (username) {
+          this.router.navigate(['/login']);
+        } else {
+          this.error = 'Registration failed';
+          this.loading = false;
+        }
+      },
+      error: (error) => {
+        this.error = error.message || 'An error occurred during registration';
+        this.loading = false;
+      }
+    });
   }
 }

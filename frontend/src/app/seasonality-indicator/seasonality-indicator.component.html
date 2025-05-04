@@ -1,0 +1,62 @@
+<div class="seasonality-container" *ngIf="seasonalityInfo">
+  <div class="seasonality-score-container">
+    <div class="seasonality-score" [ngClass]="getScoreClass()">
+      <div class="score-value">{{ seasonalityInfo.seasonalScore }}%</div>
+      <div class="score-label">{{ getScoreText() }}</div>
+    </div>
+    <div class="seasonality-stats">
+      <div class="seasonal-stat">
+        <i class="bi bi-check-circle-fill text-success"></i>
+        <span>{{ seasonalityInfo.inSeasonCount }} in season</span>
+      </div>
+      <div class="seasonal-stat">
+        <i class="bi bi-x-circle-fill text-danger"></i>
+        <span>{{ seasonalityInfo.outOfSeasonCount }} out of season</span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showDetails">
+    <button class="btn btn-sm btn-outline-primary mt-2" (click)="toggleDetailsView()">
+      {{ showAllIngredients ? 'Hide' : 'Show' }} Ingredient Seasonality Details
+    </button>
+
+    <div class="ingredient-seasonality-list" *ngIf="showAllIngredients">
+      <h5 class="mt-3">Ingredient Seasonality</h5>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th>Ingredient</th>
+            <th>Status</th>
+            <th>Seasonality</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let ingredient of seasonalityInfo.ingredientSeasonality">
+            <td>{{ ingredient.ingredientName }}</td>
+            <td>
+                <span class="status-indicator">
+                  <!-- FIX: Explicitly use appropriate icon based on status text -->
+                  <i *ngIf="ingredient.status === 'In Season'" class="bi bi-check-circle-fill text-success" title="In Season"></i>
+                  <i *ngIf="ingredient.status === 'Coming Soon'" class="bi bi-clock-history text-warning" title="Coming Soon"></i>
+                  <i *ngIf="ingredient.status === 'Out of Season'" class="bi bi-x-circle-fill text-danger" title="Out of Season"></i>
+                  <i *ngIf="ingredient.status !== 'In Season' && ingredient.status !== 'Coming Soon' && ingredient.status !== 'Out of Season'"
+                     class="bi bi-question-circle text-secondary" title="Unknown status"></i>
+                  {{ ingredient.status }}
+                </span>
+            </td>
+            <td>{{ ingredient.seasonality }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="seasonality-placeholder" *ngIf="!seasonalityInfo">
+  <div class="alert alert-info">
+    Seasonality information not available
+  </div>
+</div>

@@ -1,0 +1,20 @@
+.add-to-shopping-list-container {
+  text-align: center;
+
+  .btn {
+    i {
+      margin-right: 5px;
+    }
+  }
+
+  .success-message {
+    color: #28a745;
+    font-size: 0.875rem;
+    animation: fadeIn 0.3s ease-in;
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  }
+}

@@ -1,0 +1,94 @@
+<div class="collections-container">
+  <div class="header">
+    <h1>My Collections</h1>
+    <button class="btn btn-primary" (click)="toggleForm()">
+      <i class="bi" [ngClass]="showForm ? 'bi-x-lg' : 'bi-plus-lg'"></i>
+      {{ showForm ? 'Cancel' : 'Create Collection' }}
+    </button>
+  </div>
+
+  <!-- Success/Error messages -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Collection Form -->
+  <div *ngIf="showForm" class="collection-form-container mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h3>{{ isEditing ? 'Edit Collection' : 'Create New Collection' }}</h3>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="collectionForm" (ngSubmit)="onSubmit()">
+          <div class="mb-3">
+            <label for="name" class="form-label">Collection Name*</label>
+            <input type="text" class="form-control" id="name" formControlName="name"
+                   [ngClass]="{'is-invalid': collectionForm.get('name')?.invalid && collectionForm.get('name')?.touched}">
+            <div class="invalid-feedback" *ngIf="collectionForm.get('name')?.errors?.['required']">
+              Collection name is required
+            </div>
+            <div class="invalid-feedback" *ngIf="collectionForm.get('name')?.errors?.['maxlength']">
+              Collection name must be less than 50 characters
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" rows="3" formControlName="description"
+                      [ngClass]="{'is-invalid': collectionForm.get('description')?.invalid && collectionForm.get('description')?.touched}"></textarea>
+            <div class="invalid-feedback" *ngIf="collectionForm.get('description')?.errors?.['maxlength']">
+              Description must be less than 200 characters
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" [disabled]="collectionForm.invalid || isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            {{ isEditing ? 'Update Collection' : 'Create Collection' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- No Collections Message -->
+  <div *ngIf="collections.length === 0 && !isLoading" class="no-collections text-center my-5">
+    <p>You don't have any collections yet.</p>
+    <button class="btn btn-primary" (click)="toggleForm()">Create Your First Collection</button>
+  </div>
+
+  <!-- Collections List -->
+  <div *ngIf="collections.length > 0 && !isLoading" class="collections-grid">
+    <div *ngFor="let collection of collections" class="collection-card">
+      <div class="card h-100">
+        <div class="card-body" (click)="viewCollection(collection.id)">
+          <h5 class="card-title">{{ collection.name }}</h5>
+          <p class="card-text">{{ collection.description || 'No description' }}</p>
+          <div class="recipe-count">{{ collection.recipeCount }} recipe{{ collection.recipeCount !== 1 ? 's' : '' }}</div>
+          <div *ngIf="collection.isDefault" class="default-badge">Default</div>
+        </div>
+        <!-- Only show edit/delete buttons for NON-default collections -->
+        <div class="card-footer" *ngIf="!isDefaultCollection(collection)">
+          <button class="btn btn-sm btn-outline-primary me-2" (click)="editCollection(collection); $event.stopPropagation()">
+            <i class="bi bi-pencil-square"></i> Edit
+          </button>
+          <button class="btn btn-sm btn-outline-danger" (click)="deleteCollection(collection.id); $event.stopPropagation()">
+            <i class="bi bi-trash"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

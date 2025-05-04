@@ -1,0 +1,15 @@
+.ingredient-seasonality {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+
+  .seasonality-icon {
+    font-size: 0.9rem;
+    cursor: help;
+  }
+
+  .seasonality-label {
+    margin-left: 0.25rem;
+    font-size: 0.8rem;
+  }
+}

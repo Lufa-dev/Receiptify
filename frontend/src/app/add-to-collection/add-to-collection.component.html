@@ -1,0 +1,47 @@
+<div class="add-to-collection-container" clickOutside (clickOutside)="showDropdown = false">
+  <button class="btn btn-outline-primary" (click)="toggleDropdown()">
+    <i class="bi bi-bookmark-plus"></i> Add to Collection
+  </button>
+
+  <!-- Dropdown Menu -->
+  <div class="collection-dropdown" *ngIf="showDropdown">
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="text-center py-3">
+      <div class="spinner-border spinner-border-sm text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="error" class="dropdown-error px-3 py-2">
+      {{ error }}
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="dropdown-success px-3 py-2">
+      {{ successMessage }}
+    </div>
+
+    <!-- Collections List -->
+    <div *ngIf="!isLoading && collections.length > 0">
+      <div class="dropdown-header">Your Collections</div>
+      <div class="collections-list">
+        <div *ngFor="let collection of collections"
+             class="collection-item"
+             [class.disabled]="isRecipeInCollection(collection.id)"
+             (click)="!isRecipeInCollection(collection.id) && addToCollection(collection.id, $event)">
+          <span class="collection-name">{{ collection.name }}</span>
+          <span class="collection-status" *ngIf="isRecipeInCollection(collection.id)">
+            <i class="bi bi-check-circle-fill"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Collections Message -->
+    <div *ngIf="!isLoading && collections.length === 0 && !error" class="no-collections px-3 py-2">
+      <p class="mb-2">You don't have any collections yet.</p>
+      <a routerLink="/collections" class="btn btn-sm btn-primary">Create Collection</a>
+    </div>
+  </div>
+</div>

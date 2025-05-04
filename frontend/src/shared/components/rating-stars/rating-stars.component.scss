@@ -1,0 +1,45 @@
+.rating-stars {
+  display: inline-flex;
+  align-items: center;
+
+  .star {
+    cursor: default;
+    color: #FFD700; // Gold color for stars
+  }
+
+  .rating-value {
+    margin-left: 5px;
+    font-weight: 500;
+  }
+
+  &.small {
+    .star {
+      font-size: 16px;
+      margin-right: 1px;
+    }
+  }
+
+  &.medium {
+    .star {
+      font-size: 20px;
+      margin-right: 2px;
+    }
+  }
+
+  &.large {
+    .star {
+      font-size: 24px;
+      margin-right: 3px;
+    }
+  }
+
+  &:not(.readonly) {
+    .star {
+      cursor: pointer;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+}

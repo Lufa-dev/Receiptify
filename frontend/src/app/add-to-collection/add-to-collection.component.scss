@@ -1,0 +1,76 @@
+.add-to-collection-container {
+  position: relative;
+  display: inline-block;
+
+  .collection-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 1000;
+    min-width: 250px;
+    margin-top: 5px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+
+    .dropdown-header {
+      padding: 10px 15px;
+      background-color: #f8f9fa;
+      font-weight: 600;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .collections-list {
+      max-height: 250px;
+      overflow-y: auto;
+
+      .collection-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+
+        &:hover:not(.disabled) {
+          background-color: #f8f9fa;
+        }
+
+        &.disabled {
+          cursor: default;
+          color: #6c757d;
+          background-color: #f8f9fa;
+        }
+
+        .collection-name {
+          font-size: 14px;
+        }
+
+        .collection-status {
+          color: #28a745;
+          font-size: 14px;
+        }
+      }
+    }
+
+    .dropdown-error {
+      color: #dc3545;
+      font-size: 14px;
+    }
+
+    .dropdown-success {
+      color: #28a745;
+      font-size: 14px;
+    }
+
+    .no-collections {
+      text-align: center;
+
+      p {
+        font-size: 14px;
+        color: #6c757d;
+      }
+    }
+  }
+}

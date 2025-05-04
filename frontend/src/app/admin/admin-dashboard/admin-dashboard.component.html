@@ -1,0 +1,162 @@
+<div class="admin-container">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="admin-title">Admin Dashboard</h1>
+      <p class="admin-subtitle">Manage users, recipes, and comments</p>
+    </div>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="isLoading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Loading dashboard data...</p>
+  </div>
+
+  <!-- Dashboard Stats Cards -->
+  <div *ngIf="!isLoading && !error" class="row mb-4">
+    <!-- Total Users Card -->
+    <div class="col-md-3 col-sm-6 mb-4">
+      <div class="card stats-card">
+        <div class="card-body text-center">
+          <div class="stats-icon mb-2">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <h2 class="stats-number">{{ stats.totalUsers || 0 }}</h2>
+          <p class="stats-label">Total Users</p>
+        </div>
+        <div class="card-footer text-center">
+          <a routerLink="/admin/users" class="btn btn-sm btn-outline-secondary">View All Users</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Recipes Card -->
+    <div class="col-md-3 col-sm-6 mb-4">
+      <div class="card stats-card">
+        <div class="card-body text-center">
+          <div class="stats-icon mb-2">
+            <i class="bi bi-journal-text"></i>
+          </div>
+          <h2 class="stats-number">{{ stats.totalRecipes || 0 }}</h2>
+          <p class="stats-label">Total Recipes</p>
+        </div>
+        <div class="card-footer text-center">
+          <a routerLink="/admin/recipes" class="btn btn-sm btn-outline-secondary">View All Recipes</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Comments Card -->
+    <div class="col-md-3 col-sm-6 mb-4">
+      <div class="card stats-card">
+        <div class="card-body text-center">
+          <div class="stats-icon mb-2">
+            <i class="bi bi-chat-dots-fill"></i>
+          </div>
+          <h2 class="stats-number">{{ stats.totalComments || 0 }}</h2>
+          <p class="stats-label">Total Comments</p>
+        </div>
+        <div class="card-footer text-center">
+          <a routerLink="/admin/comments" class="btn btn-sm btn-outline-secondary">View All Comments</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Users Card (This Month) -->
+    <div class="col-md-3 col-sm-6 mb-4">
+      <div class="card stats-card">
+        <div class="card-body text-center">
+          <div class="stats-icon mb-2">
+            <i class="bi bi-person-plus-fill"></i>
+          </div>
+          <h2 class="stats-number">{{ stats.newUsers || 0 }}</h2>
+          <p class="stats-label">New Users (This Month)</p>
+        </div>
+        <div class="card-footer text-center">
+          <button class="btn btn-sm btn-outline-secondary" (click)="loadDashboardStats()">Refresh Stats</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity Section -->
+  <div *ngIf="!isLoading && !error && stats.recentActivity?.length" class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Recent Recipes</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+              <tr>
+                <th>Recipe</th>
+                <th>Created By</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let activity of stats.recentActivity">
+                <td>{{ activity.title }}</td>
+                <td>{{ activity.username }}</td>
+                <td>{{ activity.createdAt | date:'short' }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary" [routerLink]="['/admin/recipes', activity.id]">
+                    View Recipe
+                  </button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Navigation Cards -->
+  <div class="row mb-4">
+    <div class="col-md-4 mb-4">
+      <div class="card admin-nav-card">
+        <div class="card-body text-center">
+          <i class="bi bi-people-fill mb-3 admin-nav-icon"></i>
+          <h4>User Management</h4>
+          <p>View, edit, and delete user accounts</p>
+          <a routerLink="/admin/users" class="btn btn-primary">Manage Users</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+      <div class="card admin-nav-card">
+        <div class="card-body text-center">
+          <i class="bi bi-journal-text mb-3 admin-nav-icon"></i>
+          <h4>Recipe Management</h4>
+          <p>View, edit, and moderate recipes</p>
+          <a routerLink="/admin/recipes" class="btn btn-primary">Manage Recipes</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+      <div class="card admin-nav-card">
+        <div class="card-body text-center">
+          <i class="bi bi-chat-dots-fill mb-3 admin-nav-icon"></i>
+          <h4>Comment Management</h4>
+          <p>Moderate and remove inappropriate comments</p>
+          <a routerLink="/admin/comments" class="btn btn-primary">Manage Comments</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

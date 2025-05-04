@@ -1,0 +1,293 @@
+<div class="advanced-search-container">
+  <div class="search-header">
+    <h1>Advanced Recipe Search</h1>
+    <p>Find the perfect recipe with our powerful search filters</p>
+  </div>
+
+  <form [formGroup]="searchForm" (ngSubmit)="onSearch()" class="search-form">
+    <!-- Basic Search -->
+    <div class="search-section">
+      <h3>Search by Keywords</h3>
+      <div class="form-group">
+        <input type="text" class="form-control search-input" formControlName="searchQuery"
+               placeholder="Search recipes by name or description...">
+      </div>
+    </div>
+
+    <!-- Recipe Characteristics -->
+    <div class="search-section">
+      <h3>Recipe Characteristics</h3>
+      <div class="row">
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Category</label>
+            <select class="form-select" formControlName="category">
+              <option value="">All Categories</option>
+              <option value="appetizer">Appetizer</option>
+              <option value="breakfast">Breakfast</option>
+              <option value="main">Main Course</option>
+              <option value="soup">Soup</option>
+              <option value="salad">Salad</option>
+              <option value="side">Side Dish</option>
+              <option value="dessert">Dessert</option>
+              <option value="snack">Snack</option>
+              <option value="bread">Bread</option>
+              <option value="cake">Cake</option>
+              <option value="cookie">Cookie</option>
+              <option value="pastry">Pastry</option>
+              <option value="beverage">Beverage</option>
+              <option value="sauce">Sauce</option>
+              <option value="preserve">Preserve</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Cuisine</label>
+            <select class="form-select" formControlName="cuisine">
+              <option value="">All Cuisines</option>
+              <option value="american">American</option>
+              <option value="italian">Italian</option>
+              <option value="french">French</option>
+              <option value="chinese">Chinese</option>
+              <option value="japanese">Japanese</option>
+              <option value="indian">Indian</option>
+              <option value="mexican">Mexican</option>
+              <option value="thai">Thai</option>
+              <option value="mediterranean">Mediterranean</option>
+              <option value="greek">Greek</option>
+              <option value="spanish">Spanish</option>
+              <option value="middle-eastern">Middle Eastern</option>
+              <option value="korean">Korean</option>
+              <option value="vietnamese">Vietnamese</option>
+              <option value="caribbean">Caribbean</option>
+              <option value="african">African</option>
+              <option value="german">German</option>
+              <option value="british">British</option>
+              <option value="fusion">Fusion</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Difficulty</label>
+            <select class="form-select" formControlName="difficulty">
+              <option value="">Any Difficulty</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="form-group">
+            <label>Cost Rating</label>
+            <select class="form-select" formControlName="costRating">
+              <option value="">Any Cost</option>
+              <option value="budget">Budget</option>
+              <option value="moderate">Moderate</option>
+              <option value="expensive">Expensive</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Time and Servings -->
+    <div class="search-section">
+      <h3>Time & Servings</h3>
+      <div class="row">
+        <div class="col-md-2">
+          <div class="form-group">
+            <label>Min Servings</label>
+            <input type="number" class="form-control" formControlName="minServings" min="1">
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <div class="form-group">
+            <label>Max Servings</label>
+            <input type="number" class="form-control" formControlName="maxServings" min="1">
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <div class="form-group">
+            <label>Max Prep Time (min)</label>
+            <input type="number" class="form-control" formControlName="maxPrepTime" min="0">
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <div class="form-group">
+            <label>Max Cook Time (min)</label>
+            <input type="number" class="form-control" formControlName="maxCookTime" min="0">
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <div class="form-group">
+            <label>Max Total Time (min)</label>
+            <input type="number" class="form-control" formControlName="maxTotalTime" min="0">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-section">
+      <h3>Seasonality</h3>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Seasonal Score</label>
+            <div class="d-flex align-items-center">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="seasonalOnly" id="seasonalOnly">
+                <label class="form-check-label" for="seasonalOnly">Show only seasonal recipes</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6" *ngIf="searchForm.get('seasonalOnly')?.value">
+          <div class="form-group">
+            <label>Minimum Seasonal Score ({{ searchForm.get('minSeasonalScore')?.value }}%)</label>
+            <input type="range" class="form-range" min="0" max="100" step="10"
+                   formControlName="minSeasonalScore">
+            <div class="d-flex justify-content-between">
+              <small>0% (Any)</small>
+              <small>50%</small>
+              <small>100% (Fully Seasonal)</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Updated Ingredients Section -->
+    <div class="search-section">
+      <h3>Ingredients</h3>
+      <div class="row">
+        <div class="col-md-6">
+          <label>Include Ingredients</label>
+          <div class="ingredient-selection">
+            <app-searchable-select
+              placeholder="Select ingredients to include"
+              searchPlaceholder="Search ingredients..."
+              [options]="ingredientOptions"
+              [grouped]="true"
+              [clearAfterSelect]="true"
+              (selectionChange)="addSelectedIngredient($event)"
+            ></app-searchable-select>
+
+            <div class="selected-ingredients mt-2">
+              <span *ngFor="let ingredient of selectedIngredients" class="badge bg-success me-2 mb-2">
+                {{ ingredient.displayName }}
+                <button type="button" class="btn-close btn-close-white"
+                        (click)="removeSelectedIngredient(ingredient)"></button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label>Exclude Ingredients</label>
+          <div class="ingredient-selection">
+            <app-searchable-select
+              placeholder="Select ingredients to exclude"
+              searchPlaceholder="Search ingredients..."
+              [options]="ingredientOptions"
+              [grouped]="true"
+              [clearAfterSelect]="true"
+              (selectionChange)="addExcludedIngredient($event)"
+            ></app-searchable-select>
+
+            <div class="selected-ingredients mt-2">
+              <span *ngFor="let ingredient of excludedIngredients" class="badge bg-danger me-2 mb-2">
+                {{ ingredient.displayName }}
+                <button type="button" class="btn-close btn-close-white"
+                        (click)="removeExcludedIngredient(ingredient)"></button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sort Options -->
+    <div class="search-section">
+      <h3>Sort Results</h3>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Sort By</label>
+            <select class="form-select" formControlName="sortBy">
+              <option *ngFor="let option of sortOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>Sort Direction</label>
+            <select class="form-select" formControlName="sortDirection">
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Actions -->
+    <div class="search-actions">
+      <button type="submit" class="btn btn-primary me-2" [disabled]="isLoading">
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+        {{ isLoading ? 'Searching...' : 'Search Recipes' }}
+      </button>
+      <button type="button" class="btn btn-outline-secondary" (click)="clearFilters()">
+        Clear Filters
+      </button>
+    </div>
+  </form>
+
+  <!-- Search Results -->
+  <div class="search-results" *ngIf="!isLoading || recipes.length > 0">
+    <div class="results-header" *ngIf="recipes.length > 0">
+      <h3>Search Results ({{ totalRecipes }} {{ totalRecipes === 1 ? 'recipe' : 'recipes' }})</h3>
+    </div>
+
+    <div class="recipes-grid">
+      <div *ngFor="let recipe of recipes" class="recipe-card" (click)="recipe.id ? navigateToRecipe(recipe.id) : null">
+        <div class="recipe-image-container">
+          <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
+        </div>
+        <div class="recipe-info">
+          <h4 class="recipe-title">{{ recipe.title }}</h4>
+          <p class="recipe-description">{{ recipe.description }}</p>
+          <div class="recipe-meta">
+            <span class="badge bg-secondary me-1" *ngIf="recipe.category">{{ recipe.category | formatEnum }}</span>
+            <span class="badge bg-secondary me-1" *ngIf="recipe.cuisine">{{ recipe.cuisine | formatEnum }}</span>
+            <span class="badge bg-secondary me-1" *ngIf="recipe.difficulty">{{ recipe.difficulty | formatEnum }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-4" *ngIf="hasMoreRecipes()">
+      <button class="btn btn-outline-primary" (click)="onLoadMore()" [disabled]="isLoading">
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+        Load More
+      </button>
+    </div>
+
+    <div class="no-results" *ngIf="recipes.length === 0 && !isLoading">
+      <p>No recipes found matching your criteria. Try adjusting your filters.</p>
+    </div>
+  </div>
+</div>

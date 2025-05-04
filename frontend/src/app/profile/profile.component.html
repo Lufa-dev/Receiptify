@@ -1,24 +1,344 @@
-<div class="profile-container" *ngIf="user">
-  <div class="profile-header">
-    <img [src]="userProfilePicture" alt="Profile Picture" class="profile-picture" />
-    <div class="profile-info">
-      <h2>{{ user?.firstName }} {{ user?.lastName }}</h2>
-      <p>Recipes: {{ userRecipesCount }}</p>
+<div class="container profile-container">
+  <!-- Success/Error messages -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="isLoading" class="text-center my-5 py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
+    <p class="mt-3 text-muted">Loading your profile information...</p>
   </div>
-  <div class="profile-actions">
-    <button class="btn btn-primary" (click)="changeData()">Change Data</button>
-    <button class="btn btn-secondary" (click)="uploadRecipe()">Upload Recipe</button>
-  </div>
-  <div class="user-recipes">
-    <h3>Your Recipes</h3>
-    <div *ngFor="let recipe of userRecipes" class="recipe-item">
-      <img [src]="recipe.imageUrl" alt="{{ recipe.title }}" class="recipe-image" />
-      <h4>{{ recipe.title }}</h4>
-      <p>{{ recipe.description }}</p>
-      <ol>
-        <li *ngFor="let step of recipe.steps">{{ step }}</li>
-      </ol>
+
+  <div *ngIf="!isLoading" class="profile-content">
+    <div class="row">
+      <!-- Profile Summary Column -->
+      <div class="col-md-4 mb-4">
+        <!-- Profile Summary Card -->
+        <div class="card profile-card mb-4">
+          <div class="card-body text-center">
+            <div class="profile-avatar mb-3">
+              <i class="bi bi-person-circle"></i>
+            </div>
+            <h3 class="profile-name">{{ profileForm.get('firstName')?.value || '' }} {{ profileForm.get('lastName')?.value || '' }}</h3>
+            <p class="profile-username text-muted">&#64;{{ profileForm.get('username')?.value || '' }}</p>
+
+            <!-- Recipe Stats -->
+            <div class="recipe-stats mt-4">
+              <div class="row">
+                <div class="col-6">
+                  <div class="stat-item">
+                    <div class="stat-value">{{ recipeStats.total || 0 }}</div>
+                    <div class="stat-label">Total Recipes</div>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="stat-item">
+                    <div class="stat-value">{{ recipeStats.thisMonth || 0 }}</div>
+                    <div class="stat-label">This Month</div>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="recipeStats.topIngredient" class="top-ingredient mt-3">
+                <span class="label">Most Used Ingredient:</span>
+                <span class="ingredient-badge">{{ recipeStats.topIngredient }}</span>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <a routerLink="/my-recipes" class="btn btn-primary btn-sm">
+                <i class="bi bi-journal-text me-1"></i> My Recipes
+              </a>
+              <a routerLink="/collections" class="btn btn-outline-primary btn-sm ms-2">
+                <i class="bi bi-collection me-1"></i> Collections
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-8">
+        <!-- Profile Information Form -->
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-person me-2"></i>Profile Information</h5>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+              <div class="row g-3">
+                <!-- Username (readonly) -->
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="form-control bg-light" formControlName="username" readonly>
+                  </div>
+                </div>
+
+                <!-- Email -->
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" formControlName="email"
+                           [ngClass]="{'is-invalid': submitted && f['email'].errors}">
+                    <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+                      <div *ngIf="f['email'].errors?.['required']">Email is required</div>
+                      <div *ngIf="f['email'].errors?.['email']">Please enter a valid email address</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- First Name -->
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" class="form-control" formControlName="firstName"
+                           [ngClass]="{'is-invalid': submitted && f['firstName'].errors}">
+                    <div *ngIf="submitted && f['firstName'].errors" class="invalid-feedback">
+                      <div *ngIf="f['firstName'].errors?.['required']">First name is required</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Last Name -->
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" class="form-control" formControlName="lastName"
+                           [ngClass]="{'is-invalid': submitted && f['lastName'].errors}">
+                    <div *ngIf="submitted && f['lastName'].errors" class="invalid-feedback">
+                      <div *ngIf="f['lastName'].errors?.['required']">Last name is required</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <hr class="my-3">
+                  <h5 class="mb-3">Change Password <small class="text-muted">(optional)</small></h5>
+                </div>
+
+                <!-- Current Password -->
+                <div class="col-md-12">
+                  <div class="form-group mb-3">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" id="currentPassword" class="form-control" formControlName="currentPassword"
+                           [ngClass]="{'is-invalid': submitted && passwordChangeAttempted && f['currentPassword'].errors}">
+                    <div *ngIf="submitted && passwordChangeAttempted && f['currentPassword'].errors"
+                         class="invalid-feedback">
+                      <div *ngIf="f['currentPassword'].errors?.['required']">Current password is required to change password</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- New Password -->
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" class="form-control" formControlName="newPassword"
+                           [ngClass]="{'is-invalid': submitted && passwordChangeAttempted && f['newPassword'].errors}">
+                    <div *ngIf="submitted && passwordChangeAttempted && f['newPassword'].errors"
+                         class="invalid-feedback">
+                      <div *ngIf="f['newPassword'].errors?.['minlength']">Password must be at least 6 characters</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-control" formControlName="confirmPassword"
+                           [ngClass]="{'is-invalid': submitted && passwordChangeAttempted && f['confirmPassword'].errors}">
+                    <div *ngIf="submitted && passwordChangeAttempted && f['confirmPassword'].errors"
+                         class="invalid-feedback">
+                      <div *ngIf="f['confirmPassword'].errors?.['matching']">Passwords must match</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end mt-4">
+                <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+                  <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status"
+                        aria-hidden="true"></span>
+                  <i class="bi bi-save me-1"></i> Save Profile
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Recipe Preferences Card -->
+        <div class="card preferences-card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-sliders me-2"></i>Recipe Preferences</h5>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()">
+              <div class="row g-3">
+                <!-- Categories & Cuisines -->
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Preferred Categories</label>
+                    <app-searchable-select
+                      [options]="categoryOptions"
+                      [placeholder]="'Select categories'"
+                      formControlName="preferredCategories"
+                      (selectionChange)="addSelectedCategory($event)"
+                      [clearAfterSelect]="true">
+                    </app-searchable-select>
+
+                    <div class="selected-items mt-2">
+                      <span *ngFor="let category of selectedCategories" class="badge bg-primary me-2 mb-2">
+                        {{ category.label }}
+                        <button type="button" class="btn-close btn-close-white"
+                                (click)="removeSelectedCategory(category)"></button>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Preferred Cuisines</label>
+                    <app-searchable-select
+                      [options]="cuisineOptions"
+                      [placeholder]="'Select cuisines'"
+                      (selectionChange)="addSelectedCuisine($event)"
+                      [clearAfterSelect]="true">
+                    </app-searchable-select>
+
+                    <div class="selected-items mt-2">
+                      <span *ngFor="let cuisine of selectedCuisines" class="badge bg-info text-dark me-2 mb-2">
+                        {{ cuisine.label }}
+                        <button type="button" class="btn-close btn-close-white"
+                                (click)="removeSelectedCuisine(cuisine)"></button>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Ingredients -->
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Favorite Ingredients</label>
+                    <app-searchable-select
+                      [options]="ingredientOptions"
+                      [placeholder]="'Search ingredients you love'"
+                      [grouped]="true"
+                      (selectionChange)="addSelectedFavoriteIngredient($event)"
+                      [clearAfterSelect]="true">
+                    </app-searchable-select>
+
+                    <div class="selected-items mt-2">
+                      <span *ngFor="let ingredient of selectedFavoriteIngredients" class="badge bg-success me-2 mb-2">
+                        {{ ingredient.label }}
+                        <button type="button" class="btn-close btn-close-white"
+                                (click)="removeSelectedFavoriteIngredient(ingredient)"></button>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Disliked Ingredients</label>
+                    <app-searchable-select
+                      [options]="ingredientOptions"
+                      [placeholder]="'Search ingredients to avoid'"
+                      [grouped]="true"
+                      (selectionChange)="addSelectedDislikedIngredient($event)"
+                      [clearAfterSelect]="true">
+                    </app-searchable-select>
+
+                    <div class="selected-items mt-2">
+                      <span *ngFor="let ingredient of selectedDislikedIngredients" class="badge bg-danger me-2 mb-2">
+                        {{ ingredient.label }}
+                        <button type="button" class="btn-close btn-close-white"
+                                (click)="removeSelectedDislikedIngredient(ingredient)"></button>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <hr class="my-3">
+                </div>
+
+                <!-- Preparation Time -->
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label d-flex justify-content-between">
+                      <span>Maximum Preparation Time</span>
+                      <span class="prep-time-value">{{ prepTimeValue }} min</span>
+                    </label>
+                    <input type="range" class="form-range" formControlName="maxPrepTime" min="5" max="120" step="5"
+                           (input)="updatePrepTimeLabel()">
+                  </div>
+                </div>
+
+                <!-- Difficulty -->
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label class="form-label">Difficulty Preference</label>
+                    <div class="btn-group d-flex" role="group">
+                      <!-- Radio button for "Any" difficulty -->
+                      <input type="radio" class="btn-check" id="difficultyAny"
+                             formControlName="difficultyPreference" [value]="''">
+                      <label class="btn btn-outline-secondary" for="difficultyAny">Any</label>
+
+                      <!-- Radio button for "Easy" difficulty -->
+                      <input type="radio" class="btn-check" id="difficultyEasy"
+                             formControlName="difficultyPreference" [value]="'easy'">
+                      <label class="btn btn-outline-secondary" for="difficultyEasy">Easy</label>
+
+                      <!-- Radio button for "Medium" difficulty -->
+                      <input type="radio" class="btn-check" id="difficultyMedium"
+                             formControlName="difficultyPreference" [value]="'medium'">
+                      <label class="btn btn-outline-secondary" for="difficultyMedium">Medium</label>
+
+                      <!-- Radio button for "Hard" difficulty -->
+                      <input type="radio" class="btn-check" id="difficultyHard"
+                             formControlName="difficultyPreference" [value]="'hard'">
+                      <label class="btn btn-outline-secondary" for="difficultyHard">Hard</label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Seasonal Option -->
+                <div class="col-12 mt-2">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="preferSeasonalRecipes"
+                           formControlName="preferSeasonalRecipes">
+                    <label class="form-check-label" for="preferSeasonalRecipes">
+                      Prioritize recipes with seasonal ingredients
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-outline-secondary" (click)="resetPreferences()">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+                  <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" role="status"
+                        aria-hidden="true"></span>
+                  <i class="bi bi-save me-1"></i> Save Preferences
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

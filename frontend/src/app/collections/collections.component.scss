@@ -1,0 +1,133 @@
+.collections-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+
+    h1 {
+      font-size: 32px;
+      color: #333;
+      margin: 0;
+    }
+  }
+
+  .collection-form-container {
+    .card {
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+
+      .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+
+        h3 {
+          margin: 0;
+          font-size: 22px;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+
+  .collections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+
+    .collection-card {
+      cursor: pointer;
+
+      .card {
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body {
+          position: relative;
+          padding: 1.5rem;
+
+          .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+          }
+
+          .card-text {
+            color: #6c757d;
+            margin-bottom: 15px;
+            // For description truncation
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+
+          .recipe-count {
+            color: #6c757d;
+            font-size: 14px;
+          }
+
+          .default-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #e9ecef;
+            color: #495057;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+          }
+        }
+
+        .card-footer {
+          background-color: #f8f9fa;
+          border-top: 1px solid #e9ecef;
+          padding: 0.75rem 1.5rem;
+
+          button {
+            i {
+              margin-right: 5px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// For smaller screens
+@media (max-width: 768px) {
+  .collections-container {
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .collections-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .collections-container {
+    .collections-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

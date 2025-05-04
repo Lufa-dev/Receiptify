@@ -1,0 +1,62 @@
+<div class="searchable-select" [class.open]="isOpen" [class.disabled]="disabled" clickOutside (clickOutside)="close()">
+  <div class="select-trigger" (click)="toggle()" [tabindex]="disabled ? -1 : 0" (keydown)="onKeydown($event)">
+    <span class="selected-value" *ngIf="selectedOption">
+      {{ selectedOption.label }}
+    </span>
+    <span class="placeholder" *ngIf="!selectedOption">
+      {{ placeholder }}
+    </span>
+    <span class="arrow" [class.open]="isOpen">
+      <i class="bi bi-chevron-down"></i>
+    </span>
+  </div>
+
+  <div class="select-dropdown" *ngIf="isOpen">
+    <div class="search-container">
+      <input
+        #searchInput
+        type="text"
+        class="search-input"
+        [placeholder]="searchPlaceholder"
+        [formControl]="searchControl"
+        (keydown)="onSearchKeydown($event)"
+      >
+      <i class="bi bi-search search-icon"></i>
+    </div>
+
+    <div class="options-container">
+      <ng-container *ngIf="!grouped">
+        <div
+          class="option"
+          *ngFor="let option of filteredOptions; let i = index"
+          [class.selected]="isSelected(option)"
+          [class.highlighted]="highlightedIndex === i"
+          (click)="selectOption(option)"
+          (mouseenter)="highlightedIndex = i"
+        >
+          {{ option.label }}
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="grouped">
+        <ng-container *ngFor="let group of filteredGroups">
+          <div class="option-group-label">{{ group }}</div>
+          <div
+            class="option"
+            *ngFor="let option of getFilteredOptionsForGroup(group); let i = index"
+            [class.selected]="isSelected(option)"
+            [class.highlighted]="highlightedIndex === getGlobalIndex(group, i)"
+            (click)="selectOption(option)"
+            (mouseenter)="highlightedIndex = getGlobalIndex(group, i)"
+          >
+            {{ option.label }}
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <div class="no-results" *ngIf="filteredOptions.length === 0">
+        No results found
+      </div>
+    </div>
+  </div>
+</div>
