@@ -25,6 +25,7 @@ services:
     networks:
       - app-network
     profiles:
+      - dev
       - prod
 
   frontend:
@@ -32,11 +33,14 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: frontend
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
     ports:
       - "4200:4200"
     networks:
       - app-network
     profiles:
+      - dev
       - prod
 
   postgres:
