@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  API_URL: 'https://your-backend-service.onrender.com',
+  API_URL: 'https://receiptify-backend.onrender.com',
 };
