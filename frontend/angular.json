@@ -47,6 +47,11 @@
                 "glob": "_redirects",
                 "input": "src",
                 "output": "/"
+              },
+              {
+                "glob": "serve.json",
+                "input": "src",
+                "output": "/"
               }
             ],
             "styles": [
