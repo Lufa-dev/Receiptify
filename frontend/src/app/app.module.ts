@@ -30,6 +30,7 @@ import { RecommendedRecipesComponent } from './recommended-recipes/recommended-r
 import { SimilarRecipesComponent } from './similar-recipes/similar-recipes.component';
 import { AdminModule } from "./admin/admin.module";
 import { SharedModule } from '../shared/shared.module';
+import {HashLocationStrategy, LocationStrategy} from "@angular/common";
 
 export function clearStorageInitializer() {
   return () => {
@@ -74,6 +75,7 @@ export function clearStorageInitializer() {
     AdminModule
   ],
   providers: [AuthService, PortionCalculatorService,
+    {provide: LocationStrategy, useClass: HashLocationStrategy},
     {
       provide: APP_INITIALIZER,
       useFactory: clearStorageInitializer,
