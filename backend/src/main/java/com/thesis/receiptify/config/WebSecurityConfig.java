@@ -46,7 +46,7 @@ public class WebSecurityConfig {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+        configuration.setAllowedOrigins(List.of("http://localhost:4200", "https://receiptify-frontend.onrender.com"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "Access-Control-Allow-Headers",
                 "Access-Control-Expose-Headers", "Content-Disposition", "Access-Control-Allow-Credentials"));
