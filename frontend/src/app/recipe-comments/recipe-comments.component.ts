@@ -210,6 +210,15 @@ export class RecipeCommentsComponent implements OnInit {
     this.editingCommentId = null;
   }
 
+  canEditComment(comment: Comment): boolean {
+    if (!this.authService.isLoggedIn()) {
+      return false;
+    }
+
+    const username = sessionStorage.getItem('profileName');
+    return username === comment.user?.username;
+  }
+
   canModifyComment(comment: Comment): boolean {
     if (!this.authService.isLoggedIn()) {
       return false;

@@ -81,9 +81,13 @@
           <small class="text-muted" *ngIf="comment.updatedAt && comment.updatedAt !== comment.createdAt">(edited)</small>
         </div>
 
-        <div class="comment-actions" *ngIf="canModifyComment(comment)">
-          <button class="btn btn-sm btn-link" (click)="editComment(comment)">Edit</button>
-          <button class="btn btn-sm btn-link text-danger" (click)="deleteComment(comment.id || 0)">Delete</button>
+        <div class="comment-actions">
+          <button *ngIf="canEditComment(comment)"
+                  class="btn btn-sm btn-link"
+                  (click)="editComment(comment)">Edit</button>
+          <button *ngIf="canModifyComment(comment)"
+                  class="btn btn-sm btn-link text-danger"
+                  (click)="deleteComment(comment.id || 0)">Delete</button>
         </div>
       </div>
 
