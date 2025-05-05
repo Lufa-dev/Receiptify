@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -30,6 +30,8 @@ import { RecommendedRecipesComponent } from './recommended-recipes/recommended-r
 import { SimilarRecipesComponent } from './similar-recipes/similar-recipes.component';
 import { AdminModule } from "./admin/admin.module";
 import { SharedModule } from '../shared/shared.module';
+import {ApiUrlProvider} from "../shared/services/api-url.provider";
+import {ApiUrlInterceptor} from "../shared/interceptors/api-url.interceptor";
 
 export function clearStorageInitializer() {
   return () => {
@@ -73,10 +75,15 @@ export function clearStorageInitializer() {
     SharedModule,
     AdminModule
   ],
-  providers: [AuthService, PortionCalculatorService,
+  providers: [AuthService, PortionCalculatorService, ApiUrlProvider,
     {
       provide: APP_INITIALIZER,
       useFactory: clearStorageInitializer,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ApiUrlInterceptor,
       multi: true
     }],
   bootstrap: [AppComponent]
