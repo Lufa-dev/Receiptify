@@ -254,10 +254,10 @@ public class RecipeService {
     @Transactional(readOnly = true)
     public Page<RecipeDTO> findSeasonalRecipes(int minSeasonalScore, Pageable pageable) {
         // Get all recipes
-        Page<Recipe> recipePage = recipeRepository.findAll(pageable);
+        List<Recipe> allRecipes = recipeRepository.findAll();
 
         // Process them to include seasonality information and filter by score
-        List<RecipeDTO> seasonalRecipes = recipePage.getContent().stream()
+        List<RecipeDTO> seasonalRecipes = allRecipes.stream()
                 .map(recipe -> {
                     RecipeDTO dto = mapToDTO(recipe, null);
                     RecipeSeasonalityDTO seasonalityDTO = seasonalityService.analyzeRecipeSeasonality(recipe);
@@ -265,12 +265,19 @@ public class RecipeService {
                     return dto;
                 })
                 .filter(dto -> dto.getSeasonalityInfo().getSeasonalScore() >= minSeasonalScore)
+                // Sort by seasonality score in descending order
+                .sorted(Comparator.comparing(dto -> dto.getSeasonalityInfo().getSeasonalScore(), Comparator.reverseOrder()))
                 .collect(Collectors.toList());
 
-        // Create a new page with the filtered content
-        return new PageImpl<>(seasonalRecipes, pageable,
-                // If we filtered out some recipes, the total will be less than the original
-                recipePage.getTotalElements());
+        // Create a new page with the filtered and sorted content
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), seasonalRecipes.size());
+
+        return new PageImpl<>(
+                start >= seasonalRecipes.size() ? List.of() : seasonalRecipes.subList(start, end),
+                pageable,
+                seasonalRecipes.size()
+        );
     }
 
     @Transactional(readOnly = true)

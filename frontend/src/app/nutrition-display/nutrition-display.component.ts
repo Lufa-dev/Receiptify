@@ -11,6 +11,7 @@ export class NutritionDisplayComponent implements OnInit {
 
   nutrition: any = {};
   dailyValues: any = {};
+  macroDistribution: any = {}; // New property for normalized macronutrient distribution
   isLoading = false;
   error = '';
 
@@ -29,6 +30,7 @@ export class NutritionDisplayComponent implements OnInit {
         next: (data) => {
           this.nutrition = data.nutrition;
           this.dailyValues = data.dailyValues;
+          this.macroDistribution = data.macroDistribution; // Get the normalized distribution
           this.isLoading = false;
         },
         error: (err) => {
@@ -39,4 +41,5 @@ export class NutritionDisplayComponent implements OnInit {
       });
   }
 }
+
 

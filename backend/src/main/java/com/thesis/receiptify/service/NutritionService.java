@@ -76,6 +76,62 @@ public class NutritionService {
     }
 
     /**
+     * Calculate the normalized macronutrient distribution ensuring total is exactly 100%
+     * @param nutrition The nutrition information
+     * @return Map with protein, fat, and carbs percentages that sum to 100%
+     */
+    public Map<String, Integer> calculateNormalizedMacroDistribution(NutritionDTO nutrition) {
+        if (nutrition == null) {
+            return Map.of("protein", 0, "fat", 0, "carbs", 0);
+        }
+
+        double proteinCal = nutrition.getCaloriesFromProtein();
+        double fatCal = nutrition.getCaloriesFromFat();
+        double carbsCal = nutrition.getCaloriesFromCarbs();
+        double totalCal = proteinCal + fatCal + carbsCal;
+
+        if (totalCal == 0) {
+            return Map.of("protein", 0, "fat", 0, "carbs", 0);
+        }
+
+        // Calculate exact percentages
+        int proteinPct = (int) Math.round((proteinCal / totalCal) * 100);
+        int fatPct = (int) Math.round((fatCal / totalCal) * 100);
+        int carbsPct = (int) Math.round((carbsCal / totalCal) * 100);
+
+        // Adjust to ensure sum is 100%
+        int sum = proteinPct + fatPct + carbsPct;
+        if (sum != 100) {
+            // Determine which value to adjust based on which has the largest fractional part
+            double proteinFrac = (proteinCal / totalCal) * 100 - Math.floor((proteinCal / totalCal) * 100);
+            double fatFrac = (fatCal / totalCal) * 100 - Math.floor((fatCal / totalCal) * 100);
+            double carbsFrac = (carbsCal / totalCal) * 100 - Math.floor((carbsCal / totalCal) * 100);
+
+            if (sum > 100) {
+                // Need to subtract
+                if (proteinFrac <= fatFrac && proteinFrac <= carbsFrac) {
+                    proteinPct -= (sum - 100);
+                } else if (fatFrac <= proteinFrac && fatFrac <= carbsFrac) {
+                    fatPct -= (sum - 100);
+                } else {
+                    carbsPct -= (sum - 100);
+                }
+            } else {
+                // Need to add
+                if (proteinFrac >= fatFrac && proteinFrac >= carbsFrac) {
+                    proteinPct += (100 - sum);
+                } else if (fatFrac >= proteinFrac && fatFrac >= carbsFrac) {
+                    fatPct += (100 - sum);
+                } else {
+                    carbsPct += (100 - sum);
+                }
+            }
+        }
+
+        return Map.of("protein", proteinPct, "fat", fatPct, "carbs", carbsPct);
+    }
+
+    /**
      * Creates an empty nutrition DTO with zeros for all values
      */
     private NutritionDTO createEmptyNutritionDTO() {

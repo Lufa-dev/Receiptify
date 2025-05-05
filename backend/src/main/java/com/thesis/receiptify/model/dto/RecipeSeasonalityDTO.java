@@ -16,5 +16,7 @@ public class RecipeSeasonalityDTO {
     private int seasonalScore;
     private int inSeasonCount;
     private int outOfSeasonCount;
+    private int yearRoundCount;  // New field
+    private int trulySeasonalCount;  // New field
     private List<IngredientSeasonalityDTO> ingredientSeasonality;
 }

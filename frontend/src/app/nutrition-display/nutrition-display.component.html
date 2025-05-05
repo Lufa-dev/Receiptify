@@ -76,16 +76,16 @@
       <h4>Macronutrient Distribution</h4>
       <div class="macro-bars">
         <div class="macro-bar-container">
-          <div class="macro-bar protein" [style.width.%]="nutrition.proteinPercentage"></div>
-          <div class="macro-label">Protein: {{ nutrition.proteinPercentage }}%</div>
+          <div class="macro-bar protein" [style.width.%]="macroDistribution?.protein"></div>
+          <div class="macro-label">Protein: {{ macroDistribution?.protein }}%</div>
         </div>
         <div class="macro-bar-container">
-          <div class="macro-bar fat" [style.width.%]="nutrition.fatPercentage"></div>
-          <div class="macro-label">Fat: {{ nutrition.fatPercentage }}%</div>
+          <div class="macro-bar fat" [style.width.%]="macroDistribution?.fat"></div>
+          <div class="macro-label">Fat: {{ macroDistribution?.fat }}%</div>
         </div>
         <div class="macro-bar-container">
-          <div class="macro-bar carbs" [style.width.%]="nutrition.carbsPercentage"></div>
-          <div class="macro-label">Carbs: {{ nutrition.carbsPercentage }}%</div>
+          <div class="macro-bar carbs" [style.width.%]="macroDistribution?.carbs"></div>
+          <div class="macro-label">Carbs: {{ macroDistribution?.carbs }}%</div>
         </div>
       </div>
     </div>

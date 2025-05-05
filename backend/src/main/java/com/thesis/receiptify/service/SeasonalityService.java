@@ -80,7 +80,9 @@ public class SeasonalityService {
     }
 
     /**
-     * Analyzes a recipe for seasonality information
+     * Analyzes a recipe for seasonality information with improved algorithm that:
+     * 1. Gives bonus points for truly seasonal ingredients
+     * 2. Slightly penalizes recipes with only year-round ingredients
      *
      * @param recipe the recipe to analyze
      * @return the seasonality analysis for the recipe
@@ -92,6 +94,8 @@ public class SeasonalityService {
                     .seasonalScore(0)
                     .inSeasonCount(0)
                     .outOfSeasonCount(0)
+                    .yearRoundCount(0)
+                    .trulySeasonalCount(0)
                     .ingredientSeasonality(new ArrayList<>())
                     .build();
         }
@@ -101,21 +105,45 @@ public class SeasonalityService {
                 .filter(dto -> dto != null)
                 .collect(Collectors.toList());
 
+        // Count ingredients by seasonality type
         long inSeasonCount = ingredientSeasonalities.stream()
                 .filter(IngredientSeasonalityDTO::isInSeason)
                 .count();
 
         long outOfSeasonCount = ingredientSeasonalities.size() - inSeasonCount;
 
-        // Calculate a seasonal score from 0-100
-        int seasonalScore = ingredientSeasonalities.isEmpty() ? 0 :
+        // Count year-round ingredients
+        long yearRoundCount = ingredientSeasonalities.stream()
+                .filter(dto -> dto.getSeasonality().toLowerCase().contains("year-round"))
+                .count();
+
+        // Count truly seasonal ingredients (in season but not year-round)
+        long trulySeasonalCount = inSeasonCount - yearRoundCount;
+
+        // Calculate basic seasonal score (as before)
+        int basicScore = ingredientSeasonalities.isEmpty() ? 0 :
                 (int) Math.round((double) inSeasonCount / ingredientSeasonalities.size() * 100);
+
+        // Apply a bonus for recipes with seasonal (non-year-round) ingredients
+        // and a slight penalty for recipes with only year-round ingredients
+        int adjustedScore = basicScore;
+
+        if (trulySeasonalCount > 0) {
+            // Bonus for having truly seasonal ingredients (up to +15 points)
+            int seasonalBonus = (int) Math.min(15, Math.round((double) trulySeasonalCount / ingredientSeasonalities.size() * 30));
+            adjustedScore = Math.min(100, adjustedScore + seasonalBonus);
+        } else if (yearRoundCount == ingredientSeasonalities.size() && yearRoundCount > 0) {
+            // Small penalty for recipes with only year-round ingredients
+            adjustedScore = Math.max(0, adjustedScore - 10);
+        }
 
         return RecipeSeasonalityDTO.builder()
                 .recipeId(recipe.getId())
-                .seasonalScore(seasonalScore)
+                .seasonalScore(adjustedScore)
                 .inSeasonCount((int) inSeasonCount)
                 .outOfSeasonCount((int) outOfSeasonCount)
+                .yearRoundCount((int) yearRoundCount)
+                .trulySeasonalCount((int) trulySeasonalCount)
                 .ingredientSeasonality(ingredientSeasonalities)
                 .build();
     }
