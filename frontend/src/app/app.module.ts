@@ -32,6 +32,7 @@ import { AdminModule } from "./admin/admin.module";
 import { SharedModule } from '../shared/shared.module';
 import {ApiUrlProvider} from "../shared/services/api-url.provider";
 import {ApiUrlInterceptor} from "../shared/interceptors/api-url.interceptor";
+import {ActivityTrackerService} from "../shared/services/activity-tracker.service";
 
 export function clearStorageInitializer() {
   return () => {
@@ -75,7 +76,7 @@ export function clearStorageInitializer() {
     SharedModule,
     AdminModule
   ],
-  providers: [AuthService, PortionCalculatorService, ApiUrlProvider,
+  providers: [AuthService, PortionCalculatorService, ApiUrlProvider, ActivityTrackerService,
     {
       provide: APP_INITIALIZER,
       useFactory: clearStorageInitializer,

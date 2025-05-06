@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
-import {BehaviorSubject, catchError, Observable, of, take, timer} from 'rxjs';
+import {BehaviorSubject, catchError, Observable, of, Subject, Subscription, take, timer} from 'rxjs';
 import {User} from "../models/user.model";
 import {Router} from "@angular/router";
 import {environment} from "../../environments/environment";
@@ -14,6 +14,11 @@ export class AuthService {
   public user$: Observable<User> = this.userSubject.asObservable();
   private isAdminSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public isAdmin$: Observable<boolean> = this.isAdminSubject.asObservable();
+
+  private logoutTimerSubscription: Subscription | null = null;
+  private readonly INACTIVITY_TIMEOUT = 60 * 60 * 1000;
+  private activitySubject = new Subject<void>();
+
 
   constructor(
     private http: HttpClient,
@@ -99,6 +104,11 @@ export class AuthService {
       return of(false);
     }
 
+    if (this.logoutTimerSubscription) {
+      this.logoutTimerSubscription.unsubscribe();
+      this.logoutTimerSubscription = null;
+    }
+
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     return this.http.post(`${environment.API_URL}/signout`,
@@ -122,14 +132,46 @@ export class AuthService {
   }
 
   startLogOutTimer(): void {
-    // 20 minutes timeout
-    timer(20 * 60 * 1000).pipe(
+    // Cancel any existing timer
+    this.resetLogoutTimer();
+
+    // Start a new timer
+    this.logoutTimerSubscription = timer(this.INACTIVITY_TIMEOUT).pipe(
       take(1)
     ).subscribe(() => {
+      console.log('Inactivity timeout reached, logging out');
       this.signOut().subscribe(() => {
         this.router.navigate(['/login']);
       });
     });
+
+    // Subscribe to activity events to reset the timer
+    this.activitySubject.subscribe(() => {
+      this.resetLogoutTimer();
+    });
+  }
+
+  // Add this new method
+  resetLogoutTimer(): void {
+    // Cancel any existing timer
+    if (this.logoutTimerSubscription) {
+      this.logoutTimerSubscription.unsubscribe();
+      this.logoutTimerSubscription = null;
+    }
+
+    // Start a new timer
+    this.logoutTimerSubscription = timer(this.INACTIVITY_TIMEOUT).pipe(
+      take(1)
+    ).subscribe(() => {
+      console.log('Inactivity timeout reached, logging out');
+      this.signOut().subscribe(() => {
+        this.router.navigate(['/login']);
+      });
+    });
+  }
+
+  recordActivity(): void {
+    this.activitySubject.next();
   }
 
   getToken(): string | null {
