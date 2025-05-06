@@ -12,7 +12,7 @@ import {Router} from "@angular/router";
 })
 export class RecommendedRecipesComponent implements OnInit {
   @Input() title: string = 'Recommended for You';
-  @Input() limit: number = 6;
+  @Input() limit: number = 12;
   @Input() recommendationType: 'personal' | 'seasonal' = 'personal';
 
   recipes: RecipeDTO[] = [];
