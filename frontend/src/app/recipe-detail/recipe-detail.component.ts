@@ -266,6 +266,10 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
     return detectedTags;
   }
 
+  isToTaste(unit: string | undefined | null): boolean {
+    if (!unit) return false;
+    return unit.toUpperCase() === 'TO_TASTE';
+  }
 
 
   ngOnDestroy(): void {
