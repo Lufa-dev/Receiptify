@@ -53,11 +53,11 @@ export class ActivityTrackerService {
   private activityHandler(): void {
     const now = Date.now();
 
-    // Always update lastActivityTime
-    this.lastActivityTime = now;
-
-    // But throttle activity notifications to the auth service
+    // Throttle activity notifications to the auth service
     if (now - this.lastActivityTime > this.THROTTLE_DELAY) {
+      // Update last activity time
+      this.lastActivityTime = now;
+
       // Use NgZone to ensure this runs in Angular's zone
       this.ngZone.run(() => {
         this.authService.recordActivity();
