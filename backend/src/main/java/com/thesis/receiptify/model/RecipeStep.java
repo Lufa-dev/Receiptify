@@ -21,7 +21,7 @@ public class RecipeStep {
     @Column(nullable = false)
     private Integer stepNumber;
 
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String instruction;
 
     @ManyToOne(fetch = FetchType.LAZY)
