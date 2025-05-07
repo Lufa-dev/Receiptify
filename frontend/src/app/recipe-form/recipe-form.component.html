@@ -7,9 +7,18 @@
     </div>
   </div>
 
-  <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
-    <div class="alert alert-danger" *ngIf="saveError">{{ saveError }}</div>
+  <!-- Display error messages -->
+  <div *ngIf="saveError" class="alert alert-danger">{{ saveError }}</div>
 
+  <!-- Display validation errors -->
+  <div *ngIf="validationErrors && validationErrors.length > 0" class="alert alert-warning">
+    <h5>Please correct the following errors:</h5>
+    <ul>
+      <li *ngFor="let error of validationErrors">{{ error }}</li>
+    </ul>
+  </div>
+
+  <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
     <!-- Basic Recipe Info -->
     <div class="card mb-4">
       <div class="card-header">
@@ -228,6 +237,10 @@
         </button>
       </div>
       <div class="card-body">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>Note:</strong> If you specify an amount, you must also select a unit (and vice versa).
+        </div>
         <div formArrayName="ingredients">
           <div *ngFor="let ingredient of ingredients.controls; let i = index" class="row mb-3" [formGroupName]="i">
             <div class="col-md-5">
@@ -248,11 +261,15 @@
             <div class="col-md-3">
               <label [for]="'ingredient-amount-' + i" class="form-label">Amount</label>
               <input
-                type="text"
-                [id]="'ingredient-amount-' + i"
+                type="text" [id]="'ingredient-amount-' + i"
                 class="form-control"
                 formControlName="amount"
+                [ngClass]="{'is-invalid': submitted && (ingredient.get('amount')?.value && !ingredient.get('unit')?.value)}"
               >
+              <div class="invalid-feedback"
+                   *ngIf="submitted && (ingredient.get('amount')?.value && !ingredient.get('unit')?.value)">
+                Unit is required when amount is specified
+              </div>
             </div>
 
             <div class="col-md-3">
@@ -263,7 +280,12 @@
                 searchPlaceholder="Search units..."
                 formControlName="unit"
                 [grouped]="true"
+                [ngClass]="{'is-invalid': submitted && (!ingredient.get('amount')?.value && ingredient.get('unit')?.value)}"
               ></app-searchable-select>
+              <div class="invalid-feedback"
+                   *ngIf="submitted && (!ingredient.get('amount')?.value && ingredient.get('unit')?.value)">
+                Amount is required when unit is specified
+              </div>
             </div>
 
             <div class="col-md-1 d-flex align-items-end">
