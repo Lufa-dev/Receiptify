@@ -42,7 +42,6 @@ export class UserManagementComponent implements OnInit {
           this.totalUsers = response.totalElements;
         },
         error: (error) => {
-          console.error('Error loading users:', error);
           this.error = 'Failed to load users. Please try again.';
         }
       });
@@ -80,7 +79,6 @@ export class UserManagementComponent implements OnInit {
           this.totalUsers = response.totalElements;
         },
         error: (error) => {
-          console.error('Error searching users:', error);
           this.error = 'Failed to search users. Please try again.';
         }
       });
@@ -113,7 +111,6 @@ export class UserManagementComponent implements OnInit {
             this.loadUsers(this.currentPage);
           },
           error: (error) => {
-            console.error('Error deleting user:', error);
             this.error = 'Failed to delete user. Please try again.';
           }
         });
@@ -148,7 +145,6 @@ export class UserManagementComponent implements OnInit {
               : `Admin privileges removed from ${user.username}`;
           },
           error: (error) => {
-            console.error('Error updating user role:', error);
             this.error = 'Failed to update user role. Please try again.';
           }
         });

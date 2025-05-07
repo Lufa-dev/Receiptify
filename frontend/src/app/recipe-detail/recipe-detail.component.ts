@@ -62,7 +62,6 @@ export class RecipeDetailComponent implements OnInit {
             username === recipe.user?.username;
         },
         error: (error) => {
-          console.error('Error loading recipe:', error);
           this.error = 'Failed to load recipe details.';
           this.isLoading = false;
         }
@@ -105,7 +104,6 @@ export class RecipeDetailComponent implements OnInit {
           this.router.navigate(['/my-recipes']);
         },
         error: (error) => {
-          console.error('Error deleting recipe:', error);
           this.error = 'Failed to delete recipe.';
           this.isDeleting = false;
         }

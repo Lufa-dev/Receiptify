@@ -50,7 +50,6 @@ export class RecommendedRecipesComponent implements OnInit {
 
           // If we got no recommendations and haven't tried including previous interactions
           if (this.recipes.length === 0 && !retryWithPrevious && this.recommendationType === 'personal') {
-            console.log('No recommendations found, trying with previous interactions');
             this.loadRecommendations(true);
             return;
           }
@@ -68,7 +67,6 @@ export class RecommendedRecipesComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error(`Error loading ${this.recommendationType} recommendations:`, error);
           this.error = `Failed to load recommendations. Please try again.`;
         }
       });

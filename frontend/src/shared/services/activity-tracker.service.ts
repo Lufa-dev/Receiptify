@@ -21,7 +21,6 @@ export class ActivityTrackerService {
 
   startTracking(): void {
     if (this.active) {
-      console.log('Activity tracking already started');
       return;
     }
 
@@ -31,7 +30,6 @@ export class ActivityTrackerService {
     });
 
     this.active = true;
-    console.log('Activity tracking started');
 
     // Immediately record activity when tracking starts
     this.ngZone.run(() => {
@@ -50,7 +48,6 @@ export class ActivityTrackerService {
     });
 
     this.active = false;
-    console.log('Activity tracking stopped');
   }
 
   private activityHandler(): void {
@@ -63,7 +60,6 @@ export class ActivityTrackerService {
     if (now - this.lastActivityTime > this.THROTTLE_DELAY) {
       // Use NgZone to ensure this runs in Angular's zone
       this.ngZone.run(() => {
-        console.log('Activity detected, notifying AuthService');
         this.authService.recordActivity();
       });
     }

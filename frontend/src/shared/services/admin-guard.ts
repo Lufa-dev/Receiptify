@@ -18,7 +18,6 @@ export class AdminGuard implements CanActivate {
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
     // First check if user is logged in
     if (!this.authService.isLoggedIn()) {
-      console.log('Admin guard: User not logged in');
       this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
       return of(false);
     }
@@ -27,12 +26,10 @@ export class AdminGuard implements CanActivate {
     return this.authService.checkAdminRole().pipe(
       tap(isAdmin => {
         if (!isAdmin) {
-          console.log('Admin guard: User is not admin');
           this.router.navigate(['/']);
         }
       }),
       catchError(error => {
-        console.error('Admin guard error:', error);
         this.router.navigate(['/']);
         return of(false);
       })

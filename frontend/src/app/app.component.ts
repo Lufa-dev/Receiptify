@@ -19,28 +19,23 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('App component initialized');
 
     // Start activity tracking if the user is logged in at app start
     if (this.authService.isLoggedIn()) {
-      console.log('User is logged in, starting activity tracking');
       this.activityTracker.startTracking();
     }
 
     // Subscribe to the auth state to start/stop tracking when login state changes
     this.userSubscription = this.authService.user$.subscribe(user => {
       if (user) {
-        console.log('User logged in, starting activity tracking');
         this.activityTracker.startTracking();
       } else {
-        console.log('User logged out, stopping activity tracking');
         this.activityTracker.stopTracking();
       }
     });
   }
 
   ngOnDestroy(): void {
-    console.log('App component destroyed');
 
     // Stop tracking when the app component is destroyed
     this.activityTracker.stopTracking();

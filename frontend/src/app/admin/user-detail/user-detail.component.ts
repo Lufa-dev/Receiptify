@@ -62,7 +62,6 @@ export class UserDetailComponent implements OnInit {
           this.updateFormWithUser(user);
         },
         error: (error) => {
-          console.error('Error loading user details:', error);
           this.error = 'Failed to load user details. Please try again.';
         }
       });
@@ -128,11 +127,9 @@ export class UserDetailComponent implements OnInit {
         }))
         .subscribe({
           next: (updatedUser) => {
-            console.log('Role updated successfully', updatedUser);
             // The user data update will be handled by the updateUserData method
           },
           error: (error) => {
-            console.error('Error updating user role:', error);
             this.error = 'Failed to update user role. Please try again.';
             this.isSubmitting = false;
           }
@@ -158,7 +155,6 @@ export class UserDetailComponent implements OnInit {
           this.userForm.get('roles')?.disable();
         },
         error: (error) => {
-          console.error('Error updating user:', error);
           this.error = 'Failed to update user. Please try again.';
         }
       });
@@ -181,7 +177,6 @@ export class UserDetailComponent implements OnInit {
             }, 1500);
           },
           error: (error) => {
-            console.error('Error deleting user:', error);
             this.error = 'Failed to delete user. Please try again.';
           }
         });

@@ -62,12 +62,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
         if (success) {
           this.router.navigate(['/login']);
         } else {
-          console.error('Failed to sign out');
         }
         this.cd.markForCheck();
       },
       error: (error) => {
-        console.error('Logout error:', error);
         this.cd.markForCheck();
       }
     });

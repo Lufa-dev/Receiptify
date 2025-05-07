@@ -118,7 +118,6 @@ export class AdminService {
       headers: this.getAuthHeaders()
     }).pipe(
       catchError(error => {
-        console.error('Error retrieving dashboard stats:', error);
         return of({
           totalUsers: 0,
           totalRecipes: 0,

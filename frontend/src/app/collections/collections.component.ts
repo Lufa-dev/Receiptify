@@ -54,7 +54,6 @@ export class CollectionsComponent implements OnInit {
           this.collections = collections;
         },
         error: (error) => {
-          console.error('Error loading collections:', error);
           this.error = 'Failed to load collections. Please try again.';
 
           if (error.status === 401) {
@@ -115,7 +114,6 @@ export class CollectionsComponent implements OnInit {
           this.loadCollections();
         },
         error: (error) => {
-          console.error('Error saving collection:', error);
 
           if (error.status === 401) {
             this.error = 'Your session has expired. Please log in again.';
@@ -152,7 +150,6 @@ export class CollectionsComponent implements OnInit {
             this.loadCollections();
           },
           error: (error) => {
-            console.error('Error deleting collection:', error);
 
             if (error.status === 401) {
               this.error = 'Your session has expired. Please log in again.';

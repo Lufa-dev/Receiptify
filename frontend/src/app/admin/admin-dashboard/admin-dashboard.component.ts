@@ -29,7 +29,6 @@ export class AdminDashboardComponent implements OnInit {
           this.stats = stats;
         },
         error: (error) => {
-          console.error('Error loading dashboard stats:', error);
           this.error = 'Failed to load dashboard statistics. Please try again.';
         }
       });

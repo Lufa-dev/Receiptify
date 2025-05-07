@@ -44,7 +44,6 @@ export class RecipeRatingComponent implements OnInit {
           this.ratingSummary = summary;
         },
         error: (error) => {
-          console.error('Error loading rating summary:', error);
           this.error = 'Failed to load ratings';
         }
       });
@@ -63,7 +62,6 @@ export class RecipeRatingComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error loading user rating:', error);
         }
       });
   }
@@ -106,7 +104,6 @@ export class RecipeRatingComponent implements OnInit {
           }, 3000);
         },
         error: (error) => {
-          console.error('Error submitting rating:', error);
 
           if (error.status === 401) {
             this.router.navigate(['/login'], {

@@ -19,7 +19,6 @@ export class ApiUrlInterceptor implements HttpInterceptor {
     if (request.url.startsWith('http://localhost:8080')) {
       // Replace localhost:8080 with the correct API URL
       const updatedUrl = request.url.replace('http://localhost:8080', apiUrl);
-      console.log(`Interceptor replaced URL: ${request.url} -> ${updatedUrl}`);
 
       // Clone the request with the new URL
       const modifiedRequest = request.clone({

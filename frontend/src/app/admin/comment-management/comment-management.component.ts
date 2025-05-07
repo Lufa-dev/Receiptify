@@ -41,7 +41,6 @@ export class CommentManagementComponent implements OnInit {
           this.totalComments = response.totalElements;
         },
         error: (error) => {
-          console.error('Error loading comments:', error);
           this.error = 'Failed to load comments. Please try again.';
         }
       });
@@ -72,7 +71,6 @@ export class CommentManagementComponent implements OnInit {
             this.loadComments(this.currentPage);
           },
           error: (error) => {
-            console.error('Error deleting comment:', error);
             this.error = 'Failed to delete comment. Please try again.';
           }
         });

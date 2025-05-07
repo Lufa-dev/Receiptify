@@ -42,7 +42,6 @@ export class RecipeManagementComponent implements OnInit {
           this.totalRecipes = response.totalElements;
         },
         error: (error) => {
-          console.error('Error loading recipes:', error);
           this.error = 'Failed to load recipes. Please try again.';
         }
       });
@@ -80,7 +79,6 @@ export class RecipeManagementComponent implements OnInit {
           this.totalRecipes = response.totalElements;
         },
         error: (error) => {
-          console.error('Error searching recipes:', error);
           this.error = 'Failed to search recipes. Please try again.';
         }
       });
@@ -113,7 +111,6 @@ export class RecipeManagementComponent implements OnInit {
             this.loadRecipes(this.currentPage);
           },
           error: (error) => {
-            console.error('Error deleting recipe:', error);
             this.error = 'Failed to delete recipe. Please try again.';
           }
         });

@@ -1,5 +1,4 @@
-
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +15,6 @@ export class ApiUrlProvider {
       // Production environment - hardcode the production URL
       this._apiUrl = 'https://receiptify-backend.onrender.com';
     }
-
-    console.log('ApiUrlProvider initialized with URL:', this._apiUrl);
   }
 
   getApiUrl(): string {

@@ -23,7 +23,6 @@ export class ShoppingListService {
         this.recipesSubject.next(JSON.parse(storedRecipes));
       }
     } catch (error) {
-      console.error('Error loading shopping list from localStorage:', error);
     }
   }
 
@@ -31,7 +30,6 @@ export class ShoppingListService {
     try {
       localStorage.setItem('shopping-list-recipes', JSON.stringify(this.recipesSubject.value));
     } catch (error) {
-      console.error('Error saving shopping list to localStorage:', error);
     }
   }
 

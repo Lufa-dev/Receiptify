@@ -17,14 +17,12 @@ export class UnitService {
 
   getAllUnitTypes(): Observable<UnitType[]> {
     return this.http.get<any[]>(this.apiUrl).pipe(
-      tap(response => console.log('Raw API response from getAllUnitTypes:', response)),
       map(units => units.map(unit => this.parseUnitResponse(unit)))
     );
   }
 
   getUnitsByCategory(): Observable<Record<string, UnitType[]>> {
     return this.http.get<any>(this.apiUrl + '/by-category').pipe(
-      tap(response => console.log('Raw API response from getUnitsByCategory:', response)),
       map(categoryMap => {
         const result: Record<string, UnitType[]> = {};
 
@@ -40,9 +38,7 @@ export class UnitService {
   }
 
   getCategories(): Observable<string[]> {
-    return this.http.get<string[]>(this.apiUrl + '/categories').pipe(
-      tap(response => console.log('Raw API response from getCategories:', response))
-    );
+    return this.http.get<string[]>(this.apiUrl + '/categories').pipe();
   }
 
   private parseUnitResponse(unit: any): UnitType {
@@ -77,7 +73,6 @@ export class UnitService {
     }
 
     // Default case: Couldn't parse unit, create a placeholder
-    console.warn('Could not parse unit', unit);
     return {
       name: 'UNKNOWN',
       symbol: 'unknown',

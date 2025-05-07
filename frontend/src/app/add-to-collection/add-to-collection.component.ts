@@ -43,7 +43,6 @@ export class AddToCollectionComponent implements OnInit {
           );
         },
         error: (error) => {
-          console.error('Error loading collections:', error);
           this.error = 'Failed to load collections';
         }
       });
@@ -75,7 +74,6 @@ export class AddToCollectionComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error adding to collection:', error);
 
           if (error.status === 400 && error.error?.error) {
             this.error = error.error.error;

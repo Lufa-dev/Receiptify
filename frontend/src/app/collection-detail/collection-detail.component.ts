@@ -45,7 +45,6 @@ export class CollectionDetailComponent implements OnInit {
     this.collectionService.getCollectionById(id).subscribe({
       next: (collection) => {
         this.collection = collection;
-        console.log('Collection loaded:', collection);
 
         // If the collection has recipes, fetch them
         if (collection.recipeIds && collection.recipeIds.length > 0) {
@@ -56,7 +55,6 @@ export class CollectionDetailComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error loading collection:', error);
         this.error = 'Failed to load collection details. Please try again.';
         this.isLoading = false;
 
@@ -74,18 +72,14 @@ export class CollectionDetailComponent implements OnInit {
       return;
     }
 
-    console.log('Loading recipes with IDs:', recipeIds);
-
     // Create an array of observables for each recipe to fetch
     const recipeObservables = recipeIds.map(id =>
       this.recipeService.getRecipeById(id).pipe(
         // Handle errors for individual recipes without failing the whole operation
         map(recipe => {
-          console.log(`Loaded recipe ${id}:`, recipe);
           return recipe;
         }),
         catchError(error => {
-          console.error(`Error loading recipe ${id}:`, error);
           return of(null);
         })
       )
@@ -98,10 +92,8 @@ export class CollectionDetailComponent implements OnInit {
         next: (results) => {
           // Filter out null results (failed requests)
           this.recipes = results.filter(recipe => recipe !== null) as Recipe[];
-          console.log('Loaded recipes:', this.recipes);
         },
         error: (error) => {
-          console.error('Error loading recipes:', error);
           this.error = 'Failed to load some recipes from this collection.';
         }
       });
@@ -121,7 +113,6 @@ export class CollectionDetailComponent implements OnInit {
             this.recipes = this.recipes.filter(recipe => recipe.id !== recipeId);
           },
           error: (error) => {
-            console.error('Error removing recipe from collection:', error);
             this.error = 'Failed to remove recipe from collection. Please try again.';
 
             if (error.status === 401) {

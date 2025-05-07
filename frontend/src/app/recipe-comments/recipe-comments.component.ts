@@ -68,11 +68,8 @@ export class RecipeCommentsComponent implements OnInit {
             this.lastPage = response.last || false;
           }
 
-          console.log('Response:', response);
-          console.log('Total comments:', this.totalComments);
         },
         error: (error) => {
-          console.error('Error loading comments:', error);
           this.error = 'Failed to load comments. Please try again.';
         }
       });
@@ -94,7 +91,6 @@ export class RecipeCommentsComponent implements OnInit {
           this.lastPage = response.last || false;
         },
         error: (error) => {
-          console.error('Error loading more comments:', error);
           this.currentPage--; // Revert page increment on error
         }
       });
@@ -185,7 +181,6 @@ export class RecipeCommentsComponent implements OnInit {
             }, 3000);
           },
           error: (error) => {
-            console.error('Error deleting comment:', error);
 
             if (error.status === 401) {
               this.router.navigate(['/login'], {
@@ -229,7 +224,6 @@ export class RecipeCommentsComponent implements OnInit {
   }
 
   private handleCommentError(error: any): void {
-    console.error('Error with comment:', error);
 
     if (error.status === 401) {
       this.router.navigate(['/login'], {

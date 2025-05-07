@@ -55,7 +55,6 @@ export class SimilarRecipesComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error loading similar recipes:', error);
           this.error = 'Failed to load similar recipes';
         }
       });

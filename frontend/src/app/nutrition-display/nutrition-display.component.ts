@@ -34,7 +34,6 @@ export class NutritionDisplayComponent implements OnInit {
           this.isLoading = false;
         },
         error: (err) => {
-          console.error('Error loading nutrition data:', err);
           this.error = 'Failed to load nutrition information.';
           this.isLoading = false;
         }

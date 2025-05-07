@@ -6,7 +6,7 @@ import {IngredientSeasonality} from "../../shared/models/seasonality.model";
   templateUrl: './ingredient-seasonality.component.html',
   styleUrl: './ingredient-seasonality.component.scss'
 })
-export class IngredientSeasonalityComponent implements OnChanges {
+export class IngredientSeasonalityComponent {
   @Input() seasonality: IngredientSeasonality | null = null;
   @Input() showIcon = true;
   @Input() showLabel = false;
@@ -14,14 +14,6 @@ export class IngredientSeasonalityComponent implements OnChanges {
 
   // Debug properties
   debugMessage: string = '';
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['seasonality'] && this.seasonality) {
-      // Log the actual data for debugging
-      console.log(`Seasonality for ${this.seasonality.ingredientName}:`,
-        JSON.stringify(this.seasonality, null, 2));
-    }
-  }
 
   getStatusIcon(): string {
     if (!this.seasonality) return 'bi-question-circle text-secondary';

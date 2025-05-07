@@ -34,7 +34,6 @@ export class MyRecipesComponent implements OnInit {
           this.recipes = response.content;
         },
         error: (error) => {
-          console.error('Error loading user recipes:', error);
           this.error = 'Failed to load your recipes. Please try again.';
 
           if (error.status === 401) {
@@ -70,7 +69,6 @@ export class MyRecipesComponent implements OnInit {
             this.recipes = this.recipes.filter(recipe => recipe.id !== id);
           },
           error: (error) => {
-            console.error('Error deleting recipe:', error);
 
             if (error.status === 401) {
               this.error = 'Your session has expired. Please log in again.';

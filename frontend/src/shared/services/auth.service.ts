@@ -34,7 +34,6 @@ export class AuthService {
 
       // Setup activity listening
       this.activitySubject.subscribe(() => {
-        console.log('Activity detected, resetting logout timer');
         this.resetLogoutTimer();
       });
     }
@@ -70,7 +69,6 @@ export class AuthService {
 
           // Setup activity listening on login
           this.activitySubject.subscribe(() => {
-            console.log('Activity detected, resetting logout timer');
             this.resetLogoutTimer();
           });
 
@@ -80,7 +78,6 @@ export class AuthService {
         throw new Error('Login failed');
       }),
       catchError((error) => {
-        console.error('Login error:', error);
         return of(null);
       })
     );
@@ -105,7 +102,6 @@ export class AuthService {
         throw new Error('Registration failed');
       }),
       catchError((error) => {
-        console.error('Registration error:', error);
         return of(null);
       })
     );
@@ -114,7 +110,6 @@ export class AuthService {
   signOut(): Observable<boolean> {
     const token = sessionStorage.getItem('token');
     if (!token) {
-      console.log('No token found');
       return of(false);
     }
 
@@ -136,14 +131,12 @@ export class AuthService {
         throw new Error('Logout failed');
       }),
       catchError((error) => {
-        console.error('Logout error:', error);
         return of(false);
       })
     );
   }
 
   startLogOutTimer(): void {
-    console.log('Starting logout timer');
     // Cancel any existing timer first
     this.stopLogoutTimer();
 
@@ -154,16 +147,13 @@ export class AuthService {
       const currentTime = Date.now();
       const timeSinceLastActivity = currentTime - this.lastActivityTime;
 
-      console.log(`Logout timer triggered. Time since last activity: ${timeSinceLastActivity / 1000} seconds`);
 
       // Only logout if the inactivity period has truly been reached
       if (timeSinceLastActivity >= this.INACTIVITY_TIMEOUT) {
-        console.log('Inactivity timeout reached, logging out');
         this.signOut().subscribe(() => {
           this.router.navigate(['/login']);
         });
       } else {
-        console.log('Activity detected during timer period, resetting timer');
         this.resetLogoutTimer();
       }
     });
@@ -171,7 +161,6 @@ export class AuthService {
 
   stopLogoutTimer(): void {
     if (this.logoutTimerSubscription) {
-      console.log('Stopping existing logout timer');
       this.logoutTimerSubscription.unsubscribe();
       this.logoutTimerSubscription = null;
     }
@@ -179,7 +168,6 @@ export class AuthService {
 
   resetLogoutTimer(): void {
     this.lastActivityTime = Date.now();
-    console.log(`Logout timer reset at ${new Date(this.lastActivityTime).toISOString()}`);
 
     // Cancel any existing timer
     this.stopLogoutTimer();
@@ -189,7 +177,6 @@ export class AuthService {
   }
 
   recordActivity(): void {
-    console.log('Activity recorded');
     this.lastActivityTime = Date.now();
     this.activitySubject.next();
   }
@@ -226,7 +213,6 @@ export class AuthService {
       const tokenParts = token.split('.');
       if (tokenParts.length === 3) {
         const payload = JSON.parse(atob(tokenParts[1]));
-        console.log('JWT payload:', payload);
 
         // Define an interface for authority objects
         interface Authority {
@@ -251,12 +237,10 @@ export class AuthService {
             (typeof payload.auth === 'string' && payload.auth.includes('ADMIN'));
         }
 
-        console.log('Has admin role:', hasAdminRole);
         this.isAdminSubject.next(hasAdminRole);
         return;
       }
     } catch (error) {
-      console.error('Error parsing JWT token:', error);
     }
 
     this.isAdminSubject.next(false);
@@ -264,28 +248,22 @@ export class AuthService {
 
   // Method to check if user is admin - used by other services
   checkAdminRole(): Observable<boolean> {
-    console.log('Checking admin role');
-
     // First check if we already know if user is admin
     const currentValue = this.isAdminSubject.getValue();
     if (currentValue) {
-      console.log('Already know user is admin');
       return of(true);
     }
 
     // If not, make a backend call to check
-    console.log('Making backend call to check admin status');
     return this.http.get<{isAdmin: boolean}>(`${environment.API_URL}/api/admin/check-role`, {
       headers: this.getAuthHeaders()
     }).pipe(
       map(response => {
-        console.log('Admin check response:', response);
         const isAdmin = response.isAdmin;
         this.isAdminSubject.next(isAdmin);
         return isAdmin;
       }),
       catchError(error => {
-        console.error('Admin check error:', error);
         this.isAdminSubject.next(false);
         return of(false);
       })

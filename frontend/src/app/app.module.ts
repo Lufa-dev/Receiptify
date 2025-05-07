@@ -36,7 +36,6 @@ import {ActivityTrackerService} from "../shared/services/activity-tracker.servic
 
 export function clearStorageInitializer() {
   return () => {
-    console.log('Clearing storage for fresh start');
     sessionStorage.clear();
     return Promise.resolve();
   };

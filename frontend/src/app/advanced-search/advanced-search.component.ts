@@ -127,7 +127,6 @@ export class AdvancedSearchComponent implements OnInit {
         });
       },
       error: (error) => {
-        console.error('Error loading ingredient types:', error);
       }
     });
   }
@@ -164,7 +163,6 @@ export class AdvancedSearchComponent implements OnInit {
     let searchObservable;
 
     if (formValue.seasonalOnly) {
-      console.log('Searching for seasonal recipes with score >=', formValue.minSeasonalScore);
       searchObservable = this.recipeService.getSeasonalRecipes(
         formValue.minSeasonalScore,
         this.currentPage,
@@ -189,7 +187,6 @@ export class AdvancedSearchComponent implements OnInit {
           this.totalRecipes = response.totalElements;
         },
         error: (error) => {
-          console.error('Error searching recipes:', error);
         }
       });
   }

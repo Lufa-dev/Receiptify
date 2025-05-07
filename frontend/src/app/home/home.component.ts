@@ -37,7 +37,6 @@ export class HomeComponent implements OnInit {
     // Get current month for seasonality display
     this.recipeService.getCurrentMonth()
       .pipe(catchError(error => {
-        console.error('Error getting current month:', error);
         // Default to current browser month as fallback
         const date = new Date();
         return of(date.toLocaleString('default', { month: 'long' }).toUpperCase());
@@ -51,14 +50,12 @@ export class HomeComponent implements OnInit {
     // Load regular recipes
     this.recipeService.getAllRecipes(this.currentPage, this.pageSize)
       .pipe(catchError(error => {
-        console.error('Error loading regular recipes:', error);
         return of({content: [], totalElements: 0});
       }))
       .subscribe({
         next: (response) => {
           this.recipes = response.content;
           this.totalRecipes = response.page.totalElements;
-          console.log('Total recipes count:', this.totalRecipes);
           this.hasMoreRecipes = (this.currentPage + 1) * this.pageSize < this.totalRecipes;
           this.isLoading = false;
 
@@ -69,14 +66,12 @@ export class HomeComponent implements OnInit {
     this.recipeService.getSeasonalRecipes(80, 0, 6)
       .pipe(
         catchError(error => {
-          console.error('Error loading seasonal recipes:', error);
           return of({content: [], totalElements: 0});
         })
       )
       .subscribe({
         next: (response) => {
           this.seasonalRecipes = response.content;
-          console.log('Loaded seasonal recipes:', this.seasonalRecipes);
         }
       });
   }
@@ -96,7 +91,6 @@ export class HomeComponent implements OnInit {
           this.hasMoreRecipes = (this.currentPage + 1) * this.pageSize < this.totalRecipes;
         },
         error: (error) => {
-          console.error('Error loading more recipes:', error);
           this.error = 'Failed to load more recipes. Please try again.';
           this.currentPage--; // Revert on error
         }
@@ -119,7 +113,6 @@ export class HomeComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error searching recipes:', error);
           this.error = 'Failed to search recipes. Please try again.';
           this.isLoading = false;
         }

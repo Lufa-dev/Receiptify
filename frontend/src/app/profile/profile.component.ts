@@ -150,7 +150,6 @@ export class ProfileComponent implements OnInit {
         });
       },
       error: (error) => {
-        console.error('Error loading ingredients:', error);
       }
     });
   }
@@ -163,7 +162,6 @@ export class ProfileComponent implements OnInit {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (user) => {
-          console.log('User profile loaded:', user);
 
           // Patch form with user data
           this.profileForm.patchValue({
@@ -194,12 +192,10 @@ export class ProfileComponent implements OnInit {
               this.populateSelectedPreferences(preferences);
             },
             error: (error) => {
-              console.error('Error loading user preferences:', error);
             }
           });
         },
         error: (error) => {
-          console.error('Error loading profile:', error);
           this.errorMessage = 'Failed to load profile information. Please try again.';
 
           // If 401 unauthorized, redirect to login
@@ -268,10 +264,8 @@ export class ProfileComponent implements OnInit {
       .subscribe({
         next: (stats) => {
           this.recipeStats = stats;
-          console.log('Recipe stats loaded:', stats);
         },
         error: (error) => {
-          console.error('Error loading recipe stats:', error);
           // Set default values in case of error
           this.recipeStats = {
             total: 0,
@@ -325,13 +319,10 @@ export class ProfileComponent implements OnInit {
       formData.newPassword = this.profileForm.get('newPassword')?.value;
     }
 
-    console.log('Updating profile with data:', formData);
-
     this.userService.updateProfile(formData)
       .pipe(finalize(() => this.isSubmitting = false))
       .subscribe({
-        next: (response) => {
-          console.log('Profile updated successfully:', response);
+        next: () => {
           this.successMessage = 'Profile updated successfully!';
           this.submitted = false;
           this.passwordChangeAttempted = false;
@@ -344,14 +335,9 @@ export class ProfileComponent implements OnInit {
           });
 
           // Refresh user data in auth service
-          this.authService.refreshUserData().subscribe({
-            next: (updatedUser) => console.log('User data refreshed:', updatedUser),
-            error: (err) => console.error('Error refreshing user data:', err)
-          });
+          this.authService.refreshUserData().subscribe();
         },
         error: (error) => {
-          console.error('Error updating profile:', error);
-
           if (error.status === 401) {
             this.errorMessage = 'Your session has expired. Please log in again.';
             setTimeout(() => this.router.navigate(['/login']), 1500);
@@ -396,7 +382,6 @@ export class ProfileComponent implements OnInit {
           }, 3000);
         },
         error: (error) => {
-          console.error('Error updating preferences:', error);
           this.errorMessage = 'Failed to update preferences. Please try again.';
         }
       });

@@ -79,7 +79,6 @@ export class RecipeFormComponent implements OnInit {
           this.populateForm(results.recipe);
         },
         error: (error) => {
-          console.error('Failed to load data', error);
           this.saveError = 'Failed to load recipe data. Please try again.';
         }
       });
@@ -92,7 +91,6 @@ export class RecipeFormComponent implements OnInit {
           this.setupFormData(results);
         },
         error: (error) => {
-          console.error('Failed to load ingredient data', error);
           this.saveError = 'Failed to load ingredients. Please refresh and try again.';
         }
       });
@@ -295,7 +293,6 @@ export class RecipeFormComponent implements OnInit {
           this.saveRecipe(imageUrl);
         },
         error: (error) => {
-          console.error('Failed to upload image', error);
           this.saveError = 'Failed to upload image. Please try again.';
           this.isLoading = false;
         }
@@ -312,7 +309,6 @@ export class RecipeFormComponent implements OnInit {
         const parsedImage = JSON.parse(imageUrl);
         imageUrl = parsedImage.imageUrl || '';
       } catch (e) {
-        console.error('Error parsing image URL', e);
       }
     }
 
@@ -368,7 +364,6 @@ export class RecipeFormComponent implements OnInit {
         this.router.navigate(['']);
       },
       error: (error) => {
-        console.error('Failed to save recipe', error);
         this.saveError = 'Failed to save recipe. Please try again.';
       }
     });
