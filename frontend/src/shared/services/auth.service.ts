@@ -16,9 +16,9 @@ export class AuthService {
   public isAdmin$: Observable<boolean> = this.isAdminSubject.asObservable();
 
   private logoutTimerSubscription: Subscription | null = null;
-  private readonly INACTIVITY_TIMEOUT = 60 * 60 * 1000;
+  private readonly INACTIVITY_TIMEOUT = 60 * 60 * 1000; // 1 hour
   private activitySubject = new Subject<void>();
-
+  private lastActivityTime = Date.now();
 
   constructor(
     private http: HttpClient,
@@ -30,6 +30,13 @@ export class AuthService {
     if (token && username) {
       this.userSubject.next({ username, token });
       this.checkForAdminRole(token);
+      this.startLogOutTimer();
+
+      // Setup activity listening
+      this.activitySubject.subscribe(() => {
+        console.log('Activity detected, resetting logout timer');
+        this.resetLogoutTimer();
+      });
     }
   }
 
@@ -60,6 +67,13 @@ export class AuthService {
           sessionStorage.setItem('profileName', userObj.username);
           this.userSubject.next(userObj);
           this.checkForAdminRole(token);
+
+          // Setup activity listening on login
+          this.activitySubject.subscribe(() => {
+            console.log('Activity detected, resetting logout timer');
+            this.resetLogoutTimer();
+          });
+
           this.startLogOutTimer();
           return userObj;
         }
@@ -104,10 +118,7 @@ export class AuthService {
       return of(false);
     }
 
-    if (this.logoutTimerSubscription) {
-      this.logoutTimerSubscription.unsubscribe();
-      this.logoutTimerSubscription = null;
-    }
+    this.stopLogoutTimer();
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
@@ -132,45 +143,54 @@ export class AuthService {
   }
 
   startLogOutTimer(): void {
-    // Cancel any existing timer
-    this.resetLogoutTimer();
+    console.log('Starting logout timer');
+    // Cancel any existing timer first
+    this.stopLogoutTimer();
 
     // Start a new timer
     this.logoutTimerSubscription = timer(this.INACTIVITY_TIMEOUT).pipe(
       take(1)
     ).subscribe(() => {
-      console.log('Inactivity timeout reached, logging out');
-      this.signOut().subscribe(() => {
-        this.router.navigate(['/login']);
-      });
-    });
+      const currentTime = Date.now();
+      const timeSinceLastActivity = currentTime - this.lastActivityTime;
 
-    // Subscribe to activity events to reset the timer
-    this.activitySubject.subscribe(() => {
-      this.resetLogoutTimer();
+      console.log(`Logout timer triggered. Time since last activity: ${timeSinceLastActivity / 1000} seconds`);
+
+      // Only logout if the inactivity period has truly been reached
+      if (timeSinceLastActivity >= this.INACTIVITY_TIMEOUT) {
+        console.log('Inactivity timeout reached, logging out');
+        this.signOut().subscribe(() => {
+          this.router.navigate(['/login']);
+        });
+      } else {
+        console.log('Activity detected during timer period, resetting timer');
+        this.resetLogoutTimer();
+      }
     });
   }
 
-  // Add this new method
-  resetLogoutTimer(): void {
-    // Cancel any existing timer
+  stopLogoutTimer(): void {
     if (this.logoutTimerSubscription) {
+      console.log('Stopping existing logout timer');
       this.logoutTimerSubscription.unsubscribe();
       this.logoutTimerSubscription = null;
     }
+  }
+
+  resetLogoutTimer(): void {
+    this.lastActivityTime = Date.now();
+    console.log(`Logout timer reset at ${new Date(this.lastActivityTime).toISOString()}`);
+
+    // Cancel any existing timer
+    this.stopLogoutTimer();
 
     // Start a new timer
-    this.logoutTimerSubscription = timer(this.INACTIVITY_TIMEOUT).pipe(
-      take(1)
-    ).subscribe(() => {
-      console.log('Inactivity timeout reached, logging out');
-      this.signOut().subscribe(() => {
-        this.router.navigate(['/login']);
-      });
-    });
+    this.startLogOutTimer();
   }
 
   recordActivity(): void {
+    console.log('Activity recorded');
+    this.lastActivityTime = Date.now();
     this.activitySubject.next();
   }
 
