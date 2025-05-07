@@ -23,6 +23,11 @@ public class ProfileService {
     private final PasswordEncoder passwordEncoder;
     private final RecipeRepository recipeRepository;
 
+    private static final Set<String> COMMON_STAPLES = Set.of(
+            "SALT", "PEPPER", "WATER", "OIL", "OLIVE_OIL", "BUTTER",
+            "GARLIC", "ONIONS", "FLOUR", "SUGAR"
+    );
+
     @Transactional(readOnly = true)
     public Profile getProfileByUsername(String username) {
         return profileRepository.findByUsername(username)
@@ -84,6 +89,7 @@ public class ProfileService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         Map<String, Object> stats = new HashMap<>();
+        Map<String, Long> ingredientCounts = new HashMap<>();
 
         // Get all user's recipes
         List<Recipe> userRecipes = recipeRepository.findByUserOrderByCreatedAtDesc(user);
@@ -101,15 +107,20 @@ public class ProfileService {
 
         // Find most used ingredient (top ingredient)
         if (!userRecipes.isEmpty()) {
-            Map<String, Long> ingredientCounts = new HashMap<>();
 
             userRecipes.forEach(recipe -> {
                 recipe.getIngredients().forEach(ingredient -> {
                     String ingredientName = ingredient.getName();
-                    ingredientCounts.put(ingredientName,
-                            ingredientCounts.getOrDefault(ingredientName, 0L) + 1);
+                    IngredientType type = ingredient.getType();
+
+                    // Skip common staples
+                    if (type != null && !COMMON_STAPLES.contains(type.name())) {
+                        ingredientCounts.put(ingredientName,
+                                ingredientCounts.getOrDefault(ingredientName, 0L) + 1);
+                    }
                 });
             });
+
 
             String topIngredient = ingredientCounts.entrySet().stream()
                     .max(Map.Entry.comparingByValue())
