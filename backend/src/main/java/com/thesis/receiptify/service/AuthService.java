@@ -8,6 +8,8 @@ import com.thesis.receiptify.repository.ProfileRepository;
 import com.thesis.receiptify.util.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -30,6 +32,7 @@ public class AuthService {
     private final ProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
     private final CollectionService collectionService;
+    private final EmailService emailService;
 
     public String register(RegistrationRequest registrationRequest) {
         Optional<Profile> existingUsername = profileRepository.findByUsername(registrationRequest.getUsername());
@@ -56,6 +59,8 @@ public class AuthService {
 
         // Initialize default collections for the new user
         collectionService.initializeDefaultCollections(savedProfile);
+
+        emailService.sendWelcomeEmail(savedProfile);
 
         return "OK";
 
