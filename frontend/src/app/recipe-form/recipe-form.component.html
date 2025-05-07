@@ -239,7 +239,7 @@
       <div class="card-body">
         <div class="alert alert-info">
           <i class="bi bi-info-circle me-2"></i>
-          <strong>Note:</strong> If you specify an amount, you must also select a unit (and vice versa).
+          <strong>Note:</strong> Ingredient type is required, and you must also provide both amount and unit for each ingredient.
         </div>
         <div formArrayName="ingredients">
           <div *ngFor="let ingredient of ingredients.controls; let i = index" class="row mb-3" [formGroupName]="i">

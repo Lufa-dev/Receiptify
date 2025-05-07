@@ -33,6 +33,7 @@ export class RecipeFormComponent implements OnInit, OnDestroy {
   recipeId: number | null = null;
   private subscriptions: Subscription[] = [];
   private pendingSave = false;
+  private pendingSaveSubscription: Subscription | null = null;
 
   // Select options for the searchable dropdown
   ingredientOptions: SelectOption[] = [];
@@ -301,24 +302,22 @@ export class RecipeFormComponent implements OnInit, OnDestroy {
     this.ingredients.controls.forEach((ingredientControl, index) => {
       const ingredient = ingredientControl.value;
 
-      // If type is specified, check if unit and amount are both present or both absent
-      if (ingredient.type) {
-        if (ingredient.amount && !ingredient.unit) {
-          this.validationErrors.push(`Ingredient #${index + 1}: Amount specified but no unit provided`);
-          isValid = false;
-        }
-        else if (!ingredient.amount && ingredient.unit) {
-          this.validationErrors.push(`Ingredient #${index + 1}: Unit specified but no amount provided`);
-          isValid = false;
-        }
-      } else {
+      // Check if type is specified
+      if (!ingredient.type) {
         this.validationErrors.push(`Ingredient #${index + 1}: Type is required`);
+        isValid = false;
+      }
+
+      // Check if both amount and unit are provided
+      if (!ingredient.amount || !ingredient.unit) {
+        this.validationErrors.push(`Ingredient #${index + 1}: Both amount and unit are required`);
         isValid = false;
       }
     });
 
     return isValid;
   }
+
 
   onSubmit(): void {
     this.submitted = true;
@@ -355,9 +354,9 @@ export class RecipeFormComponent implements OnInit, OnDestroy {
 
     // First upload the image if there is one
     if (this.imageFile) {
-      const uploadSub = this.recipeService.uploadImage(this.imageFile)
+      this.pendingSaveSubscription = this.recipeService.uploadImage(this.imageFile)
         .pipe(
-          take(1), // Ensure this completes after one emission
+          take(1),
           finalize(() => {
             if (!this.pendingSave) {
               this.isLoading = false;
@@ -378,7 +377,7 @@ export class RecipeFormComponent implements OnInit, OnDestroy {
             }
           }
         });
-      this.subscriptions.push(uploadSub);
+      this.subscriptions.push(this.pendingSaveSubscription);
     } else {
       this.saveRecipe(this.recipeForm.value.imageUrl || '');
     }
@@ -454,7 +453,11 @@ export class RecipeFormComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: () => {
         // Wait for the operation to complete before navigating
-        this.router.navigate(['/my-recipes']);
+        if (!this.pendingSave) return;
+
+        setTimeout(() => {
+          this.router.navigate(['/my-recipes']);
+        }, 100);
       },
       error: (error) => {
         this.saveError = 'Failed to save recipe. Please try again.';
@@ -486,6 +489,7 @@ export class RecipeFormComponent implements OnInit, OnDestroy {
         }
       }
     });
+    this.pendingSaveSubscription = saveOpSub;
     this.subscriptions.push(saveOpSub);
   }
 
@@ -510,6 +514,12 @@ export class RecipeFormComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     // Cancel any pending operations
     this.pendingSave = false;
+
+    // Clear specific operation if it's still active
+    if (this.pendingSaveSubscription) {
+      this.pendingSaveSubscription.unsubscribe();
+      this.pendingSaveSubscription = null;
+    }
 
     // Unsubscribe from all subscriptions
     this.subscriptions.forEach(sub => {
