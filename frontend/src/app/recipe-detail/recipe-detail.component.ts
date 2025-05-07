@@ -5,6 +5,7 @@ import {RecipeDTO} from "../../shared/models/recipe.model";
 import {AuthService} from "../../shared/services/auth.service";
 import {PortionCalculatorService} from "../../shared/services/portion-calculator.service";
 import {Subscription} from "rxjs";
+import {DietaryDetectionService} from "../../shared/services/dietary-detection.service";
 
 
 @Component({
@@ -29,7 +30,8 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
     public authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
-    private portionCalculatorService: PortionCalculatorService
+    private portionCalculatorService: PortionCalculatorService,
+    private dietaryDetectionService: DietaryDetectionService
   ) {}
 
   ngOnInit(): void {
@@ -242,6 +244,29 @@ export class RecipeDetailComponent implements OnInit, OnDestroy {
       i => i.ingredientName === ingredientName
     ) || null;
   }
+
+  detectDietaryTags(): string[] {
+    if (!this.recipe || !this.recipe.ingredients || this.recipe.ingredients.length === 0) {
+      return [];
+    }
+
+    // If the recipe already has dietaryTags, use those
+    if (this.recipe.dietaryTags && this.recipe.dietaryTags.length > 0) {
+      return this.recipe.dietaryTags;
+    }
+
+    // Otherwise, detect them automatically
+    const detectedTags = this.dietaryDetectionService.detectDietaryTags(this.recipe.ingredients);
+
+    // Store them in the recipe object (but don't modify the backend)
+    if (this.recipe) {
+      this.recipe.dietaryTags = detectedTags;
+    }
+
+    return detectedTags;
+  }
+
+
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());

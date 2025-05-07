@@ -6,6 +6,7 @@ import { ClickOutsideDirective } from './directives/click-outside.directive';
 import { RatingStarsComponent } from './components/rating-stars/rating-stars.component';
 import { FormatEnumPipe } from './pipes/format-enum.pipe';
 import { SortByAlphaPipe } from './pipes/sort-by-alpha.pipe';
+import {DietaryTagsComponent} from "../app/dietary-tags/dietary-tags.component";
 
 @NgModule({
   declarations: [
@@ -13,7 +14,8 @@ import { SortByAlphaPipe } from './pipes/sort-by-alpha.pipe';
     ClickOutsideDirective,
     RatingStarsComponent,
     FormatEnumPipe,
-    SortByAlphaPipe
+    SortByAlphaPipe,
+    DietaryTagsComponent
   ],
   imports: [
     CommonModule,
@@ -26,6 +28,7 @@ import { SortByAlphaPipe } from './pipes/sort-by-alpha.pipe';
     RatingStarsComponent,
     FormatEnumPipe,
     SortByAlphaPipe,
+    DietaryTagsComponent,
     FormsModule,
     ReactiveFormsModule
   ]

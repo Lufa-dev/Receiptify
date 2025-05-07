@@ -52,6 +52,12 @@
       </div>
     </div>
 
+    <div class="row mb-3" *ngIf="recipe">
+      <div class="col-md-12">
+        <app-dietary-tags [tags]="detectDietaryTags()"></app-dietary-tags>
+      </div>
+    </div>
+
     <div class="recipe-meta" *ngIf="recipe">
       <div class="row mb-4">
         <div class="col-md-12">

@@ -325,6 +325,7 @@ public class RecipeService {
                 .bakingTemp(recipe.getBakingTemp())
                 .panSize(recipe.getPanSize())
                 .bakingMethod(recipe.getBakingMethod())
+                .dietaryTags(recipe.getDietaryTags())
                 // Add rating information
                 .averageRating(averageRating != null ? averageRating : 0.0)
                 .totalRatings(totalRatings != null ? totalRatings : 0)
