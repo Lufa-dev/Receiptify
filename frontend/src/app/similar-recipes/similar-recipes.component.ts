@@ -1,8 +1,8 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {RecipeDTO} from "../../shared/models/recipe.model";
 import {RecommendationService} from "../../shared/services/recommendation.service";
 import {Router} from "@angular/router";
-import {finalize} from "rxjs";
+import {finalize, Subscription} from "rxjs";
 import {AuthService} from "../../shared/services/auth.service";
 
 @Component({
@@ -10,13 +10,14 @@ import {AuthService} from "../../shared/services/auth.service";
   templateUrl: './similar-recipes.component.html',
   styleUrl: './similar-recipes.component.scss'
 })
-export class SimilarRecipesComponent implements OnInit {
+export class SimilarRecipesComponent implements OnInit, OnDestroy {
   @Input() recipeId!: number;
   @Input() limit: number = 4;
 
   similarRecipes: RecipeDTO[] = [];
   isLoading = false;
   error = '';
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private recommendationService: RecommendationService,
@@ -36,7 +37,7 @@ export class SimilarRecipesComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    this.recommendationService.getSimilarRecipes(this.recipeId, this.limit)
+    const sub = this.recommendationService.getSimilarRecipes(this.recipeId, this.limit)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (recipes) => {
@@ -58,6 +59,7 @@ export class SimilarRecipesComponent implements OnInit {
           this.error = 'Failed to load similar recipes';
         }
       });
+    this.subscriptions.push(sub);
   }
 
   navigateToRecipe(recipeId: number): void {
@@ -68,6 +70,10 @@ export class SimilarRecipesComponent implements OnInit {
 
     // Navigate to the recipe
     this.router.navigate(['/recipe', recipeId]);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
 

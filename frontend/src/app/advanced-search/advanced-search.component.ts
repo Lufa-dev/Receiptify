@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RecipeService } from '../../shared/services/recipe.service';
@@ -6,7 +6,7 @@ import { IngredientService } from '../../shared/services/ingredient.service';
 import { RecipeSearchCriteria, SearchFilterOptions } from '../../shared/models/recipe-search-criteria.model';
 import { RecipeDTO } from '../../shared/models/recipe.model';
 import { IngredientType } from '../../shared/models/ingredient-type.model';
-import { finalize } from 'rxjs';
+import {finalize, Subscription} from 'rxjs';
 import {SelectOption} from "../../shared/components/searchable-select/searchable-select.component";
 
 @Component({
@@ -14,13 +14,14 @@ import {SelectOption} from "../../shared/components/searchable-select/searchable
   templateUrl: './advanced-search.component.html',
   styleUrls: ['./advanced-search.component.scss']
 })
-export class AdvancedSearchComponent implements OnInit {
+export class AdvancedSearchComponent implements OnInit, OnDestroy {
   searchForm: FormGroup;
   isLoading = false;
   recipes: RecipeDTO[] = [];
   totalRecipes = 0;
   currentPage = 0;
   pageSize = 12;
+  private subscriptions: Subscription[] = [];
 
   // Filter options - hardcoded to match recipe-form.component
   filterOptions: SearchFilterOptions = {
@@ -89,7 +90,8 @@ export class AdvancedSearchComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadIngredientTypes();
+    const ingredientSub = this.loadIngredientTypes();
+    this.subscriptions.push(ingredientSub);
   }
 
   private createSearchForm(): FormGroup {
@@ -111,8 +113,8 @@ export class AdvancedSearchComponent implements OnInit {
     });
   }
 
-  private loadIngredientTypes(): void {
-    this.ingredientService.getIngredientsByCategory().subscribe({
+  private loadIngredientTypes(): Subscription  {
+    return this.ingredientService.getIngredientsByCategory().subscribe({
       next: (ingredientsByCategory) => {
         // Convert to select options format
         this.ingredientOptions = [];
@@ -176,7 +178,7 @@ export class AdvancedSearchComponent implements OnInit {
       );
     }
 
-    searchObservable.pipe(finalize(() => this.isLoading = false))
+    const searchSub = searchObservable.pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (response) => {
           if (append) {
@@ -189,6 +191,7 @@ export class AdvancedSearchComponent implements OnInit {
         error: (error) => {
         }
       });
+    this.subscriptions.push(searchSub);
   }
 
   addSelectedIngredient(option: SelectOption | null): void {
@@ -248,6 +251,10 @@ export class AdvancedSearchComponent implements OnInit {
     if (recipeId) {
       this.router.navigate(['/recipe', recipeId]);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
 

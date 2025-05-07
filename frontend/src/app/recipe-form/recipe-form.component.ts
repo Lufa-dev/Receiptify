@@ -1,9 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {IngredientService} from "../../shared/services/ingredient.service";
 import {IngredientType} from "../../shared/models/ingredient-type.model";
-import {finalize, forkJoin, of} from "rxjs";
+import {finalize, forkJoin, of, Subscription} from "rxjs";
 import {RecipeDTO} from "../../shared/models/recipe.model";
 import {Ingredient} from "../../shared/models/ingredient.model";
 import {UnitType} from "../../shared/models/unit-type.model";
@@ -17,7 +17,7 @@ import {SelectOption} from "../../shared/components/searchable-select/searchable
   templateUrl: './recipe-form.component.html',
   styleUrls: ['./recipe-form.component.scss']
 })
-export class RecipeFormComponent implements OnInit {
+export class RecipeFormComponent implements OnInit, OnDestroy {
   recipeForm: FormGroup;
   ingredientsByCategory: Record<string, IngredientType[]> = {};
   unitsByCategory: Record<string, UnitType[]> = {};
@@ -30,6 +30,7 @@ export class RecipeFormComponent implements OnInit {
   saveError = '';
   isEditMode = false;
   recipeId: number | null = null;
+  private subscriptions: Subscription[] = [];
 
   // Select options for the searchable dropdown
   ingredientOptions: SelectOption[] = [];
@@ -50,13 +51,14 @@ export class RecipeFormComponent implements OnInit {
     this.isLoading = true;
 
     // Check if we're in edit mode
-    this.route.paramMap.subscribe(params => {
+    const routeSub = this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
         this.isEditMode = true;
         this.recipeId = +id;
       }
     });
+    this.subscriptions.push(routeSub);
 
     // Load ingredients, units, and recipe data if in edit mode
     const observables = {
@@ -68,7 +70,7 @@ export class RecipeFormComponent implements OnInit {
 
     // If editing, add recipe data to observables
     if (this.isEditMode && this.recipeId) {
-      forkJoin({
+      const dataLoadSub = forkJoin({
         ...observables,
         recipe: this.recipeService.getRecipeById(this.recipeId)
       }).pipe(
@@ -82,9 +84,10 @@ export class RecipeFormComponent implements OnInit {
           this.saveError = 'Failed to load recipe data. Please try again.';
         }
       });
+      this.subscriptions.push(dataLoadSub);
     } else {
       // Just load ingredients and units for a new recipe
-      forkJoin(observables).pipe(
+      const initDataSub = forkJoin(observables).pipe(
         finalize(() => this.isLoading = false)
       ).subscribe({
         next: (results) => {
@@ -94,6 +97,7 @@ export class RecipeFormComponent implements OnInit {
           this.saveError = 'Failed to load ingredients. Please refresh and try again.';
         }
       });
+      this.subscriptions.push(initDataSub);
     }
   }
 
@@ -288,7 +292,7 @@ export class RecipeFormComponent implements OnInit {
 
     // First upload the image if there is one
     if (this.imageFile) {
-      this.recipeService.uploadImage(this.imageFile).subscribe({
+      const uploadSub = this.recipeService.uploadImage(this.imageFile).subscribe({
         next: (imageUrl) => {
           this.saveRecipe(imageUrl);
         },
@@ -297,6 +301,7 @@ export class RecipeFormComponent implements OnInit {
           this.isLoading = false;
         }
       });
+      this.subscriptions.push(uploadSub);
     } else {
       this.saveRecipe(this.recipeForm.value.imageUrl || '');
     }
@@ -357,7 +362,7 @@ export class RecipeFormComponent implements OnInit {
       ? this.recipeService.updateRecipe(this.recipeId, recipeData)
       : this.recipeService.createRecipe(recipeData);
 
-    saveOperation.pipe(
+    const saveOpSub = saveOperation.pipe(
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: () => {
@@ -367,10 +372,15 @@ export class RecipeFormComponent implements OnInit {
         this.saveError = 'Failed to save recipe. Please try again.';
       }
     });
+    this.subscriptions.push(saveOpSub);
   }
 
   formatUnitName(unitName: string): string {
     return this.unitService.formatUnitName(unitName);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
 

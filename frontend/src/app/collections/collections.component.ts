@@ -1,21 +1,22 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Collection} from "../../shared/models/collection.model";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {CollectionService} from "../../shared/services/collection.service";
 import {AuthService} from "../../shared/services/auth.service";
 import {Router} from "@angular/router";
-import {finalize} from "rxjs";
+import {finalize, Subscription} from "rxjs";
 
 @Component({
   selector: 'app-collections',
   templateUrl: './collections.component.html',
   styleUrl: './collections.component.scss'
 })
-export class CollectionsComponent implements OnInit {
+export class CollectionsComponent implements OnInit, OnDestroy {
   collections: Collection[] = [];
   isLoading = false;
   error = '';
   successMessage = '';
+  private subscriptions: Subscription[] = [];
 
   // Form for creating and editing collections
   collectionForm: FormGroup;
@@ -47,7 +48,7 @@ export class CollectionsComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    this.collectionService.getUserCollections()
+    const collectionsSub = this.collectionService.getUserCollections()
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (collections) => {
@@ -61,6 +62,7 @@ export class CollectionsComponent implements OnInit {
           }
         }
       });
+    this.subscriptions.push(collectionsSub);
   }
 
   createForm(): FormGroup {
@@ -102,7 +104,7 @@ export class CollectionsComponent implements OnInit {
       ? this.collectionService.updateCollection(this.editingCollectionId, collectionData)
       : this.collectionService.createCollection(collectionData);
 
-    request.pipe(finalize(() => this.isSubmitting = false))
+    const submitSub = request.pipe(finalize(() => this.isSubmitting = false))
       .subscribe({
         next: (collection) => {
           this.successMessage = this.isEditing
@@ -125,6 +127,7 @@ export class CollectionsComponent implements OnInit {
           }
         }
       });
+    this.subscriptions.push(submitSub);
   }
 
   editCollection(collection: Collection): void {
@@ -142,7 +145,7 @@ export class CollectionsComponent implements OnInit {
     if (confirm('Are you sure you want to delete this collection? This action cannot be undone.')) {
       this.isLoading = true;
 
-      this.collectionService.deleteCollection(id)
+      const deleteSub = this.collectionService.deleteCollection(id)
         .pipe(finalize(() => this.isLoading = false))
         .subscribe({
           next: () => {
@@ -161,6 +164,7 @@ export class CollectionsComponent implements OnInit {
             }
           }
         });
+      this.subscriptions.push(deleteSub);
     }
   }
 
@@ -172,5 +176,9 @@ export class CollectionsComponent implements OnInit {
     return collection.isDefault ||
       collection.name === 'My Recipes' ||
       collection.name === 'Favorites';
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }

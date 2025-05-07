@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { RecipeService } from '../../shared/services/recipe.service';
 import {Recipe, RecipeDTO} from '../../shared/models/recipe.model';
-import {catchError, finalize, forkJoin, of} from "rxjs";
+import {catchError, finalize, forkJoin, of, Subscription} from "rxjs";
 import {AuthService} from "../../shared/services/auth.service";
 
 @Component({
@@ -9,7 +9,7 @@ import {AuthService} from "../../shared/services/auth.service";
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   recipes: RecipeDTO[] = [];
   seasonalRecipes: RecipeDTO[] = [];
   isLoading = false;
@@ -20,6 +20,7 @@ export class HomeComponent implements OnInit {
   totalRecipes = 0;
   hasMoreRecipes = false;
   pageSize = 12; // Number of recipes per page
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private recipeService: RecipeService,
@@ -35,7 +36,7 @@ export class HomeComponent implements OnInit {
     this.error = '';
 
     // Get current month for seasonality display
-    this.recipeService.getCurrentMonth()
+    const monthSub = this.recipeService.getCurrentMonth()
       .pipe(catchError(error => {
         // Default to current browser month as fallback
         const date = new Date();
@@ -46,9 +47,10 @@ export class HomeComponent implements OnInit {
           this.currentMonth = this.formatMonth(month);
         }
       });
+    this.subscriptions.push(monthSub);
 
     // Load regular recipes
-    this.recipeService.getAllRecipes(this.currentPage, this.pageSize)
+    const recipesSub = this.recipeService.getAllRecipes(this.currentPage, this.pageSize)
       .pipe(catchError(error => {
         return of({content: [], totalElements: 0});
       }))
@@ -61,9 +63,10 @@ export class HomeComponent implements OnInit {
 
         }
       });
+    this.subscriptions.push(recipesSub);
 
     // Load seasonal recipes separately to handle errors independently
-    this.recipeService.getSeasonalRecipes(80, 0, 6)
+    const seasonalSub = this.recipeService.getSeasonalRecipes(80, 0, 8)
       .pipe(
         catchError(error => {
           return of({content: [], totalElements: 0});
@@ -74,6 +77,7 @@ export class HomeComponent implements OnInit {
           this.seasonalRecipes = response.content;
         }
       });
+    this.subscriptions.push(seasonalSub);
   }
 
   loadMoreRecipes(): void {
@@ -82,7 +86,7 @@ export class HomeComponent implements OnInit {
     this.isLoadingMore = true;
     this.currentPage++;
 
-    this.recipeService.getAllRecipes(this.currentPage, this.pageSize)
+    const moreSub = this.recipeService.getAllRecipes(this.currentPage, this.pageSize)
       .pipe(finalize(() => this.isLoadingMore = false))
       .subscribe({
         next: (response) => {
@@ -95,6 +99,7 @@ export class HomeComponent implements OnInit {
           this.currentPage--; // Revert on error
         }
       });
+    this.subscriptions.push(moreSub);
   }
 
   searchRecipes(query: string): void {
@@ -125,6 +130,10 @@ export class HomeComponent implements OnInit {
 
   private formatMonth(month: string): string {
     return month.charAt(0) + month.slice(1).toLowerCase();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
 

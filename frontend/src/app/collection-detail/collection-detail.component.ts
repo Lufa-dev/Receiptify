@@ -1,10 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Collection} from "../../shared/models/collection.model";
 import {Recipe} from "../../shared/models/recipe.model";
 import {ActivatedRoute, Router} from "@angular/router";
 import {CollectionService} from "../../shared/services/collection.service";
 import {RecipeService} from "../../shared/services/recipe.service";
-import {catchError, finalize, forkJoin, of} from "rxjs";
+import {catchError, finalize, forkJoin, of, Subscription} from "rxjs";
 import {map} from "rxjs/operators";
 
 @Component({
@@ -12,12 +12,14 @@ import {map} from "rxjs/operators";
   templateUrl: './collection-detail.component.html',
   styleUrl: './collection-detail.component.scss'
 })
-export class CollectionDetailComponent implements OnInit {
+export class CollectionDetailComponent implements OnInit, OnDestroy {
   collection: Collection | null = null;
   recipes: Recipe[] = [];
   isLoading = true;
   error = '';
   successMessage = '';
+  private subscriptions: Subscription[] = [];
+
 
   constructor(
     private route: ActivatedRoute,
@@ -42,7 +44,7 @@ export class CollectionDetailComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    this.collectionService.getCollectionById(id).subscribe({
+    const sub = this.collectionService.getCollectionById(id).subscribe({
       next: (collection) => {
         this.collection = collection;
 
@@ -63,6 +65,7 @@ export class CollectionDetailComponent implements OnInit {
         }
       }
     });
+    this.subscriptions.push(sub);
   }
 
   loadRecipes(recipeIds: number[]): void {
@@ -103,7 +106,7 @@ export class CollectionDetailComponent implements OnInit {
     if (!this.collection) return;
 
     if (confirm('Are you sure you want to remove this recipe from the collection?')) {
-      this.collectionService.removeRecipeFromCollection(this.collection.id, recipeId)
+      const sub = this.collectionService.removeRecipeFromCollection(this.collection.id, recipeId)
         .subscribe({
           next: (updatedCollection) => {
             this.successMessage = 'Recipe removed from collection!';
@@ -120,6 +123,7 @@ export class CollectionDetailComponent implements OnInit {
             }
           }
         });
+      this.subscriptions.push(sub);
     }
   }
 
@@ -131,6 +135,10 @@ export class CollectionDetailComponent implements OnInit {
     if (!this.collection) return false;
 
     return this.collection.name.toLowerCase() === 'my recipes';
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
 

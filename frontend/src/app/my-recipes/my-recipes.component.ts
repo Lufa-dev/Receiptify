@@ -1,20 +1,21 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Recipe} from "../../shared/models/recipe.model";
 import {RecipeService} from "../../shared/services/recipe.service";
 import {Router} from "@angular/router";
-import {finalize} from "rxjs";
+import {finalize, Subscription} from "rxjs";
 
 @Component({
   selector: 'app-my-recipes',
   templateUrl: './my-recipes.component.html',
   styleUrl: './my-recipes.component.scss'
 })
-export class MyRecipesComponent implements OnInit {
+export class MyRecipesComponent implements OnInit, OnDestroy {
   recipes: Recipe[] = [];
   isLoading = false;
   error = '';
   successMessage = '';
   isDeletingRecipe = false;
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private recipeService: RecipeService,
@@ -27,7 +28,7 @@ export class MyRecipesComponent implements OnInit {
 
   loadUserRecipes(): void {
     this.isLoading = true;
-    this.recipeService.getUserRecipes()
+    const recipesSub = this.recipeService.getUserRecipes()
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (response) => {
@@ -41,6 +42,7 @@ export class MyRecipesComponent implements OnInit {
           }
         }
       });
+    this.subscriptions.push(recipesSub);
   }
 
   editRecipe(id: number, event: Event): void {
@@ -60,7 +62,7 @@ export class MyRecipesComponent implements OnInit {
       this.error = '';
       this.successMessage = '';
 
-      this.recipeService.deleteRecipe(id)
+      const deleteSub = this.recipeService.deleteRecipe(id)
         .pipe(finalize(() => this.isDeletingRecipe = false))
         .subscribe({
           next: () => {
@@ -80,7 +82,12 @@ export class MyRecipesComponent implements OnInit {
             }
           }
         });
+      this.subscriptions.push(deleteSub);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
 

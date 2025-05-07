@@ -1,5 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {finalize} from "rxjs";
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {finalize, Subscription} from "rxjs";
 import {CollectionService} from "../../shared/services/collection.service";
 import {Collection} from "../../shared/models/collection.model";
 
@@ -8,7 +8,7 @@ import {Collection} from "../../shared/models/collection.model";
   templateUrl: './add-to-collection.component.html',
   styleUrl: './add-to-collection.component.scss'
 })
-export class AddToCollectionComponent implements OnInit {
+export class AddToCollectionComponent implements OnInit, OnDestroy {
   @Input() recipeId!: number; // Using definite assignment assertion
 
   collections: Collection[] = [];
@@ -16,6 +16,8 @@ export class AddToCollectionComponent implements OnInit {
   error = '';
   successMessage = '';
   showDropdown = false;
+  private subscriptions: Subscription[] = [];
+
 
   constructor(private collectionService: CollectionService) {
     // No need for default assignment with definite assignment assertion
@@ -33,7 +35,7 @@ export class AddToCollectionComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    this.collectionService.getUserCollections()
+    const sub = this.collectionService.getUserCollections()
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (collections) => {
@@ -46,6 +48,7 @@ export class AddToCollectionComponent implements OnInit {
           this.error = 'Failed to load collections';
         }
       });
+    this.subscriptions.push(sub);
   }
 
   addToCollection(collectionId: number, event: Event): void {
@@ -60,7 +63,7 @@ export class AddToCollectionComponent implements OnInit {
     this.error = '';
     this.successMessage = '';
 
-    this.collectionService.addRecipeToCollection(collectionId, this.recipeId)
+    const sub = this.collectionService.addRecipeToCollection(collectionId, this.recipeId)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (collection) => {
@@ -82,6 +85,7 @@ export class AddToCollectionComponent implements OnInit {
           }
         }
       });
+    this.subscriptions.push(sub);
   }
 
   isRecipeInCollection(collectionId: number): boolean {
@@ -89,6 +93,9 @@ export class AddToCollectionComponent implements OnInit {
     return collection ? collection.recipeIds.includes(this.recipeId) : false;
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
 
 }
 
