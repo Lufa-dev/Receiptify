@@ -84,6 +84,10 @@
 
       .recipe-content {
         padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        min-height: 150px;
 
         .recipe-title {
           font-size: 22px;
@@ -98,13 +102,13 @@
           color: #666;
           margin-bottom: 20px;
           line-height: 1.5;
-          // Truncate long descriptions
           display: -webkit-box;
           -webkit-line-clamp: 3;
           -webkit-box-orient: vertical;
           overflow: hidden;
           text-overflow: ellipsis;
-          flex-grow: 1;
+          min-height: 24px;
+          flex: 1;
         }
 
         .recipe-actions {
