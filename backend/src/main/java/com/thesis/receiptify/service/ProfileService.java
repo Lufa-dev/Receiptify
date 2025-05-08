@@ -16,6 +16,10 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Service responsible for managing user profile operations.
+ * Handles retrieving, updating user profiles and preferences.
+ */
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
@@ -28,18 +32,40 @@ public class ProfileService {
             "GARLIC", "ONIONS", "FLOUR", "SUGAR"
     );
 
+    /**
+     * Retrieves a user profile by username.
+     *
+     * @param username The username to look up
+     * @return The user profile
+     * @throws EntityNotFoundException if the profile doesn't exist
+     */
     @Transactional(readOnly = true)
     public Profile getProfileByUsername(String username) {
         return profileRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("Profile not found for username: " + username));
     }
 
+    /**
+     * Retrieves a user profile DTO by username.
+     *
+     * @param username The username to look up
+     * @return The user profile DTO
+     * @throws EntityNotFoundException if the profile doesn't exist
+     */
     @Transactional(readOnly = true)
     public ProfileDTO getUserProfileDTO(String username) {
         Profile profile = getProfileByUsername(username);
         return mapToDTO(profile);
     }
 
+    /**
+     * Updates profile data for a user.
+     *
+     * @param username The username of the profile to update
+     * @param profileData Map of profile fields to update
+     * @return The updated profile DTO
+     * @throws EntityNotFoundException if the profile doesn't exist
+     */
     @Transactional
     public ProfileDTO updateProfileData(String username, Map<String, String> profileData) {
         Profile profile = getProfileByUsername(username);
@@ -59,12 +85,29 @@ public class ProfileService {
         return mapToDTO(updatedProfile);
     }
 
+    /**
+     * Changes a user's password after verifying the current password.
+     *
+     * @param username The username of the user
+     * @param currentPassword The current password for verification
+     * @param newPassword The new password to set
+     * @return true if password was changed successfully, false if current password is incorrect
+     * @throws EntityNotFoundException if the profile doesn't exist
+     */
     @Transactional
     public boolean changePassword(String username, String currentPassword, String newPassword) {
         Profile profile = getProfileByUsername(username);
         return changePassword(profile, currentPassword, newPassword);
     }
 
+    /**
+     * Changes a user's password after verifying the current password.
+     *
+     * @param profile The user profile
+     * @param currentPassword The current password for verification
+     * @param newPassword The new password to set
+     * @return true if password was changed successfully, false if current password is incorrect
+     */
     @Transactional
     public boolean changePassword(Profile profile, String currentPassword, String newPassword) {
         // Verify current password
@@ -78,6 +121,13 @@ public class ProfileService {
         return true;
     }
 
+    /**
+     * Retrieves statistics about a user's recipes.
+     *
+     * @param username The username to get statistics for
+     * @return Map of statistics including total recipes, recipes created this month, top ingredient
+     * @throws EntityNotFoundException if the profile doesn't exist
+     */
     @Transactional(readOnly = true)
     public Map<String, Object> getUserRecipeStats(String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -130,6 +180,14 @@ public class ProfileService {
         return stats;
     }
 
+    /**
+     * Updates user preferences.
+     *
+     * @param username The username of the profile to update
+     * @param preferences Map of preference fields to update
+     * @return The updated profile DTO
+     * @throws EntityNotFoundException if the profile doesn't exist
+     */
     @Transactional
     public ProfileDTO updateUserPreferences(String username, Map<String, Object> preferences) {
         Profile profile = getProfileByUsername(username);
@@ -181,6 +239,13 @@ public class ProfileService {
         return mapToDTO(updatedProfile);
     }
 
+    /**
+     * Retrieves user preferences.
+     *
+     * @param username The username to get preferences for
+     * @return Map of user preferences
+     * @throws EntityNotFoundException if the profile doesn't exist
+     */
     @Transactional(readOnly = true)
     public Map<String, Object> getUserPreferences(String username) {
         Profile profile = getProfileByUsername(username);
@@ -197,7 +262,12 @@ public class ProfileService {
         return preferences;
     }
 
-    // Utility method to map Profile entity to ProfileDTO
+    /**
+     * Maps a Profile entity to a ProfileDTO.
+     *
+     * @param profile The Profile entity
+     * @return The corresponding ProfileDTO
+     */
     private ProfileDTO mapToDTO(Profile profile) {
         return ProfileDTO.builder()
                 .id(profile.getId())

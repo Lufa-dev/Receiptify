@@ -17,6 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+/**
+ * Service responsible for managing recipe comments.
+ * Handles adding, updating, retrieving, and deleting comments.
+ */
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -25,6 +29,14 @@ public class CommentService {
     private final RecipeRepository recipeRepository;
     private final ProfileRepository profileRepository;
 
+    /**
+     * Adds a new comment to a recipe.
+     *
+     * @param commentDTO The comment data
+     * @param username The username of the commenter
+     * @return The created comment DTO
+     * @throws EntityNotFoundException if the user or recipe doesn't exist
+     */
     @Transactional
     public CommentDTO addComment(CommentDTO commentDTO, String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -44,6 +56,16 @@ public class CommentService {
         return mapToDTO(savedComment);
     }
 
+    /**
+     * Updates an existing comment.
+     *
+     * @param id The comment ID
+     * @param commentDTO The updated comment data
+     * @param username The username of the requesting user
+     * @return The updated comment DTO
+     * @throws EntityNotFoundException if the comment doesn't exist
+     * @throws SecurityException if the user doesn't have permission to update the comment
+     */
     @Transactional
     public CommentDTO updateComment(Long id, CommentDTO commentDTO, String username) {
         Comment comment = commentRepository.findById(id)
@@ -61,6 +83,14 @@ public class CommentService {
         return mapToDTO(updatedComment);
     }
 
+    /**
+     * Deletes a comment.
+     *
+     * @param id The comment ID
+     * @param username The username of the requesting user
+     * @throws EntityNotFoundException if the comment doesn't exist
+     * @throws SecurityException if the user doesn't have permission to delete the comment
+     */
     @Transactional
     public void deleteComment(Long id, String username) {
         Comment comment = commentRepository.findById(id)
@@ -75,6 +105,14 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
+    /**
+     * Retrieves comments for a recipe with pagination.
+     *
+     * @param recipeId The recipe ID
+     * @param pageable Pagination information
+     * @return A page of comment DTOs
+     * @throws EntityNotFoundException if the recipe doesn't exist
+     */
     @Transactional(readOnly = true)
     public Page<CommentDTO> getRecipeComments(Long recipeId, Pageable pageable) {
         Recipe recipe = recipeRepository.findById(recipeId)
@@ -84,6 +122,12 @@ public class CommentService {
                 .map(this::mapToDTO);
     }
 
+    /**
+     * Maps a Comment entity to a CommentDTO.
+     *
+     * @param comment The Comment entity
+     * @return The corresponding CommentDTO
+     */
     private CommentDTO mapToDTO(Comment comment) {
         return CommentDTO.builder()
                 .id(comment.getId())

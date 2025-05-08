@@ -1,17 +1,17 @@
 package com.thesis.receiptify.service;
 
 import com.thesis.receiptify.model.Profile;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service responsible for sending emails to users.
+ * Handles welcome emails, notifications, and other email communications.
+ */
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -40,6 +40,12 @@ public class EmailService {
         emailSender.send(message);
     }
 
+    /**
+     * Sends a welcome email to a newly registered user.
+     * This method is executed asynchronously to not block the registration process.
+     *
+     * @param profile The user profile to send welcome email to
+     */
     @Async
     public void sendWelcomeEmail(Profile profile) {
         try {

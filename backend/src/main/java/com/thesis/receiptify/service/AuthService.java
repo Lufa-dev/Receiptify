@@ -23,6 +23,10 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Service responsible for user authentication and registration operations.
+ * Manages token generation, user registration, and authentication validation.
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -34,6 +38,14 @@ public class AuthService {
     private final CollectionService collectionService;
     private final EmailService emailService;
 
+    /**
+     * Registers a new user with the provided information.
+     * Creates user profile and initializes default collections.
+     *
+     * @param registrationRequest The registration data
+     * @return "OK" if registration is successful
+     * @throws IllegalArgumentException if username or email is already taken
+     */
     public String register(RegistrationRequest registrationRequest) {
         Optional<Profile> existingUsername = profileRepository.findByUsername(registrationRequest.getUsername());
         if (existingUsername.isPresent()) {
@@ -66,6 +78,13 @@ public class AuthService {
 
     }
 
+    /**
+     * Authenticates a user based on credentials and generates a JWT token.
+     *
+     * @param authRequest The authentication request containing username and password
+     * @return JWT token for the authenticated user
+     * @throws Exception if authentication fails due to invalid credentials or disabled user
+     */
     public String authenticate(AuthRequest authRequest) throws Exception {
         Objects.requireNonNull(authRequest.getUsername());
         Objects.requireNonNull(authRequest.getPassword());
@@ -79,10 +98,22 @@ public class AuthService {
         }
     }
 
+    /**
+     * Generates a JWT token for a user.
+     *
+     * @param userDetails The user details from Spring Security
+     * @return JWT token
+     */
     public String generateToken(UserDetails userDetails) {
         return jwtTokenUtil.generateToken(userDetails);
     }
 
+    /**
+     * Invalidates a JWT token by removing it from the database.
+     * Also clears the token from cache if caching is enabled.
+     *
+     * @param token The JWT token to invalidate
+     */
     public void inValidateToken(String token) {
         jwtTokenUtil.inValidateToken(token);
     }

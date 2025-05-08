@@ -15,6 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Service responsible for generating personalized recipe recommendations.
+ * Uses content-based, collaborative filtering, and user preference approaches
+ * to create a hybrid recommendation system.
+ */
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
@@ -30,6 +35,16 @@ public class RecommendationService {
     private static final double COLLABORATIVE_WEIGHT = 0.3;
     private static final double PREFERENCE_WEIGHT = 0.3;
 
+    /**
+     * Gets personalized recipe recommendations for a specific user.
+     * Uses a hybrid approach combining content-based, collaborative, and preference-based recommendations.
+     *
+     * @param username The username of the user
+     * @param limit The maximum number of recommendations to return
+     * @param includePrevious Whether to include recipes the user has already interacted with
+     * @return List of recommended recipes
+     * @throws EntityNotFoundException if the user doesn't exist
+     */
     @Transactional(readOnly = true)
     public List<RecipeDTO> getRecommendationsForUser(String username, int limit, boolean includePrevious) {
         Profile user = profileRepository.findByUsername(username)
@@ -87,6 +102,14 @@ public class RecommendationService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds recipes similar to the specified recipe based on ingredients, category, and cuisine.
+     *
+     * @param recipeId The ID of the recipe to find similar recipes for
+     * @param limit The maximum number of similar recipes to return
+     * @return List of similar recipes
+     * @throws EntityNotFoundException if the recipe doesn't exist
+     */
     @Transactional(readOnly = true)
     public List<RecipeDTO> getSimilarRecipes(Long recipeId, int limit) {
         Recipe targetRecipe = recipeRepository.findById(recipeId)
@@ -124,6 +147,12 @@ public class RecommendationService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Gets recipes that are currently in season based on their ingredients.
+     *
+     * @param limit The maximum number of seasonal recipes to return
+     * @return List of seasonal recipes
+     */
     @Transactional(readOnly = true)
     public List<RecipeDTO> getSeasonalRecommendations(int limit) {
         List<Recipe> allRecipes = recipeRepository.findAll();
@@ -141,6 +170,14 @@ public class RecommendationService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Generates content-based recommendation scores based on user's interaction history.
+     * Finds recipes similar to those the user has interacted with frequently.
+     *
+     * @param user The user profile
+     * @param interactedRecipeIds Set of recipe IDs the user has already interacted with
+     * @return Map of recipe IDs to recommendation scores
+     */
     private Map<Long, Double> getContentBasedScores(Profile user, Set<Long> interactedRecipeIds) {
         Map<Long, Double> scores = new HashMap<>();
 
@@ -180,6 +217,14 @@ public class RecommendationService {
         return scores;
     }
 
+    /**
+     * Generates collaborative filtering recommendation scores based on similar users.
+     * Finds users with similar tastes and recommends recipes they've interacted with.
+     *
+     * @param user The user profile
+     * @param interactedRecipeIds Set of recipe IDs the user has already interacted with
+     * @return Map of recipe IDs to recommendation scores
+     */
     private Map<Long, Double> getCollaborativeScores(Profile user, Set<Long> interactedRecipeIds) {
         Map<Long, Double> scores = new HashMap<>();
 
@@ -248,6 +293,14 @@ public class RecommendationService {
         return scores;
     }
 
+    /**
+     * Generates preference-based recommendation scores based on user preferences.
+     * Matches recipes to user's preferred categories, cuisines, and ingredients.
+     *
+     * @param user The user profile
+     * @param interactedRecipeIds Set of recipe IDs the user has already interacted with
+     * @return Map of recipe IDs to recommendation scores
+     */
     private Map<Long, Double> getPreferenceBasedScores(Profile user, Set<Long> interactedRecipeIds) {
         Map<Long, Double> scores = new HashMap<>();
 
@@ -269,6 +322,14 @@ public class RecommendationService {
         return scores;
     }
 
+    /**
+     * Calculates similarity between two recipes based on ingredients, category, and cuisine.
+     * Uses Jaccard similarity for ingredient comparison and exact matching for categories.
+     *
+     * @param recipe1 The first recipe
+     * @param recipe2 The second recipe
+     * @return A similarity score between 0.0 (no similarity) and 1.0 (identical)
+     */
     private double calculateRecipeSimilarity(Recipe recipe1, Recipe recipe2) {
         // Extract ingredient types for comparison
         Set<IngredientType> ingredients1 = recipe1.getIngredients().stream()
@@ -297,6 +358,14 @@ public class RecommendationService {
         return (ingredientSimilarity * 0.6) + (categorySimilarity * 0.2) + (cuisineSimilarity * 0.2);
     }
 
+    /**
+     * Calculates similarity between two users based on their recipe interactions.
+     * Uses Jaccard similarity on the sets of recipes each user has interacted with.
+     *
+     * @param user1Interactions Interactions of the first user
+     * @param user2Interactions Interactions of the second user
+     * @return A similarity score between 0.0 (no similarity) and 1.0 (identical)
+     */
     private double calculateUserSimilarity(List<UserInteraction> user1Interactions, List<UserInteraction> user2Interactions) {
         // Extract recipe IDs interacted with by each user
         Set<Long> user1RecipeIds = user1Interactions.stream()
@@ -311,6 +380,14 @@ public class RecommendationService {
         return calculateJaccardSimilarity(user1RecipeIds, user2RecipeIds);
     }
 
+    /**
+     * Calculates how well a recipe matches a user's preferences.
+     * Considers preferred categories, cuisines, ingredients, difficulty, and prep time.
+     *
+     * @param recipe The recipe to evaluate
+     * @param user The user profile with preferences
+     * @return A score between 0.0 (no match) and 1.0 (perfect match)
+     */
     private double calculatePreferenceMatchScore(Recipe recipe, Profile user) {
         double score = 0.0;
 
@@ -363,6 +440,15 @@ public class RecommendationService {
         return Math.max(0.0, Math.min(1.0, score));
     }
 
+    /**
+     * Calculates Jaccard similarity between two sets.
+     * Jaccard similarity is defined as the size of the intersection divided by the size of the union.
+     *
+     * @param <T> The type of elements in the sets
+     * @param set1 The first set
+     * @param set2 The second set
+     * @return A similarity score between 0.0 (no similarity) and 1.0 (identical)
+     */
     private <T> double calculateJaccardSimilarity(Set<T> set1, Set<T> set2) {
         if (set1.isEmpty() && set2.isEmpty()) {
             return 0.0; // Both empty sets - no similarity
@@ -377,6 +463,12 @@ public class RecommendationService {
         return (double) intersection.size() / union.size();
     }
 
+    /**
+     * Converts a Recipe entity to a RecipeDTO with detailed information.
+     *
+     * @param recipe The Recipe entity
+     * @return The corresponding RecipeDTO
+     */
     private RecipeDTO convertToDTO(Recipe recipe) {
         // Get rating information
         Double averageRating = ratingRepository.getAverageRatingByRecipeId(recipe.getId());

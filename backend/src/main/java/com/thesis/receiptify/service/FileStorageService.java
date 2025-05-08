@@ -14,6 +14,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Service responsible for managing file storage operations using MinIO.
+ * Handles uploading, retrieving, and deleting files like recipe images.
+ */
 @Service
 public class FileStorageService {
 
@@ -36,7 +40,10 @@ public class FileStorageService {
     }
 
     /**
-     * Initializes MinIO bucket if it doesn't exist
+     * Initializes MinIO bucket if it doesn't exist.
+     * Sets up appropriate access policies for public read access.
+     *
+     * @throws RuntimeException if bucket initialization fails
      */
     public void init() {
         try {
@@ -74,7 +81,12 @@ public class FileStorageService {
     }
 
     /**
-     * Stores a file in MinIO and returns the object name
+     * Stores a file in MinIO and returns the object name.
+     * Generates a unique filename using UUID to prevent collisions.
+     *
+     * @param file The multipart file to store
+     * @return The generated object name (UUID with file extension)
+     * @throws IOException if file storage fails
      */
     public String storeFile(MultipartFile file) throws IOException {
         try {
@@ -99,14 +111,20 @@ public class FileStorageService {
     }
 
     /**
-     * Gets a direct URL for an object (if public bucket policy is enabled)
+     * Gets a direct URL for an object in the MinIO bucket.
+     *
+     * @param objectName The object name/key
+     * @return Full URL to access the file
      */
     public String getDirectFileUrl(String objectName) {
         return minioUrl + "/" + bucketName + "/" + objectName;
     }
 
     /**
-     * Deletes a file from MinIO
+     * Deletes a file from MinIO.
+     *
+     * @param objectName The object name/key to delete
+     * @throws RuntimeException if deletion fails
      */
     public void deleteFile(String objectName) {
         try {
@@ -120,6 +138,12 @@ public class FileStorageService {
         }
     }
 
+    /**
+     * Extracts the file extension from a filename.
+     *
+     * @param fileName The filename
+     * @return The file extension with dot (e.g., ".jpg") or empty string if no extension
+     */
     private String getFileExtension(String fileName) {
         if (fileName == null || fileName.lastIndexOf(".") == -1) {
             return "";

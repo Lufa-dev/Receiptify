@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service responsible for analyzing and determining recipe and ingredient seasonality.
+ * Evaluates how seasonal a recipe is based on its ingredients and the current month.
+ */
 @Service
 public class SeasonalityService {
 
@@ -52,12 +56,16 @@ public class SeasonalityService {
     }
 
     /**
-     * Analyzes a recipe for seasonality information with improved algorithm that:
+     * Analyzes a recipe for seasonality with an improved algorithm that:
      * 1. Gives bonus points for truly seasonal ingredients
      * 2. Slightly penalizes recipes with only year-round ingredients
      *
-     * @param recipe the recipe to analyze
-     * @return the seasonality analysis for the recipe
+     * The seasonality score ranges from 0-100, where:
+     * - 0: No ingredients are in season
+     * - 100: All ingredients are in season
+     *
+     * @param recipe The recipe to analyze
+     * @return The seasonality analysis for the recipe with score and breakdown
      */
     public RecipeSeasonalityDTO analyzeRecipeSeasonality(Recipe recipe) {
         if (recipe == null || recipe.getIngredients() == null || recipe.getIngredients().isEmpty()) {

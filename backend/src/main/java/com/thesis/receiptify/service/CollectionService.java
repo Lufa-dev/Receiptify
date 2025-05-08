@@ -19,6 +19,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Service responsible for managing recipe collections.
+ * Handles creating, updating, retrieving, and deleting collections,
+ * as well as managing recipes within collections.
+ */
 @Service
 @RequiredArgsConstructor
 public class CollectionService {
@@ -27,6 +32,12 @@ public class CollectionService {
     private final ProfileRepository profileRepository;
     private final RecipeRepository recipeRepository;
 
+    /**
+     * Initializes default collections for a new user.
+     * Creates "Favorites" and "My Recipes" collections automatically.
+     *
+     * @param user The user profile to create collections for
+     */
     @Transactional
     public void initializeDefaultCollections(Profile user) {
         // Create "Favorites" collection
@@ -36,6 +47,15 @@ public class CollectionService {
         createDefaultCollection(user, "My Recipes", "Recipes created by you");
     }
 
+    /**
+     * Creates a default collection with the specified name and description.
+     * If the collection already exists, returns the existing one.
+     *
+     * @param user The owner of the collection
+     * @param name The collection name
+     * @param description The collection description
+     * @return The created or existing collection
+     */
     private Collection createDefaultCollection(Profile user, String name, String description) {
         // Check if collection already exists
         return collectionRepository.findDefaultCollectionByUserAndName(user, name)
@@ -51,6 +71,13 @@ public class CollectionService {
                 });
     }
 
+    /**
+     * Retrieves all collections for a specific user.
+     *
+     * @param username The username of the collection owner
+     * @return List of collection DTOs
+     * @throws EntityNotFoundException if the user doesn't exist
+     */
     @Transactional(readOnly = true)
     public List<CollectionDTO> getUserCollections(String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -61,6 +88,14 @@ public class CollectionService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves a specific collection by ID for a user.
+     *
+     * @param id The collection ID
+     * @param username The username of the requesting user
+     * @return The collection DTO
+     * @throws EntityNotFoundException if the collection or user doesn't exist
+     */
     @Transactional(readOnly = true)
     public CollectionDTO getCollectionById(Long id, String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -72,6 +107,15 @@ public class CollectionService {
         return mapToDTO(collection);
     }
 
+    /**
+     * Creates a new collection for a user.
+     *
+     * @param collectionDTO The collection data
+     * @param username The username of the collection owner
+     * @return The created collection DTO
+     * @throws EntityNotFoundException if the user doesn't exist
+     * @throws IllegalArgumentException if collection with the same name already exists
+     */
     @Transactional
     public CollectionDTO createCollection(CollectionDTO collectionDTO, String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -95,6 +139,16 @@ public class CollectionService {
         return mapToDTO(savedCollection);
     }
 
+    /**
+     * Updates an existing collection.
+     *
+     * @param id The collection ID
+     * @param collectionDTO The updated collection data
+     * @param username The username of the requesting user
+     * @return The updated collection DTO
+     * @throws EntityNotFoundException if the collection or user doesn't exist
+     * @throws IllegalStateException if user tries to modify a default collection
+     */
     @Transactional
     public CollectionDTO updateCollection(Long id, CollectionDTO collectionDTO, String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -116,6 +170,14 @@ public class CollectionService {
         return mapToDTO(updatedCollection);
     }
 
+    /**
+     * Deletes a collection.
+     *
+     * @param id The collection ID
+     * @param username The username of the requesting user
+     * @throws EntityNotFoundException if the collection or user doesn't exist
+     * @throws IllegalStateException if user tries to delete a default collection
+     */
     @Transactional
     public void deleteCollection(Long id, String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -132,6 +194,16 @@ public class CollectionService {
         collectionRepository.delete(collection);
     }
 
+    /**
+     * Adds a recipe to a collection.
+     *
+     * @param collectionId The collection ID
+     * @param recipeId The recipe ID
+     * @param username The username of the requesting user
+     * @return The updated collection DTO
+     * @throws EntityNotFoundException if the collection, recipe, or user doesn't exist
+     * @throws IllegalStateException if user tries to manually add to "My Recipes" collection
+     */
     @Transactional
     public CollectionDTO addRecipeToCollection(Long collectionId, Long recipeId, String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -152,7 +224,16 @@ public class CollectionService {
         return mapToDTO(updatedCollection);
     }
 
-
+    /**
+     * Removes a recipe from a collection.
+     *
+     * @param collectionId The collection ID
+     * @param recipeId The recipe ID
+     * @param username The username of the requesting user
+     * @return The updated collection DTO
+     * @throws EntityNotFoundException if the collection, recipe, or user doesn't exist
+     * @throws IllegalStateException if user tries to remove from "My Recipes" collection
+     */
     @Transactional
     public CollectionDTO removeRecipeFromCollection(Long collectionId, Long recipeId, String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -173,6 +254,14 @@ public class CollectionService {
         return mapToDTO(updatedCollection);
     }
 
+    /**
+     * Handles adding a new recipe to the user's "My Recipes" collection.
+     * Automatically called when a user creates a new recipe.
+     *
+     * @param recipe The newly created recipe
+     * @param username The username of the recipe creator
+     * @throws EntityNotFoundException if the user doesn't exist
+     */
     @Transactional
     public void handleNewRecipe(Recipe recipe, String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -187,7 +276,12 @@ public class CollectionService {
         collectionRepository.save(myRecipesCollection);
     }
 
-    // Helper method to map entity to DTO
+    /**
+     * Maps a Collection entity to a CollectionDTO.
+     *
+     * @param collection The Collection entity
+     * @return The corresponding CollectionDTO
+     */
     private CollectionDTO mapToDTO(Collection collection) {
         if (collection == null) {
             return null;
