@@ -31,9 +31,6 @@
             {{ recipe.prepTime + recipe.cookTime }} min
           </span>
         </div>
-        <div *ngIf="authService.isLoggedIn() && recipe.id" class="recipe-actions mt-2">
-          <app-add-to-collection [recipeId]="recipe.id"></app-add-to-collection>
-        </div>
       </div>
     </div>
   </div>

@@ -104,12 +104,14 @@
           -webkit-box-orient: vertical;
           overflow: hidden;
           text-overflow: ellipsis;
+          flex-grow: 1;
         }
 
         .recipe-actions {
           display: flex;
           justify-content: flex-end;
           gap: 10px;
+          margin-top: auto;
 
           button {
             padding: 8px 16px;
