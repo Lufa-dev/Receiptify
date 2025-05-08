@@ -4,12 +4,12 @@
     <img src="assets/logo.webp" width="40" height="40" class="d-inline-block align-top" alt="Logo">
     Receiptify
   </a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+  <button class="navbar-toggler" type="button" (click)="toggleNavbar()" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
   <!-- Navigation Items -->
-  <div class="collapse navbar-collapse" id="navbarNav">
+  <div class="collapse navbar-collapse" [ngClass]="{'show': !isCollapsed}" id="navbarNav">
     <!-- Left space -->
     <ul class="navbar-nav me-auto"></ul>
 
@@ -17,24 +17,24 @@
     <ul class="navbar-nav mx-auto">
       <ng-container *ngIf="isLoggedIn$">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/advanced-search" routerLinkActive="active">Advanced Search</a>
+          <a class="nav-link" routerLink="/advanced-search" routerLinkActive="active" (click)="isCollapsed = true">Advanced Search</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/submit-recipe" routerLinkActive="active">Submit Recipe</a>
+          <a class="nav-link" routerLink="/submit-recipe" routerLinkActive="active" (click)="isCollapsed = true">Submit Recipe</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/my-recipes" routerLinkActive="active">My Recipes</a>
+          <a class="nav-link" routerLink="/my-recipes" routerLinkActive="active" (click)="isCollapsed = true">My Recipes</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/collections" routerLinkActive="active">Collections</a>
+          <a class="nav-link" routerLink="/collections" routerLinkActive="active" (click)="isCollapsed = true">Collections</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/shopping-list" routerLinkActive="active">
+          <a class="nav-link" routerLink="/shopping-list" routerLinkActive="active" (click)="isCollapsed = true">
             <i class="bi bi-cart3"></i> Shopping List
           </a>
         </li>
         <li class="nav-item" *ngIf="isAdmin">
-          <a class="nav-link" routerLink="/admin" routerLinkActive="active">
+          <a class="nav-link" routerLink="/admin" routerLinkActive="active" (click)="isCollapsed = true">
             <i class="bi bi-shield-lock"></i> Admin
           </a>
         </li>
@@ -45,18 +45,18 @@
     <ul class="navbar-nav">
       <ng-container *ngIf="isLoggedIn$; else loggedOut">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/profile" routerLinkActive="active">Profile</a>
+          <a class="nav-link" routerLink="/profile" routerLinkActive="active" (click)="isCollapsed = true">Profile</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link logout-link" (click)="logout()">Sign Out</a>
+          <a class="nav-link logout-link" (click)="logout(); isCollapsed = true">Sign Out</a>
         </li>
       </ng-container>
       <ng-template #loggedOut>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
+          <a class="nav-link" routerLink="/login" routerLinkActive="active" (click)="isCollapsed = true">Login</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/register" routerLinkActive="active">Register</a>
+          <a class="nav-link" routerLink="/register" routerLinkActive="active" (click)="isCollapsed = true">Register</a>
         </li>
       </ng-template>
     </ul>

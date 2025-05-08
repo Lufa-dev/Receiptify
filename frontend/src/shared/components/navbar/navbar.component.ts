@@ -12,6 +12,7 @@ import {AdminService} from "../../services/admin.service";
 export class NavbarComponent implements OnInit, OnDestroy {
   isLoggedIn$ = false;
   isAdmin = false;
+  isCollapsed = true; // Add this property to track collapsed state
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -66,6 +67,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.push(logoutSub);
+  }
+
+  // Add this new method to toggle the collapsed state
+  toggleNavbar() {
+    this.isCollapsed = !this.isCollapsed;
+    this.cd.markForCheck();
   }
 }
 
