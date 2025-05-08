@@ -16,21 +16,12 @@
   </div>
 
   <div *ngIf="similarRecipes.length > 0" class="recipes-grid">
-    <div *ngFor="let recipe of similarRecipes" class="recipe-card">
-      <div class="recipe-image-container" (click)="navigateToRecipe(recipe.id!)">
+    <div *ngFor="let recipe of similarRecipes" class="recipe-card" (click)="navigateToRecipe(recipe.id!)">
+      <div class="recipe-image-container">
         <img [src]="recipe.imageUrl || 'assets/placeholder-recipe.jpg'" alt="{{ recipe.title }}" class="recipe-image">
       </div>
       <div class="recipe-content">
-        <h4 class="recipe-title" (click)="navigateToRecipe(recipe.id!)">{{ recipe.title }}</h4>
-        <div class="recipe-meta">
-          <div *ngIf="recipe.averageRating && recipe.averageRating > 0" class="recipe-rating">
-            <i class="bi bi-star-fill"></i>
-            <span>{{ recipe.averageRating | number:'1.1-1' }}</span>
-          </div>
-          <span *ngIf="recipe.prepTime && recipe.cookTime" class="recipe-time">
-            {{ recipe.prepTime + recipe.cookTime }} min
-          </span>
-        </div>
+        <h4 class="recipe-title">{{ recipe.title }}</h4>
       </div>
     </div>
   </div>
