@@ -41,11 +41,6 @@ public class ProfileService {
     }
 
     @Transactional
-    public Profile updateProfile(Profile profile) {
-        return profileRepository.save(profile);
-    }
-
-    @Transactional
     public ProfileDTO updateProfileData(String username, Map<String, String> profileData) {
         Profile profile = getProfileByUsername(username);
 

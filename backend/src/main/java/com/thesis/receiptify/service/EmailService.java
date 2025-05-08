@@ -69,24 +69,4 @@ public class EmailService {
             System.err.println("Error sending welcome email: " + e.getMessage());
         }
     }
-
-    /**
-     * Send an HTML email
-     *
-     * @param to recipient email address
-     * @param subject email subject
-     * @param htmlContent email HTML content
-     * @throws MessagingException if there's an error creating the email
-     */
-    public void sendHtmlMessage(String to, String subject, String htmlContent) throws MessagingException {
-        MimeMessage mimeMessage = emailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-
-        helper.setFrom(new InternetAddress("Receiptify <" + fromEmail + ">"));
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(htmlContent, true);
-
-        emailSender.send(mimeMessage);
-    }
 }

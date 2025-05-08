@@ -27,34 +27,6 @@ public class SeasonalityService {
     }
 
     /**
-     * Checks if an ingredient is in season for the current month
-     *
-     * @param ingredient the ingredient to check
-     * @return true if the ingredient is in season
-     */
-    public boolean isInSeason(Ingredient ingredient) {
-        if (ingredient == null || ingredient.getType() == null) {
-            return false;
-        }
-
-        return ingredient.getType().getSeasonality().isInSeason(getCurrentMonth());
-    }
-
-    /**
-     * Gets the seasonality status of an ingredient for the current month
-     *
-     * @param ingredient the ingredient to check
-     * @return the seasonality status
-     */
-    public SeasonalityStatus getSeasonalityStatus(Ingredient ingredient) {
-        if (ingredient == null || ingredient.getType() == null) {
-            return SeasonalityStatus.OUT_OF_SEASON;
-        }
-
-        return ingredient.getType().getSeasonality().getStatus(getCurrentMonth());
-    }
-
-    /**
      * Creates a seasonality DTO for an ingredient
      *
      * @param ingredient the ingredient

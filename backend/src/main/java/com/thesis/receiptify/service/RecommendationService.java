@@ -4,12 +4,9 @@ import com.thesis.receiptify.model.Ingredient;
 import com.thesis.receiptify.model.Profile;
 import com.thesis.receiptify.model.Recipe;
 import com.thesis.receiptify.model.UserInteraction;
-import com.thesis.receiptify.model.dto.RecipeDTO;
-import com.thesis.receiptify.model.dto.RecipeSeasonalityDTO;
+import com.thesis.receiptify.model.dto.*;
 import com.thesis.receiptify.model.enums.IngredientType;
-import com.thesis.receiptify.repository.ProfileRepository;
-import com.thesis.receiptify.repository.RecipeRepository;
-import com.thesis.receiptify.repository.UserInteractionRepository;
+import com.thesis.receiptify.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +22,8 @@ public class RecommendationService {
     private final RecipeRepository recipeRepository;
     private final ProfileRepository profileRepository;
     private final SeasonalityService seasonalityService;
+    private final RatingRepository ratingRepository;
+    private final CommentRepository commentRepository;
 
     // Recommendation weights
     private static final double CONTENT_WEIGHT = 0.4;
@@ -379,15 +378,59 @@ public class RecommendationService {
     }
 
     private RecipeDTO convertToDTO(Recipe recipe) {
-        // Implement the mapping from Recipe entity to RecipeDTO
-        // (You should already have this method in your RecipeService)
-        // This is just a placeholder - replace with your actual implementation
+        // Get rating information
+        Double averageRating = ratingRepository.getAverageRatingByRecipeId(recipe.getId());
+        Integer totalRatings = ratingRepository.countByRecipeId(recipe.getId());
+        Integer totalComments = commentRepository.countByRecipeId(recipe.getId());
+
+        // Map ingredients
+        List<IngredientDTO> ingredientDTOs = recipe.getIngredients().stream()
+                .map(ingredient -> IngredientDTO.builder()
+                        .id(ingredient.getId())
+                        .type(ingredient.getType())
+                        .amount(ingredient.getAmount())
+                        .unit(ingredient.getUnit())
+                        .name(ingredient.getName())
+                        .build())
+                .collect(Collectors.toList());
+
+        // Map steps
+        List<RecipeStepDTO> stepDTOs = recipe.getSteps().stream()
+                .map(step -> RecipeStepDTO.builder()
+                        .id(step.getId())
+                        .stepNumber(step.getStepNumber())
+                        .instruction(step.getInstruction())
+                        .build())
+                .collect(Collectors.toList());
+
         return RecipeDTO.builder()
                 .id(recipe.getId())
                 .title(recipe.getTitle())
                 .description(recipe.getDescription())
                 .imageUrl(recipe.getImageUrl())
-                // Map other fields
+                .ingredients(ingredientDTOs)
+                .steps(stepDTOs)
+                .category(recipe.getCategory())
+                .cuisine(recipe.getCuisine())
+                .servings(recipe.getServings())
+                .difficulty(recipe.getDifficulty())
+                .costRating(recipe.getCostRating())
+                .prepTime(recipe.getPrepTime())
+                .cookTime(recipe.getCookTime())
+                .bakingTime(recipe.getBakingTime())
+                .bakingTemp(recipe.getBakingTemp())
+                .panSize(recipe.getPanSize())
+                .bakingMethod(recipe.getBakingMethod())
+                .dietaryTags(recipe.getDietaryTags())
+                .user(UserDTO.builder()
+                        .id(recipe.getUser().getId())
+                        .username(recipe.getUser().getUsername())
+                        .firstName(recipe.getUser().getFirstName())
+                        .lastName(recipe.getUser().getLastName())
+                        .build())
+                .averageRating(averageRating != null ? averageRating : 0.0)
+                .totalRatings(totalRatings != null ? totalRatings : 0)
+                .totalComments(totalComments != null ? totalComments : 0)
                 .build();
     }
 }

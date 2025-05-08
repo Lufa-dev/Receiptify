@@ -15,7 +15,7 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager("tokenCache");
-        cacheManager.setCaffeine(Caffeine.newBuilder().expireAfterWrite(20, TimeUnit.MINUTES));
+        cacheManager.setCaffeine(Caffeine.newBuilder().expireAfterWrite(60, TimeUnit.MINUTES));
         return cacheManager;
     }
 

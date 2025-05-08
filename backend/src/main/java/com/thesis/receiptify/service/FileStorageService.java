@@ -99,23 +99,6 @@ public class FileStorageService {
     }
 
     /**
-     * Gets a presigned URL for an object
-     */
-    public String getFileUrl(String objectName) {
-        try {
-            return minioClient.getPresignedObjectUrl(
-                    GetPresignedObjectUrlArgs.builder()
-                            .bucket(bucketName)
-                            .object(objectName)
-                            .method(Method.GET)
-                            .expiry(24, TimeUnit.HOURS)
-                            .build());
-        } catch (Exception e) {
-            throw new RuntimeException("Error getting file URL: " + e.getMessage(), e);
-        }
-    }
-
-    /**
      * Gets a direct URL for an object (if public bucket policy is enabled)
      */
     public String getDirectFileUrl(String objectName) {
