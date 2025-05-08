@@ -23,50 +23,6 @@ export class AdvancedSearchComponent implements OnInit, OnDestroy {
   pageSize = 12;
   private subscriptions: Subscription[] = [];
 
-  // Filter options - hardcoded to match recipe-form.component
-  filterOptions: SearchFilterOptions = {
-    categories: [
-      'appetizer',
-      'breakfast',
-      'main',
-      'soup',
-      'salad',
-      'side',
-      'dessert',
-      'snack',
-      'bread',
-      'cake',
-      'cookie',
-      'pastry',
-      'beverage',
-      'sauce',
-      'preserve'
-    ],
-    cuisines: [
-      'american',
-      'italian',
-      'french',
-      'chinese',
-      'japanese',
-      'indian',
-      'mexican',
-      'thai',
-      'mediterranean',
-      'greek',
-      'spanish',
-      'middle-eastern',
-      'korean',
-      'vietnamese',
-      'caribbean',
-      'african',
-      'german',
-      'british',
-      'fusion'
-    ],
-    difficulties: ['easy', 'medium', 'hard'],
-    costRatings: ['budget', 'moderate', 'expensive']
-  };
-
   ingredientOptions: SelectOption[] = [];
   selectedIngredients: IngredientType[] = [];
   excludedIngredients: IngredientType[] = [];
@@ -186,7 +142,7 @@ export class AdvancedSearchComponent implements OnInit, OnDestroy {
           } else {
             this.recipes = response.content;
           }
-          this.totalRecipes = response.totalElements;
+          this.totalRecipes = response.page.totalElements;
         },
         error: (error) => {
         }
