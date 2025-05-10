@@ -208,6 +208,16 @@ public class AdminService {
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
+        // First delete all comments made by this user
+        commentRepository.findAll().stream()
+                .filter(comment -> comment.getUser().getId().equals(profile.getId()))
+                .forEach(commentRepository::delete);
+
+        // Delete all ratings given by this user
+        ratingRepository.findAll().stream()
+                .filter(rating -> rating.getUser().getId().equals(profile.getId()))
+                .forEach(ratingRepository::delete);
+
         // Delete all user's interactions
         interactionRepository.deleteAll(interactionRepository.findByUser(profile));
 
