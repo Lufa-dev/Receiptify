@@ -1,10 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Collection} from "../../shared/models/collection.model";
 import {Recipe} from "../../shared/models/recipe.model";
 import {ActivatedRoute, Router} from "@angular/router";
 import {CollectionService} from "../../shared/services/collection.service";
 import {RecipeService} from "../../shared/services/recipe.service";
-import {catchError, finalize, forkJoin, of} from "rxjs";
+import {catchError, finalize, forkJoin, of, Subscription} from "rxjs";
 import {map} from "rxjs/operators";
 
 @Component({
@@ -12,12 +12,14 @@ import {map} from "rxjs/operators";
   templateUrl: './collection-detail.component.html',
   styleUrl: './collection-detail.component.scss'
 })
-export class CollectionDetailComponent implements OnInit {
+export class CollectionDetailComponent implements OnInit, OnDestroy {
   collection: Collection | null = null;
   recipes: Recipe[] = [];
   isLoading = true;
   error = '';
   successMessage = '';
+  private subscriptions: Subscription[] = [];
+
 
   constructor(
     private route: ActivatedRoute,
@@ -42,10 +44,9 @@ export class CollectionDetailComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    this.collectionService.getCollectionById(id).subscribe({
+    const sub = this.collectionService.getCollectionById(id).subscribe({
       next: (collection) => {
         this.collection = collection;
-        console.log('Collection loaded:', collection);
 
         // If the collection has recipes, fetch them
         if (collection.recipeIds && collection.recipeIds.length > 0) {
@@ -56,7 +57,6 @@ export class CollectionDetailComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Error loading collection:', error);
         this.error = 'Failed to load collection details. Please try again.';
         this.isLoading = false;
 
@@ -65,6 +65,7 @@ export class CollectionDetailComponent implements OnInit {
         }
       }
     });
+    this.subscriptions.push(sub);
   }
 
   loadRecipes(recipeIds: number[]): void {
@@ -74,18 +75,14 @@ export class CollectionDetailComponent implements OnInit {
       return;
     }
 
-    console.log('Loading recipes with IDs:', recipeIds);
-
     // Create an array of observables for each recipe to fetch
     const recipeObservables = recipeIds.map(id =>
       this.recipeService.getRecipeById(id).pipe(
         // Handle errors for individual recipes without failing the whole operation
         map(recipe => {
-          console.log(`Loaded recipe ${id}:`, recipe);
           return recipe;
         }),
         catchError(error => {
-          console.error(`Error loading recipe ${id}:`, error);
           return of(null);
         })
       )
@@ -98,10 +95,8 @@ export class CollectionDetailComponent implements OnInit {
         next: (results) => {
           // Filter out null results (failed requests)
           this.recipes = results.filter(recipe => recipe !== null) as Recipe[];
-          console.log('Loaded recipes:', this.recipes);
         },
         error: (error) => {
-          console.error('Error loading recipes:', error);
           this.error = 'Failed to load some recipes from this collection.';
         }
       });
@@ -111,7 +106,7 @@ export class CollectionDetailComponent implements OnInit {
     if (!this.collection) return;
 
     if (confirm('Are you sure you want to remove this recipe from the collection?')) {
-      this.collectionService.removeRecipeFromCollection(this.collection.id, recipeId)
+      const sub = this.collectionService.removeRecipeFromCollection(this.collection.id, recipeId)
         .subscribe({
           next: (updatedCollection) => {
             this.successMessage = 'Recipe removed from collection!';
@@ -121,7 +116,6 @@ export class CollectionDetailComponent implements OnInit {
             this.recipes = this.recipes.filter(recipe => recipe.id !== recipeId);
           },
           error: (error) => {
-            console.error('Error removing recipe from collection:', error);
             this.error = 'Failed to remove recipe from collection. Please try again.';
 
             if (error.status === 401) {
@@ -129,6 +123,7 @@ export class CollectionDetailComponent implements OnInit {
             }
           }
         });
+      this.subscriptions.push(sub);
     }
   }
 
@@ -140,6 +135,10 @@ export class CollectionDetailComponent implements OnInit {
     if (!this.collection) return false;
 
     return this.collection.name.toLowerCase() === 'my recipes';
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
 

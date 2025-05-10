@@ -12,8 +12,8 @@ import {AdminService} from "../../services/admin.service";
 export class NavbarComponent implements OnInit, OnDestroy {
   isLoggedIn$ = false;
   isAdmin = false;
-  private authSubscription: Subscription;
-  private adminSubscription: Subscription;
+  isCollapsed = true; // Add this property to track collapsed state
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private authService: AuthService,
@@ -23,55 +23,58 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.isLoggedIn$ = this.authService.isLoggedIn();
 
     // Subscribe to authentication state changes
-    this.authSubscription = this.authService.user$.subscribe({
+    const authSub = this.authService.user$.subscribe({
       next: (user) => {
         this.isLoggedIn$ = !!user;
         this.cd.markForCheck();
       }
     });
+    this.subscriptions.push(authSub);
 
     // Subscribe to admin role changes
-    this.adminSubscription = this.authService.isAdmin$.subscribe({
+    const adminSub = this.authService.isAdmin$.subscribe({
       next: (isAdmin) => {
         this.isAdmin = isAdmin;
         this.cd.markForCheck();
       }
     });
+    this.subscriptions.push(adminSub);
   }
 
   ngOnInit(): void {
     // If user is logged in, check admin status on init
     if (this.isLoggedIn$) {
-      this.authService.checkAdminRole().subscribe();
+      const adminCheckSub = this.authService.checkAdminRole().subscribe();
+      this.subscriptions.push(adminCheckSub);
     }
   }
 
   ngOnDestroy(): void {
-    if (this.authSubscription) {
-      this.authSubscription.unsubscribe();
-    }
-
-    if (this.adminSubscription) {
-      this.adminSubscription.unsubscribe();
-    }
+    // Clean up all subscriptions
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   logout() {
-    this.authService.signOut().subscribe({
+    const logoutSub = this.authService.signOut().subscribe({
       next: (success) => {
         if (success) {
           this.router.navigate(['/login']);
-        } else {
-          console.error('Failed to sign out');
         }
         this.cd.markForCheck();
       },
       error: (error) => {
-        console.error('Logout error:', error);
         this.cd.markForCheck();
       }
     });
+    this.subscriptions.push(logoutSub);
+  }
+
+  // Add this new method to toggle the collapsed state
+  toggleNavbar() {
+    this.isCollapsed = !this.isCollapsed;
+    this.cd.markForCheck();
   }
 }
+
 
 

@@ -1,9 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {IngredientService} from "../../shared/services/ingredient.service";
 import {IngredientType} from "../../shared/models/ingredient-type.model";
-import {finalize, forkJoin, of} from "rxjs";
+import {finalize, forkJoin, of, Subscription, take} from "rxjs";
 import {RecipeDTO} from "../../shared/models/recipe.model";
 import {Ingredient} from "../../shared/models/ingredient.model";
 import {UnitType} from "../../shared/models/unit-type.model";
@@ -17,7 +17,7 @@ import {SelectOption} from "../../shared/components/searchable-select/searchable
   templateUrl: './recipe-form.component.html',
   styleUrls: ['./recipe-form.component.scss']
 })
-export class RecipeFormComponent implements OnInit {
+export class RecipeFormComponent implements OnInit, OnDestroy {
   recipeForm: FormGroup;
   ingredientsByCategory: Record<string, IngredientType[]> = {};
   unitsByCategory: Record<string, UnitType[]> = {};
@@ -28,8 +28,12 @@ export class RecipeFormComponent implements OnInit {
   imageFile: File | null = null;
   submitted = false;
   saveError = '';
+  validationErrors: string[] = []; // To store validation errors
   isEditMode = false;
   recipeId: number | null = null;
+  private subscriptions: Subscription[] = [];
+  private pendingSave = false;
+  private pendingSaveSubscription: Subscription | null = null;
 
   // Select options for the searchable dropdown
   ingredientOptions: SelectOption[] = [];
@@ -46,17 +50,26 @@ export class RecipeFormComponent implements OnInit {
     this.recipeForm = this.createRecipeForm();
   }
 
+  // Add this host listener to prevent navigating away if there's a pending save operation
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any): void {
+    if (this.pendingSave) {
+      $event.returnValue = true;
+    }
+  }
+
   ngOnInit(): void {
     this.isLoading = true;
 
     // Check if we're in edit mode
-    this.route.paramMap.subscribe(params => {
+    const routeSub = this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
         this.isEditMode = true;
         this.recipeId = +id;
       }
     });
+    this.subscriptions.push(routeSub);
 
     // Load ingredients, units, and recipe data if in edit mode
     const observables = {
@@ -68,34 +81,36 @@ export class RecipeFormComponent implements OnInit {
 
     // If editing, add recipe data to observables
     if (this.isEditMode && this.recipeId) {
-      forkJoin({
+      const dataLoadSub = forkJoin({
         ...observables,
         recipe: this.recipeService.getRecipeById(this.recipeId)
       }).pipe(
-        finalize(() => this.isLoading = false)
+        finalize(() => this.isLoading = false),
+        take(1) // Ensure this completes after one emission
       ).subscribe({
         next: (results) => {
           this.setupFormData(results);
           this.populateForm(results.recipe);
         },
         error: (error) => {
-          console.error('Failed to load data', error);
           this.saveError = 'Failed to load recipe data. Please try again.';
         }
       });
+      this.subscriptions.push(dataLoadSub);
     } else {
       // Just load ingredients and units for a new recipe
-      forkJoin(observables).pipe(
-        finalize(() => this.isLoading = false)
+      const initDataSub = forkJoin(observables).pipe(
+        finalize(() => this.isLoading = false),
+        take(1) // Ensure this completes after one emission
       ).subscribe({
         next: (results) => {
           this.setupFormData(results);
         },
         error: (error) => {
-          console.error('Failed to load ingredient data', error);
           this.saveError = 'Failed to load ingredients. Please refresh and try again.';
         }
       });
+      this.subscriptions.push(initDataSub);
     }
   }
 
@@ -278,28 +293,91 @@ export class RecipeFormComponent implements OnInit {
     }
   }
 
+  // Validate ingredients to check if they have required fields
+  validateIngredients(): boolean {
+    let isValid = true;
+    this.validationErrors = [];
+
+    // Check each ingredient
+    this.ingredients.controls.forEach((ingredientControl, index) => {
+      const ingredient = ingredientControl.value;
+
+      // Check if type is specified
+      if (!ingredient.type) {
+        this.validationErrors.push(`Ingredient #${index + 1}: Type is required`);
+        isValid = false;
+      }
+
+      // Check if both amount and unit are provided
+      if (!ingredient.amount || !ingredient.unit) {
+        this.validationErrors.push(`Ingredient #${index + 1}: Both amount and unit are required`);
+        isValid = false;
+      }
+    });
+
+    return isValid;
+  }
+
+
   onSubmit(): void {
     this.submitted = true;
+    this.validationErrors = [];
 
     if (this.recipeForm.invalid) {
+      // Collect validation errors
+      if (this.recipeForm.get('title')?.invalid) {
+        this.validationErrors.push('Title is required and must be less than 100 characters');
+      }
+
+      if (this.recipeForm.get('description')?.invalid) {
+        this.validationErrors.push('Description must be less than 500 characters');
+      }
+
+      // Validate steps
+      this.steps.controls.forEach((stepControl, index) => {
+        if (stepControl.get('instruction')?.invalid) {
+          this.validationErrors.push(`Step #${index + 1}: Instruction is required and must be less than 1000 characters`);
+        }
+      });
+
+      return;
+    }
+
+    // Additional ingredient validation
+    if (!this.validateIngredients()) {
       return;
     }
 
     this.isLoading = true;
     this.saveError = '';
+    this.pendingSave = true;
 
     // First upload the image if there is one
     if (this.imageFile) {
-      this.recipeService.uploadImage(this.imageFile).subscribe({
-        next: (imageUrl) => {
-          this.saveRecipe(imageUrl);
-        },
-        error: (error) => {
-          console.error('Failed to upload image', error);
-          this.saveError = 'Failed to upload image. Please try again.';
-          this.isLoading = false;
-        }
-      });
+      this.pendingSaveSubscription = this.recipeService.uploadImage(this.imageFile)
+        .pipe(
+          take(1),
+          finalize(() => {
+            if (!this.pendingSave) {
+              this.isLoading = false;
+            }
+          })
+        )
+        .subscribe({
+          next: (imageUrl) => {
+            this.saveRecipe(imageUrl);
+          },
+          error: (error) => {
+            this.pendingSave = false;
+            this.isLoading = false;
+            this.saveError = 'Failed to upload image. Please try again.';
+
+            if (error.error && error.error.message) {
+              this.saveError = error.error.message;
+            }
+          }
+        });
+      this.subscriptions.push(this.pendingSaveSubscription);
     } else {
       this.saveRecipe(this.recipeForm.value.imageUrl || '');
     }
@@ -312,35 +390,40 @@ export class RecipeFormComponent implements OnInit {
         const parsedImage = JSON.parse(imageUrl);
         imageUrl = parsedImage.imageUrl || '';
       } catch (e) {
-        console.error('Error parsing image URL', e);
+        // If parsing fails, leave as is
       }
     }
 
     // Prepare recipe data from form values
     const formValue = this.recipeForm.value;
 
+    // Format ingredients properly
+    const formattedIngredients = formValue.ingredients.map((ingredient: Ingredient) => {
+      let formattedType = ingredient.type;
+      let formattedName = '';
+
+      // Format type if it's a string
+      if (typeof ingredient.type === 'string') {
+        formattedType = ingredient.type.toUpperCase().replace(/-/g, '_');
+        formattedName = ingredient.name || this.formatIngredientName(ingredient.type);
+      }
+
+      return {
+        type: formattedType,
+        amount: ingredient.amount,
+        unit: ingredient.unit,
+        name: formattedName
+      };
+    });
+
     const recipeData: RecipeDTO = {
       id: this.isEditMode && this.recipeId ? this.recipeId : undefined,
       title: formValue.title,
       description: formValue.description,
       imageUrl: imageUrl,
-      ingredients: formValue.ingredients.map((ingredient: Ingredient) => {
-        const formattedType = ingredient.type.toUpperCase().replace(/-/g, '_');
-        const formattedName = ingredient.type.toLowerCase()
-          .replace(/_/g, ' ')
-          .split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ');
-
-        return {
-          type: formattedType,
-          amount: ingredient.amount,
-          unit: ingredient.unit,
-          name: formattedName
-        };
-      }),
-      steps: formValue.steps.map((step: RecipeStep) => ({
-        stepNumber: step.stepNumber,
+      ingredients: formattedIngredients,
+      steps: formValue.steps.map((step: RecipeStep, index: number) => ({
+        stepNumber: index, // Ensure steps are numbered correctly
         instruction: step.instruction
       })),
       category: formValue.category,
@@ -361,23 +444,92 @@ export class RecipeFormComponent implements OnInit {
       ? this.recipeService.updateRecipe(this.recipeId, recipeData)
       : this.recipeService.createRecipe(recipeData);
 
-    saveOperation.pipe(
-      finalize(() => this.isLoading = false)
+    const saveOpSub = saveOperation.pipe(
+      take(1), // Ensure this completes after one emission
+      finalize(() => {
+        this.isLoading = false;
+        this.pendingSave = false;
+      })
     ).subscribe({
       next: () => {
-        this.router.navigate(['']);
+        // Wait for the operation to complete before navigating
+        if (!this.pendingSave) return;
+
+        setTimeout(() => {
+          this.router.navigate(['/my-recipes']);
+        }, 100);
       },
       error: (error) => {
-        console.error('Failed to save recipe', error);
         this.saveError = 'Failed to save recipe. Please try again.';
+        this.validationErrors = [];
+
+        // Extract validation errors if available
+        if (error.error && error.error.errors) {
+          // Handle array of error messages
+          if (Array.isArray(error.error.errors)) {
+            this.validationErrors = error.error.errors;
+          }
+          // Handle object with error fields
+          else if (typeof error.error.errors === 'object') {
+            Object.entries(error.error.errors).forEach(([field, messages]) => {
+              if (Array.isArray(messages)) {
+                messages.forEach((message: string) => {
+                  this.validationErrors.push(`${field}: ${message}`);
+                });
+              } else {
+                this.validationErrors.push(`${field}: ${String(messages)}`);
+              }
+            });
+          }
+        }
+
+        // If we got a specific error message
+        if (error.error && error.error.message) {
+          this.saveError = error.error.message;
+        }
       }
     });
+    this.pendingSaveSubscription = saveOpSub;
+    this.subscriptions.push(saveOpSub);
   }
 
+  // Format ingredient names for display
+  formatIngredientName(type: string): string {
+    if (!type) return '';
+
+    // For enum values like "BELL_PEPPER" -> "Bell Pepper"
+    return type
+      .toLowerCase()
+      .replace(/_/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  // Format unit names
   formatUnitName(unitName: string): string {
     return this.unitService.formatUnitName(unitName);
   }
+
+  ngOnDestroy(): void {
+    // Cancel any pending operations
+    this.pendingSave = false;
+
+    // Clear specific operation if it's still active
+    if (this.pendingSaveSubscription) {
+      this.pendingSaveSubscription.unsubscribe();
+      this.pendingSaveSubscription = null;
+    }
+
+    // Unsubscribe from all subscriptions
+    this.subscriptions.forEach(sub => {
+      if (sub && !sub.closed) {
+        sub.unsubscribe();
+      }
+    });
+  }
 }
+
 
 
 

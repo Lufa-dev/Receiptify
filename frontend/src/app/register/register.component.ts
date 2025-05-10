@@ -1,17 +1,19 @@
-import { Component } from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../shared/services/auth.service';
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnDestroy{
   registerForm: FormGroup;
   error: string = '';
   loading: boolean = false;
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -66,7 +68,7 @@ export class RegisterComponent {
     // Extract form values without the confirmPassword field
     const { confirmPassword, ...registrationData } = this.registerForm.value;
 
-    this.authService.register(registrationData).subscribe({
+    const registerSub = this.authService.register(registrationData).subscribe({
       next: (username) => {
         if (username) {
           this.router.navigate(['/login']);
@@ -80,5 +82,10 @@ export class RegisterComponent {
         this.loading = false;
       }
     });
+    this.subscriptions.push(registerSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }

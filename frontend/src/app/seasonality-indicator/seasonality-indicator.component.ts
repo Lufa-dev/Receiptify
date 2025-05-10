@@ -30,12 +30,24 @@ export class SeasonalityIndicatorComponent {
   getScoreText(): string {
     if (!this.seasonalityInfo) return 'Unknown';
 
+    // Get the score and evaluate if it's all year-round ingredients
     const score = this.seasonalityInfo.seasonalScore;
+    const isAllYearRound = this.seasonalityInfo.yearRoundCount > 0 &&
+      this.seasonalityInfo.yearRoundCount ===
+      (this.seasonalityInfo.inSeasonCount + this.seasonalityInfo.outOfSeasonCount);
 
-    if (score >= 80) return 'Highly Seasonal';
-    if (score >= 60) return 'Mostly Seasonal';
-    if (score >= 40) return 'Partially Seasonal';
-    if (score >= 20) return 'Minimally Seasonal';
+    // Adjust text based on year-round status
+    if (isAllYearRound) {
+      return 'Year-Round';
+    } else if (score >= 80) {
+      return 'Highly Seasonal';
+    } else if (score >= 60) {
+      return 'Mostly Seasonal';
+    } else if (score >= 40) {
+      return 'Partially Seasonal';
+    } else if (score >= 20) {
+      return 'Minimally Seasonal';
+    }
     return 'Not Seasonal';
   }
 
@@ -49,4 +61,5 @@ export class SeasonalityIndicatorComponent {
     return status.status;
   }
 }
+
 

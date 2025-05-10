@@ -23,7 +23,6 @@ export class RecipeService {
     const token = sessionStorage.getItem('token');
 
     if (!token) {
-      console.warn('No token found in sessionStorage');
       return new HttpHeaders();
     }
 
@@ -86,22 +85,13 @@ export class RecipeService {
     delete cleanCriteria.sortBy;
     delete cleanCriteria.sortDirection;
 
-    console.log('Sending advanced search request:', { url, cleanCriteria });
-
     // Add the auth headers
     return this.http.post(url, cleanCriteria, {
       headers: this.getAuthHeaders()
     });
   }
 
-  getSearchFilterOptions(): Observable<SearchFilterOptions> {
-    return this.http.get<SearchFilterOptions>(`${this.apiUrl}/search-options`);
-  }
-
   createRecipe(recipe: RecipeDTO): Observable<RecipeDTO> {
-    const token = sessionStorage.getItem('token');
-    console.log('Token being sent:', token); // Debug line
-
     return this.http.post<RecipeDTO>(this.apiUrl, recipe, {
       headers: this.getAuthHeaders()
     });

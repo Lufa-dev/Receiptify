@@ -21,6 +21,14 @@ public class InteractionService {
     private final ProfileRepository profileRepository;
     private final RecipeRepository recipeRepository;
 
+    /**
+     * Tracks a user viewing a recipe.
+     * Increments the view count if there's an existing interaction or creates a new one.
+     *
+     * @param recipeId The ID of the viewed recipe
+     * @param username The username of the user viewing the recipe
+     * @throws EntityNotFoundException if the user or recipe doesn't exist
+     */
     @Transactional
     public void trackRecipeView(Long recipeId, String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -50,6 +58,15 @@ public class InteractionService {
         interactionRepository.save(interaction);
     }
 
+    /**
+     * Records a user saving or unsaving a recipe.
+     * Updates the saved status if there's an existing interaction or creates a new one.
+     *
+     * @param recipeId The ID of the recipe
+     * @param username The username of the user
+     * @param saved Whether the recipe is being saved (true) or unsaved (false)
+     * @throws EntityNotFoundException if the user or recipe doesn't exist
+     */
     @Transactional
     public void saveRecipe(Long recipeId, String username, boolean saved) {
         Profile user = profileRepository.findByUsername(username)

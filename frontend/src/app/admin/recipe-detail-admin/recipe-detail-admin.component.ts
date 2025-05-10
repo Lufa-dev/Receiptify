@@ -145,7 +145,6 @@ export class RecipeDetailAdminComponent implements OnInit {
           this.updateFormWithRecipe(recipe);
         },
         error: (error) => {
-          console.error('Error loading recipe details:', error);
           this.error = 'Failed to load recipe details. Please try again.';
         }
       });
@@ -360,7 +359,6 @@ export class RecipeDetailAdminComponent implements OnInit {
           this.saveRecipe(imageUrl);
         },
         error: (error) => {
-          console.error('Failed to upload image', error);
           this.error = 'Failed to upload image. Please try again.';
           this.isSubmitting = false;
         }
@@ -406,7 +404,6 @@ export class RecipeDetailAdminComponent implements OnInit {
           this.imageFile = null;
         },
         error: (error) => {
-          console.error('Error updating recipe:', error);
           this.error = 'Failed to update recipe. Please try again.';
         }
       });
@@ -448,7 +445,6 @@ export class RecipeDetailAdminComponent implements OnInit {
             }, 1500);
           },
           error: (error) => {
-            console.error('Error deleting recipe:', error);
             this.error = 'Failed to delete recipe. Please try again.';
           }
         });

@@ -49,5 +49,7 @@ export interface RecipeDTO {
 
   seasonalityInfo?: RecipeSeasonality;
 
+  dietaryTags?: string[];
+
   isInCollection?: boolean;
 }

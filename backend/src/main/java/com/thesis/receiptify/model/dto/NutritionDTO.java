@@ -31,20 +31,4 @@ public class NutritionDTO {
     public int getCaloriesFromCarbs() {
         return (int) Math.round(carbs * 4);   // 4 calories per gram of carbs
     }
-
-    // Calculate macronutrient percentages
-    public int getProteinPercentage() {
-        if (calories == 0) return 0;
-        return (int) Math.round((getCaloriesFromProtein() / (double) calories) * 100);
-    }
-
-    public int getFatPercentage() {
-        if (calories == 0) return 0;
-        return (int) Math.round((getCaloriesFromFat() / (double) calories) * 100);
-    }
-
-    public int getCarbsPercentage() {
-        if (calories == 0) return 0;
-        return (int) Math.round((getCaloriesFromCarbs() / (double) calories) * 100);
-    }
 }

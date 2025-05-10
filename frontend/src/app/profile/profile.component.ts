@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { UserService } from '../../shared/services/user.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { RecipeService } from '../../shared/services/recipe.service';
-import {finalize, Observable, of} from 'rxjs';
+import {finalize, Observable, of, Subscription} from 'rxjs';
 import {Router} from "@angular/router";
 import {SelectOption} from "../../shared/components/searchable-select/searchable-select.component";
 import {RECIPE_CATEGORIES, RECIPE_CUISINES} from "../../shared/constants/recipe-options";
@@ -27,7 +27,7 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   profileForm: FormGroup;
   preferencesForm: FormGroup;
   isLoading = false;
@@ -36,6 +36,7 @@ export class ProfileComponent implements OnInit {
   passwordChangeAttempted = false;
   successMessage = '';
   errorMessage = '';
+  private subscriptions: Subscription[] = [];
 
   // Options for select dropdowns
   categoryOptions: SelectOption[] = [];
@@ -150,7 +151,6 @@ export class ProfileComponent implements OnInit {
         });
       },
       error: (error) => {
-        console.error('Error loading ingredients:', error);
       }
     });
   }
@@ -159,11 +159,10 @@ export class ProfileComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.userService.getUserProfile()
+    const profileSub = this.userService.getUserProfile()
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (user) => {
-          console.log('User profile loaded:', user);
 
           // Patch form with user data
           this.profileForm.patchValue({
@@ -174,7 +173,7 @@ export class ProfileComponent implements OnInit {
           });
 
           // Load user preferences
-          this.userService.getUserPreferences().subscribe({
+          const prefSub = this.userService.getUserPreferences().subscribe({
             next: (preferences) => {
               // Populate preference form
               this.preferencesForm.patchValue({
@@ -194,12 +193,11 @@ export class ProfileComponent implements OnInit {
               this.populateSelectedPreferences(preferences);
             },
             error: (error) => {
-              console.error('Error loading user preferences:', error);
             }
           });
+          this.subscriptions.push(prefSub);
         },
         error: (error) => {
-          console.error('Error loading profile:', error);
           this.errorMessage = 'Failed to load profile information. Please try again.';
 
           // If 401 unauthorized, redirect to login
@@ -208,6 +206,7 @@ export class ProfileComponent implements OnInit {
           }
         }
       });
+    this.subscriptions.push(profileSub);
   }
 
   populateSelectedPreferences(preferences: any): void {
@@ -264,14 +263,12 @@ export class ProfileComponent implements OnInit {
   }
 
   loadRecipeStats(): void {
-    this.recipeService.getUserRecipeStats()
+    const statsSub = this.recipeService.getUserRecipeStats()
       .subscribe({
         next: (stats) => {
           this.recipeStats = stats;
-          console.log('Recipe stats loaded:', stats);
         },
         error: (error) => {
-          console.error('Error loading recipe stats:', error);
           // Set default values in case of error
           this.recipeStats = {
             total: 0,
@@ -280,6 +277,7 @@ export class ProfileComponent implements OnInit {
           };
         }
       });
+    this.subscriptions.push(statsSub);
   }
 
   onSubmit(): void {
@@ -325,13 +323,10 @@ export class ProfileComponent implements OnInit {
       formData.newPassword = this.profileForm.get('newPassword')?.value;
     }
 
-    console.log('Updating profile with data:', formData);
-
-    this.userService.updateProfile(formData)
+    const submitSub = this.userService.updateProfile(formData)
       .pipe(finalize(() => this.isSubmitting = false))
       .subscribe({
-        next: (response) => {
-          console.log('Profile updated successfully:', response);
+        next: () => {
           this.successMessage = 'Profile updated successfully!';
           this.submitted = false;
           this.passwordChangeAttempted = false;
@@ -344,14 +339,10 @@ export class ProfileComponent implements OnInit {
           });
 
           // Refresh user data in auth service
-          this.authService.refreshUserData().subscribe({
-            next: (updatedUser) => console.log('User data refreshed:', updatedUser),
-            error: (err) => console.error('Error refreshing user data:', err)
-          });
+          const refreshSub = this.authService.refreshUserData().subscribe();
+          this.subscriptions.push(refreshSub);
         },
         error: (error) => {
-          console.error('Error updating profile:', error);
-
           if (error.status === 401) {
             this.errorMessage = 'Your session has expired. Please log in again.';
             setTimeout(() => this.router.navigate(['/login']), 1500);
@@ -362,6 +353,7 @@ export class ProfileComponent implements OnInit {
           }
         }
       });
+    this.subscriptions.push(submitSub);
   }
 
   savePreferences(): void {
@@ -381,7 +373,7 @@ export class ProfileComponent implements OnInit {
       dislikedIngredients: this.selectedDislikedIngredients.map(item => item.value)
     };
 
-    this.userService.updatePreferences(preferences)
+    const prefSub = this.userService.updatePreferences(preferences)
       .pipe(finalize(() => this.isSubmitting = false))
       .subscribe({
         next: () => {
@@ -396,10 +388,10 @@ export class ProfileComponent implements OnInit {
           }, 3000);
         },
         error: (error) => {
-          console.error('Error updating preferences:', error);
           this.errorMessage = 'Failed to update preferences. Please try again.';
         }
       });
+    this.subscriptions.push(prefSub);
   }
 
   // Update the displayed prep time value when slider changes
@@ -536,6 +528,10 @@ export class ProfileComponent implements OnInit {
     this.preferencesForm.get('dislikedIngredients')?.setValue(
       currentValues.filter((value: string) => value !== option.value)
     );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
 

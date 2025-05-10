@@ -34,9 +34,14 @@ public class NutritionController {
             // Calculate daily values percentages
             Map<String, Integer> dailyValues = nutritionService.calculateDailyValues(nutrition);
 
+            // Calculate normalized macro distribution that always sums to 100%
+            Map<String, Integer> macroDistribution =
+                    nutritionService.calculateNormalizedMacroDistribution(nutrition);
+
             Map<String, Object> response = new HashMap<>();
             response.put("nutrition", nutrition);
             response.put("dailyValues", dailyValues);
+            response.put("macroDistribution", macroDistribution);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

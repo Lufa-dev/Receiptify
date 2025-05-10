@@ -1,0 +1,10 @@
+<div class="dietary-tags-container" *ngIf="tags && tags.length > 0">
+  <span class="tag-label">Dietary Tags:</span>
+  <div class="tags-wrapper">
+    <div *ngFor="let tag of tags" class="dietary-tag" [ngStyle]="{'background-color': getTagColor(tag)}"
+         [title]="getTagDescription(tag)">
+      <i class="bi" [ngClass]="getTagIcon(tag)"></i>
+      <span class="tag-text">{{ tag }}</span>
+    </div>
+  </div>
+</div>

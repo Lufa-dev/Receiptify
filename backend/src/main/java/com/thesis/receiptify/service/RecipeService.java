@@ -17,6 +17,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Service responsible for managing recipe-related operations.
+ * Handles creating, updating, retrieving, and deleting recipes,
+ * as well as search functionality and recipe transformations.
+ */
 @Service
 @RequiredArgsConstructor
 public class RecipeService {
@@ -29,6 +34,14 @@ public class RecipeService {
     private final CommentRepository commentRepository;
     private final SeasonalityService seasonalityService;
 
+    /**
+     * Creates a new recipe from the provided DTO.
+     *
+     * @param recipeDTO The data transfer object containing recipe information
+     * @param username The username of the creator
+     * @return A DTO representing the created recipe with assigned ID
+     * @throws EntityNotFoundException if the user doesn't exist
+     */
     @Transactional
     public RecipeDTO createRecipe(RecipeDTO recipeDTO, String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -86,6 +99,13 @@ public class RecipeService {
         return mapToDTO(savedRecipe, null);
     }
 
+    /**
+     * Retrieves a recipe by its ID.
+     *
+     * @param id The recipe ID
+     * @return A DTO representing the recipe
+     * @throws EntityNotFoundException if the recipe doesn't exist
+     */
     @Transactional(readOnly = true)
     public RecipeDTO getRecipeById(Long id) {
         Recipe recipe = recipeRepository.findById(id)
@@ -93,6 +113,14 @@ public class RecipeService {
         return mapToDTO(recipe, null);
     }
 
+    /**
+     * Retrieves a recipe by ID with user-specific data like personal rating.
+     *
+     * @param id The recipe ID
+     * @param username The username of the requesting user (may be null for anonymous access)
+     * @return A DTO representing the recipe with user-specific information
+     * @throws EntityNotFoundException if the recipe doesn't exist
+     */
     @Transactional(readOnly = true)
     public RecipeDTO getRecipeById(Long id, String username) {
         Recipe recipe = recipeRepository.findById(id)
@@ -114,12 +142,26 @@ public class RecipeService {
         return mapToDTO(recipe, userRating);
     }
 
+    /**
+     * Retrieves all recipes with pagination.
+     *
+     * @param pageable Pagination information
+     * @return A page of recipe DTOs
+     */
     @Transactional(readOnly = true)
     public Page<RecipeDTO> getAllRecipes(Pageable pageable) {
         return recipeRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(recipe -> mapToDTO(recipe, null));
     }
 
+    /**
+     * Retrieves all recipes for a specific user with pagination.
+     *
+     * @param username The username of the recipe creator
+     * @param pageable Pagination information
+     * @return A page of recipe DTOs
+     * @throws EntityNotFoundException if the user doesn't exist
+     */
     @Transactional(readOnly = true)
     public Page<RecipeDTO> getUserRecipes(String username, Pageable pageable) {
         Profile user = profileRepository.findByUsername(username)
@@ -128,12 +170,26 @@ public class RecipeService {
                 .map(recipe -> mapToDTO(recipe, null));
     }
 
+    /**
+     * Searches for recipes by text query with pagination.
+     *
+     * @param query The search query to match against recipe title and description
+     * @param pageable Pagination information
+     * @return A page of recipe DTOs matching the search criteria
+     */
     @Transactional(readOnly = true)
     public Page<RecipeDTO> searchRecipes(String query, Pageable pageable) {
         return recipeRepository.searchRecipes(query, pageable)
                 .map(recipe -> mapToDTO(recipe, null));
     }
 
+    /**
+     * Performs advanced recipe search with multiple criteria and pagination.
+     *
+     * @param criteria The search criteria containing filters for ingredients, categories, etc.
+     * @param pageable Pagination information
+     * @return A page of recipe DTOs matching the search criteria
+     */
     @Transactional(readOnly = true)
     public Page<RecipeDTO> advancedSearchRecipes(RecipeSearchCriteriaDTO criteria, Pageable pageable) {
         RecipeSpecification specification = new RecipeSpecification(criteria);
@@ -141,6 +197,11 @@ public class RecipeService {
                 .map(recipe -> mapToDTO(recipe, null));
     }
 
+    /**
+     * Retrieves available options for search filters.
+     *
+     * @return Map of filter categories to available options
+     */
     @Transactional(readOnly = true)
     public Map<String, List<String>> getSearchFilterOptions() {
         Map<String, List<String>> options = new HashMap<>();
@@ -156,6 +217,16 @@ public class RecipeService {
         return options;
     }
 
+    /**
+     * Updates an existing recipe.
+     *
+     * @param id The ID of the recipe to update
+     * @param recipeDTO The updated recipe data
+     * @param username The username of the requesting user
+     * @return The updated recipe DTO
+     * @throws EntityNotFoundException if the recipe doesn't exist
+     * @throws SecurityException if the user doesn't have permission to update the recipe
+     */
     @Transactional
     public RecipeDTO updateRecipe(Long id, RecipeDTO recipeDTO, String username) {
         Recipe recipe = recipeRepository.findById(id)
@@ -209,6 +280,14 @@ public class RecipeService {
         return mapToDTO(updatedRecipe, null);
     }
 
+    /**
+     * Deletes a recipe.
+     *
+     * @param id The ID of the recipe to delete
+     * @param username The username of the requesting user
+     * @throws EntityNotFoundException if the recipe doesn't exist
+     * @throws SecurityException if the user doesn't have permission to delete the recipe
+     */
     @Transactional
     public void deleteRecipe(Long id, String username) {
         Recipe recipe = recipeRepository.findById(id)
@@ -230,12 +309,27 @@ public class RecipeService {
         recipeRepository.delete(recipe);
     }
 
+    /**
+     * Retrieves the Recipe entity by ID.
+     *
+     * @param id The recipe ID
+     * @return The Recipe entity
+     * @throws EntityNotFoundException if the recipe doesn't exist
+     */
     @Transactional(readOnly = true)
     public Recipe getRecipeEntityById(Long id) {
         return recipeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Recipe not found"));
     }
 
+    /**
+     * Retrieves a recipe with seasonality information.
+     *
+     * @param id The recipe ID
+     * @param username The username of the requesting user (may be null)
+     * @return The recipe DTO with seasonality information
+     * @throws EntityNotFoundException if the recipe doesn't exist
+     */
     @Transactional(readOnly = true)
     public RecipeDTO getRecipeWithSeasonality(Long id, String username) {
         Recipe recipe = recipeRepository.findById(id)
@@ -251,13 +345,20 @@ public class RecipeService {
         return recipeDTO;
     }
 
+    /**
+     * Finds seasonal recipes with a minimum seasonality score.
+     *
+     * @param minSeasonalScore The minimum seasonality score (0-100)
+     * @param pageable Pagination information
+     * @return A page of seasonal recipe DTOs
+     */
     @Transactional(readOnly = true)
     public Page<RecipeDTO> findSeasonalRecipes(int minSeasonalScore, Pageable pageable) {
         // Get all recipes
-        Page<Recipe> recipePage = recipeRepository.findAll(pageable);
+        List<Recipe> allRecipes = recipeRepository.findAll();
 
         // Process them to include seasonality information and filter by score
-        List<RecipeDTO> seasonalRecipes = recipePage.getContent().stream()
+        List<RecipeDTO> seasonalRecipes = allRecipes.stream()
                 .map(recipe -> {
                     RecipeDTO dto = mapToDTO(recipe, null);
                     RecipeSeasonalityDTO seasonalityDTO = seasonalityService.analyzeRecipeSeasonality(recipe);
@@ -265,21 +366,40 @@ public class RecipeService {
                     return dto;
                 })
                 .filter(dto -> dto.getSeasonalityInfo().getSeasonalScore() >= minSeasonalScore)
+                // Sort by seasonality score in descending order
+                .sorted(Comparator.comparing(dto -> dto.getSeasonalityInfo().getSeasonalScore(), Comparator.reverseOrder()))
                 .collect(Collectors.toList());
 
-        // Create a new page with the filtered content
-        return new PageImpl<>(seasonalRecipes, pageable,
-                // If we filtered out some recipes, the total will be less than the original
-                recipePage.getTotalElements());
+        // Create a new page with the filtered and sorted content
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), seasonalRecipes.size());
+
+        return new PageImpl<>(
+                start >= seasonalRecipes.size() ? List.of() : seasonalRecipes.subList(start, end),
+                pageable,
+                seasonalRecipes.size()
+        );
     }
 
+    /**
+     * Retrieves featured recipes with pagination.
+     *
+     * @param pageable Pagination information
+     * @return A page of featured recipe DTOs
+     */
     @Transactional(readOnly = true)
     public Page<RecipeDTO> getFeaturedRecipes(Pageable pageable) {
         return recipeRepository.findByFeaturedTrueOrderByFeaturedAtDesc(pageable)
                 .map(recipe -> mapToDTO(recipe, null));
     }
 
-    // Helper methods to map between entities and DTOs
+    /**
+     * Maps a Recipe entity to a RecipeDTO.
+     *
+     * @param recipe The Recipe entity
+     * @param userRating Optional user-specific rating
+     * @return The corresponding RecipeDTO
+     */
     private RecipeDTO mapToDTO(Recipe recipe, Integer userRating) {
         List<IngredientDTO> ingredientDTOs = recipe.getIngredients().stream()
                 .map(this::mapToDTO)
@@ -289,7 +409,7 @@ public class RecipeService {
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
 
-        // Get rating information
+        // Get rating and comment information
         Double averageRating = ratingRepository.getAverageRatingByRecipeId(recipe.getId());
         Integer totalRatings = ratingRepository.countByRecipeId(recipe.getId());
         Integer totalComments = commentRepository.countByRecipeId(recipe.getId());
@@ -318,7 +438,7 @@ public class RecipeService {
                 .bakingTemp(recipe.getBakingTemp())
                 .panSize(recipe.getPanSize())
                 .bakingMethod(recipe.getBakingMethod())
-                // Add rating information
+                .dietaryTags(recipe.getDietaryTags())
                 .averageRating(averageRating != null ? averageRating : 0.0)
                 .totalRatings(totalRatings != null ? totalRatings : 0)
                 .totalComments(totalComments != null ? totalComments : 0)
@@ -326,6 +446,12 @@ public class RecipeService {
                 .build();
     }
 
+    /**
+     * Maps an Ingredient entity to an IngredientDTO.
+     *
+     * @param ingredient The Ingredient entity
+     * @return The corresponding IngredientDTO
+     */
     private IngredientDTO mapToDTO(Ingredient ingredient) {
         return IngredientDTO.builder()
                 .id(ingredient.getId())
@@ -336,6 +462,12 @@ public class RecipeService {
                 .build();
     }
 
+    /**
+     * Maps a RecipeStep entity to a RecipeStepDTO.
+     *
+     * @param step The RecipeStep entity
+     * @return The corresponding RecipeStepDTO
+     */
     private RecipeStepDTO mapToDTO(RecipeStep step) {
         return RecipeStepDTO.builder()
                 .id(step.getId())

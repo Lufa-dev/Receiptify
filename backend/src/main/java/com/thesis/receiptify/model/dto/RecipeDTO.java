@@ -10,7 +10,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -35,6 +37,8 @@ public class RecipeDTO {
     @NotEmpty(message = "At least one step is required")
     @Valid
     private List<RecipeStepDTO> steps;
+
+    private Set<String> dietaryTags = new HashSet<>();
 
     private UserDTO user;
 

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { RecipeService } from '../../shared/services/recipe.service';
 import {Recipe, RecipeDTO} from '../../shared/models/recipe.model';
-import {catchError, finalize, forkJoin, of} from "rxjs";
+import {catchError, finalize, forkJoin, of, Subscription} from "rxjs";
 import {AuthService} from "../../shared/services/auth.service";
 
 @Component({
@@ -9,7 +9,7 @@ import {AuthService} from "../../shared/services/auth.service";
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   recipes: RecipeDTO[] = [];
   seasonalRecipes: RecipeDTO[] = [];
   isLoading = false;
@@ -20,6 +20,7 @@ export class HomeComponent implements OnInit {
   totalRecipes = 0;
   hasMoreRecipes = false;
   pageSize = 12; // Number of recipes per page
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private recipeService: RecipeService,
@@ -35,9 +36,8 @@ export class HomeComponent implements OnInit {
     this.error = '';
 
     // Get current month for seasonality display
-    this.recipeService.getCurrentMonth()
+    const monthSub = this.recipeService.getCurrentMonth()
       .pipe(catchError(error => {
-        console.error('Error getting current month:', error);
         // Default to current browser month as fallback
         const date = new Date();
         return of(date.toLocaleString('default', { month: 'long' }).toUpperCase());
@@ -47,38 +47,37 @@ export class HomeComponent implements OnInit {
           this.currentMonth = this.formatMonth(month);
         }
       });
+    this.subscriptions.push(monthSub);
 
     // Load regular recipes
-    this.recipeService.getAllRecipes(this.currentPage, this.pageSize)
+    const recipesSub = this.recipeService.getAllRecipes(this.currentPage, this.pageSize)
       .pipe(catchError(error => {
-        console.error('Error loading regular recipes:', error);
         return of({content: [], totalElements: 0});
       }))
       .subscribe({
         next: (response) => {
           this.recipes = response.content;
           this.totalRecipes = response.page.totalElements;
-          console.log('Total recipes count:', this.totalRecipes);
           this.hasMoreRecipes = (this.currentPage + 1) * this.pageSize < this.totalRecipes;
           this.isLoading = false;
 
         }
       });
+    this.subscriptions.push(recipesSub);
 
     // Load seasonal recipes separately to handle errors independently
-    this.recipeService.getSeasonalRecipes(80, 0, 6)
+    const seasonalSub = this.recipeService.getSeasonalRecipes(80, 0, 8)
       .pipe(
         catchError(error => {
-          console.error('Error loading seasonal recipes:', error);
           return of({content: [], totalElements: 0});
         })
       )
       .subscribe({
         next: (response) => {
           this.seasonalRecipes = response.content;
-          console.log('Loaded seasonal recipes:', this.seasonalRecipes);
         }
       });
+    this.subscriptions.push(seasonalSub);
   }
 
   loadMoreRecipes(): void {
@@ -87,7 +86,7 @@ export class HomeComponent implements OnInit {
     this.isLoadingMore = true;
     this.currentPage++;
 
-    this.recipeService.getAllRecipes(this.currentPage, this.pageSize)
+    const moreSub = this.recipeService.getAllRecipes(this.currentPage, this.pageSize)
       .pipe(finalize(() => this.isLoadingMore = false))
       .subscribe({
         next: (response) => {
@@ -96,11 +95,11 @@ export class HomeComponent implements OnInit {
           this.hasMoreRecipes = (this.currentPage + 1) * this.pageSize < this.totalRecipes;
         },
         error: (error) => {
-          console.error('Error loading more recipes:', error);
           this.error = 'Failed to load more recipes. Please try again.';
           this.currentPage--; // Revert on error
         }
       });
+    this.subscriptions.push(moreSub);
   }
 
   searchRecipes(query: string): void {
@@ -119,7 +118,6 @@ export class HomeComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error searching recipes:', error);
           this.error = 'Failed to search recipes. Please try again.';
           this.isLoading = false;
         }
@@ -132,6 +130,10 @@ export class HomeComponent implements OnInit {
 
   private formatMonth(month: string): string {
     return month.charAt(0) + month.slice(1).toLowerCase();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
 

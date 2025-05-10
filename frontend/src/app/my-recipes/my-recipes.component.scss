@@ -60,6 +60,9 @@
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       transition: all 0.3s ease;
       cursor: pointer;
+      display: flex;
+      flex-direction: column; /* Add flex column to stack elements vertically */
+      height: 100%; /* Ensure all cards have the same height */
 
       &:hover {
         transform: translateY(-8px);
@@ -84,6 +87,11 @@
 
       .recipe-content {
         padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1; /* Allow content to grow and fill available space */
+        position: relative; /* Positioning context for the action buttons */
+        padding-bottom: 70px; /* Add padding at the bottom for the action buttons */
 
         .recipe-title {
           font-size: 22px;
@@ -98,7 +106,6 @@
           color: #666;
           margin-bottom: 20px;
           line-height: 1.5;
-          // Truncate long descriptions
           display: -webkit-box;
           -webkit-line-clamp: 3;
           -webkit-box-orient: vertical;
@@ -110,6 +117,10 @@
           display: flex;
           justify-content: flex-end;
           gap: 10px;
+          position: absolute; /* Position the buttons absolutely */
+          bottom: 20px; /* Distance from the bottom */
+          right: 20px; /* Distance from the right */
+          width: calc(100% - 40px); /* Full width minus padding */
 
           button {
             padding: 8px 16px;

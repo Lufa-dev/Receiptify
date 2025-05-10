@@ -1,17 +1,18 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Comment } from '../../shared/models/comment.model';
 import { CommentService } from '../../shared/services/comment.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-recipe-comments',
   templateUrl: './recipe-comments.component.html',
   styleUrls: ['./recipe-comments.component.scss']
 })
-export class RecipeCommentsComponent implements OnInit {
+export class RecipeCommentsComponent implements OnInit, OnDestroy {
   @Input() recipeId!: number | undefined;
   @Input() isOwner: boolean = false;
   @Output() commentCountChanged = new EventEmitter<number>();
@@ -25,6 +26,7 @@ export class RecipeCommentsComponent implements OnInit {
   isSubmitting: boolean = false;
   error: string = '';
   successMessage: string = '';
+  private subscriptions: Subscription[] = [];
 
   commentForm: FormGroup;
   editingCommentId: number | null = null;
@@ -54,7 +56,7 @@ export class RecipeCommentsComponent implements OnInit {
     this.isLoading = true;
     this.error = '';
 
-    this.commentService.getRecipeComments(this.recipeId, this.currentPage, this.pageSize)
+    const sub = this.commentService.getRecipeComments(this.recipeId, this.currentPage, this.pageSize)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (response: any) => {
@@ -68,14 +70,12 @@ export class RecipeCommentsComponent implements OnInit {
             this.lastPage = response.last || false;
           }
 
-          console.log('Response:', response);
-          console.log('Total comments:', this.totalComments);
         },
         error: (error) => {
-          console.error('Error loading comments:', error);
           this.error = 'Failed to load comments. Please try again.';
         }
       });
+    this.subscriptions.push(sub);
   }
 
   loadMoreComments(): void {
@@ -94,7 +94,6 @@ export class RecipeCommentsComponent implements OnInit {
           this.lastPage = response.last || false;
         },
         error: (error) => {
-          console.error('Error loading more comments:', error);
           this.currentPage--; // Revert page increment on error
         }
       });
@@ -185,7 +184,6 @@ export class RecipeCommentsComponent implements OnInit {
             }, 3000);
           },
           error: (error) => {
-            console.error('Error deleting comment:', error);
 
             if (error.status === 401) {
               this.router.navigate(['/login'], {
@@ -210,6 +208,15 @@ export class RecipeCommentsComponent implements OnInit {
     this.editingCommentId = null;
   }
 
+  canEditComment(comment: Comment): boolean {
+    if (!this.authService.isLoggedIn()) {
+      return false;
+    }
+
+    const username = sessionStorage.getItem('profileName');
+    return username === comment.user?.username;
+  }
+
   canModifyComment(comment: Comment): boolean {
     if (!this.authService.isLoggedIn()) {
       return false;
@@ -220,7 +227,6 @@ export class RecipeCommentsComponent implements OnInit {
   }
 
   private handleCommentError(error: any): void {
-    console.error('Error with comment:', error);
 
     if (error.status === 401) {
       this.router.navigate(['/login'], {
@@ -236,5 +242,9 @@ export class RecipeCommentsComponent implements OnInit {
   formatDate(date: string): string {
     if (!date) return '';
     return new Date(date).toLocaleDateString();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }

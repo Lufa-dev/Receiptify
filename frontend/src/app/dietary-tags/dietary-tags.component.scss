@@ -1,0 +1,59 @@
+.dietary-tags-container {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  .tag-label {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .tags-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .dietary-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 16px;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: help;
+    transition: transform 0.2s;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    i {
+      margin-right: 5px;
+      font-size: 0.85rem;
+    }
+
+    .tag-text {
+      text-transform: capitalize;
+    }
+  }
+}
+
+/* Media query for print */
+@media print {
+  .dietary-tags-container {
+    .dietary-tag {
+      color: #333;
+      background-color: transparent !important;
+      border: 1px solid #333;
+      padding: 2px 8px;
+
+      i {
+        display: none;
+      }
+    }
+  }
+}

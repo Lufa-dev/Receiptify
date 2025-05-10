@@ -18,6 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+/**
+ * Service responsible for managing recipe ratings.
+ * Handles adding, retrieving, and summarizing ratings.
+ */
 @Service
 @RequiredArgsConstructor
 public class RatingService {
@@ -27,6 +31,15 @@ public class RatingService {
     private final ProfileRepository profileRepository;
     private final CommentRepository commentRepository;
 
+    /**
+     * Rates a recipe or updates an existing rating.
+     *
+     * @param ratingDTO The rating data
+     * @param username The username of the rater
+     * @return The created or updated rating DTO
+     * @throws EntityNotFoundException if the user or recipe doesn't exist
+     * @throws IllegalStateException if the user tries to rate their own recipe
+     */
     @Transactional
     public RatingDTO rateRecipe(RatingDTO ratingDTO, String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -63,6 +76,14 @@ public class RatingService {
         return mapToDTO(savedRating);
     }
 
+    /**
+     * Retrieves a user's rating for a specific recipe.
+     *
+     * @param recipeId The recipe ID
+     * @param username The username of the user
+     * @return The user's rating DTO, or null if the user hasn't rated the recipe
+     * @throws EntityNotFoundException if the user or recipe doesn't exist
+     */
     @Transactional(readOnly = true)
     public RatingDTO getUserRatingForRecipe(Long recipeId, String username) {
         Profile user = profileRepository.findByUsername(username)
@@ -77,6 +98,13 @@ public class RatingService {
         return rating != null ? mapToDTO(rating) : null;
     }
 
+    /**
+     * Retrieves rating and comment summary for a recipe.
+     *
+     * @param recipeId The recipe ID
+     * @return Summary DTO with average rating, total ratings, and total comments
+     * @throws EntityNotFoundException if the recipe doesn't exist
+     */
     @Transactional(readOnly = true)
     public RecipeRatingSummaryDTO getRecipeRatingSummary(Long recipeId) {
         // Check if recipe exists
@@ -96,6 +124,12 @@ public class RatingService {
                 .build();
     }
 
+    /**
+     * Maps a Rating entity to a RatingDTO.
+     *
+     * @param rating The Rating entity
+     * @return The corresponding RatingDTO
+     */
     private RatingDTO mapToDTO(Rating rating) {
         return RatingDTO.builder()
                 .id(rating.getId())

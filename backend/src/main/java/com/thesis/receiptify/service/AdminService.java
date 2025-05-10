@@ -19,6 +19,11 @@ import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Service responsible for administration operations.
+ * Provides functionality for user management, content moderation,
+ * and system statistics for administrators.
+ */
 @Service
 @RequiredArgsConstructor
 public class AdminService {
@@ -30,7 +35,11 @@ public class AdminService {
     private final UserInteractionRepository interactionRepository;
 
     /**
-     * Check if a user has admin role
+     * Checks if a user has admin role.
+     *
+     * @param username The username to check
+     * @return true if the user has admin role, false otherwise
+     * @throws EntityNotFoundException if the user doesn't exist
      */
     @Transactional(readOnly = true)
     public boolean isUserAdmin(String username) {
@@ -41,7 +50,10 @@ public class AdminService {
     }
 
     /**
-     * Get dashboard statistics for admin panel
+     * Gets dashboard statistics for admin panel.
+     * Includes user counts, recipe counts, and recent activity.
+     *
+     * @return Map of statistics
      */
     @Transactional(readOnly = true)
     public Map<String, Object> getDashboardStats() {
@@ -87,7 +99,10 @@ public class AdminService {
     }
 
     /**
-     * Get all users for admin management
+     * Gets all users with pagination for admin management.
+     *
+     * @param pageable Pagination information
+     * @return Page of user DTOs
      */
     @Transactional(readOnly = true)
     public Page<ProfileDTO> getAllUsers(Pageable pageable) {
@@ -96,7 +111,11 @@ public class AdminService {
     }
 
     /**
-     * Get a specific user by ID
+     * Gets a specific user by ID.
+     *
+     * @param id The user ID
+     * @return The user DTO
+     * @throws EntityNotFoundException if the user doesn't exist
      */
     @Transactional(readOnly = true)
     public ProfileDTO getUserById(Long id) {
@@ -107,7 +126,12 @@ public class AdminService {
     }
 
     /**
-     * Update a user's profile information
+     * Updates a user's profile information.
+     *
+     * @param id The user ID
+     * @param userData Map of user data to update
+     * @return The updated user DTO
+     * @throws EntityNotFoundException if the user doesn't exist
      */
     @Transactional
     public ProfileDTO updateUser(Long id, Map<String, Object> userData) {
@@ -174,7 +198,10 @@ public class AdminService {
     }
 
     /**
-     * Delete a user
+     * Deletes a user and all associated data.
+     *
+     * @param id The user ID
+     * @throws EntityNotFoundException if the user doesn't exist
      */
     @Transactional
     public void deleteUser(Long id) {
@@ -195,7 +222,12 @@ public class AdminService {
     }
 
     /**
-     * Update a user's role
+     * Updates a user's role (e.g., from USER to ADMIN).
+     *
+     * @param id The user ID
+     * @param role The new role
+     * @return The updated user DTO
+     * @throws EntityNotFoundException if the user doesn't exist
      */
     @Transactional
     public ProfileDTO updateUserRole(Long id, Role role) {
@@ -209,7 +241,11 @@ public class AdminService {
     }
 
     /**
-     * Search for users
+     * Searches for users by username or email.
+     *
+     * @param query The search query
+     * @param pageable Pagination information
+     * @return Page of matching user DTOs
      */
     @Transactional(readOnly = true)
     public Page<ProfileDTO> searchUsers(String query, Pageable pageable) {
@@ -222,7 +258,10 @@ public class AdminService {
     }
 
     /**
-     * Get all recipes for admin management
+     * Gets all recipes with pagination for admin management.
+     *
+     * @param pageable Pagination information
+     * @return Page of recipe DTOs
      */
     @Transactional(readOnly = true)
     public Page<RecipeDTO> getAllRecipes(Pageable pageable) {
@@ -231,7 +270,11 @@ public class AdminService {
     }
 
     /**
-     * Get a specific recipe by ID
+     * Gets a specific recipe by ID.
+     *
+     * @param id The recipe ID
+     * @return The recipe DTO
+     * @throws EntityNotFoundException if the recipe doesn't exist
      */
     @Transactional(readOnly = true)
     public RecipeDTO getRecipeById(Long id) {
@@ -287,7 +330,13 @@ public class AdminService {
     }
 
     /**
-     * Update a recipe
+     * Updates a recipe as an administrator.
+     * Bypasses owner check that's present in regular recipe service.
+     *
+     * @param id The recipe ID
+     * @param recipeDTO The updated recipe data
+     * @return The updated recipe DTO
+     * @throws EntityNotFoundException if the recipe doesn't exist
      */
     @Transactional
     public RecipeDTO updateRecipe(Long id, RecipeDTO recipeDTO) {
@@ -342,7 +391,11 @@ public class AdminService {
     }
 
     /**
-     * Delete a recipe
+     * Deletes a recipe as an administrator.
+     * Bypasses owner check that's present in regular recipe service.
+     *
+     * @param id The recipe ID
+     * @throws EntityNotFoundException if the recipe doesn't exist
      */
     @Transactional
     public void deleteRecipe(Long id) {
@@ -360,17 +413,23 @@ public class AdminService {
     }
 
     /**
-     * Search for recipes
+     * Searches for recipes by title or description.
+     *
+     * @param query The search query
+     * @param pageable Pagination information
+     * @return Page of matching recipe DTOs
      */
     @Transactional(readOnly = true)
     public Page<RecipeDTO> searchRecipes(String query, Pageable pageable) {
-        // You can implement more sophisticated search logic
         Page<Recipe> recipes = recipeRepository.searchRecipes(query, pageable);
         return recipes.map(this::mapToRecipeDTO);
     }
 
     /**
-     * Get all comments for admin management
+     * Gets all comments with pagination for admin management.
+     *
+     * @param pageable Pagination information
+     * @return Page of comment DTOs
      */
     @Transactional(readOnly = true)
     public Page<CommentDTO> getAllComments(Pageable pageable) {
@@ -379,7 +438,11 @@ public class AdminService {
     }
 
     /**
-     * Get a specific comment by ID
+     * Gets a specific comment by ID.
+     *
+     * @param id The comment ID
+     * @return The comment DTO
+     * @throws EntityNotFoundException if the comment doesn't exist
      */
     @Transactional(readOnly = true)
     public CommentDTO getCommentById(Long id) {
@@ -390,7 +453,13 @@ public class AdminService {
     }
 
     /**
-     * Update a comment
+     * Updates a comment as an administrator.
+     * Bypasses owner check that's present in regular comment service.
+     *
+     * @param id The comment ID
+     * @param commentDTO The updated comment data
+     * @return The updated comment DTO
+     * @throws EntityNotFoundException if the comment doesn't exist
      */
     @Transactional
     public CommentDTO updateComment(Long id, CommentDTO commentDTO) {
@@ -410,7 +479,11 @@ public class AdminService {
     }
 
     /**
-     * Delete a comment
+     * Deletes a comment as an administrator.
+     * Bypasses owner check that's present in regular comment service.
+     *
+     * @param id The comment ID
+     * @throws EntityNotFoundException if the comment doesn't exist
      */
     @Transactional
     public void deleteComment(Long id) {
@@ -420,7 +493,12 @@ public class AdminService {
         commentRepository.delete(comment);
     }
 
-    // Helper methods for mapping entities to DTOs
+    /**
+     * Maps a Profile entity to a ProfileDTO.
+     *
+     * @param profile The Profile entity
+     * @return The corresponding ProfileDTO
+     */
     private ProfileDTO mapToProfileDTO(Profile profile) {
         return ProfileDTO.builder()
                 .id(profile.getId())
@@ -443,6 +521,12 @@ public class AdminService {
                 .build();
     }
 
+    /**
+     * Maps a Recipe entity to a RecipeDTO.
+     *
+     * @param recipe The Recipe entity
+     * @return The corresponding RecipeDTO
+     */
     private RecipeDTO mapToRecipeDTO(Recipe recipe) {
         Double averageRating = ratingRepository.getAverageRatingByRecipeId(recipe.getId());
         Integer totalRatings = ratingRepository.countByRecipeId(recipe.getId());
@@ -476,6 +560,12 @@ public class AdminService {
                 .build();
     }
 
+    /**
+     * Maps a Comment entity to a CommentDTO.
+     *
+     * @param comment The Comment entity
+     * @return The corresponding CommentDTO
+     */
     private CommentDTO mapToCommentDTO(Comment comment) {
         return CommentDTO.builder()
                 .id(comment.getId())
@@ -494,6 +584,12 @@ public class AdminService {
                 .build();
     }
 
+    /**
+     * Maps an Ingredient entity to an IngredientDTO.
+     *
+     * @param ingredient The Ingredient entity
+     * @return The corresponding IngredientDTO
+     */
     private IngredientDTO mapToIngredientDTO(Ingredient ingredient) {
         return IngredientDTO.builder()
                 .id(ingredient.getId())
@@ -505,7 +601,10 @@ public class AdminService {
     }
 
     /**
-     * Map RecipeStep entity to RecipeStepDTO
+     * Maps a RecipeStep entity to a RecipeStepDTO.
+     *
+     * @param step The RecipeStep entity
+     * @return The corresponding RecipeStepDTO
      */
     private RecipeStepDTO mapToStepDTO(RecipeStep step) {
         return RecipeStepDTO.builder()
@@ -516,7 +615,13 @@ public class AdminService {
     }
 
     /**
-     * Moderate a comment (approve, reject, mark as pending)
+     * Moderates a comment (approve, reject, mark as pending).
+     *
+     * @param id The comment ID
+     * @param status The moderation status
+     * @param adminNotes Notes for administrative purposes
+     * @return The updated comment DTO
+     * @throws EntityNotFoundException if the comment doesn't exist
      */
     @Transactional
     public CommentDTO moderateComment(Long id, String status, String adminNotes) {
@@ -532,7 +637,11 @@ public class AdminService {
     }
 
     /**
-     * Get user statistics including count of recipes, comments, ratings
+     * Gets statistics for a specific user including recipe, comment, and rating counts.
+     *
+     * @param userId The user ID
+     * @return Map of user statistics
+     * @throws EntityNotFoundException if the user doesn't exist
      */
     @Transactional(readOnly = true)
     public Map<String, Object> getUserStatistics(Long userId) {
@@ -581,7 +690,11 @@ public class AdminService {
     }
 
     /**
-     * Get detailed statistics for a specific recipe
+     * Gets statistics for a specific recipe including views, ratings, and comments.
+     *
+     * @param recipeId The recipe ID
+     * @return Map of recipe statistics
+     * @throws EntityNotFoundException if the recipe doesn't exist
      */
     @Transactional(readOnly = true)
     public Map<String, Object> getRecipeStatistics(Long recipeId) {
@@ -622,7 +735,12 @@ public class AdminService {
     }
 
     /**
-     * Set a recipe as featured or not featured
+     * Sets a recipe as featured or not featured.
+     *
+     * @param id The recipe ID
+     * @param featured Whether the recipe should be featured
+     * @return The updated recipe DTO
+     * @throws EntityNotFoundException if the recipe doesn't exist
      */
     @Transactional
     public RecipeDTO setRecipeFeatured(Long id, boolean featured) {
@@ -641,7 +759,10 @@ public class AdminService {
     }
 
     /**
-     * Get all featured recipes
+     * Gets all featured recipes with pagination.
+     *
+     * @param pageable Pagination information
+     * @return Page of featured recipe DTOs
      */
     @Transactional(readOnly = true)
     public Page<RecipeDTO> getFeaturedRecipes(Pageable pageable) {

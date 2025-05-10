@@ -70,7 +70,6 @@ export class CommentDetailComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error loading comment details:', error);
           this.error = 'Failed to load comment details. Please try again.';
         }
       });
@@ -93,8 +92,6 @@ export class CommentDetailComponent implements OnInit {
           this.recipe = recipe;
         },
         error: (error) => {
-          console.error('Error loading recipe details:', error);
-          // Don't set an error message, just log it as this is secondary info
         }
       });
   }
@@ -143,8 +140,6 @@ export class CommentDetailComponent implements OnInit {
       adminNotes: formValue.adminNotes
     };
 
-    console.log('Sending comment data to backend:', commentData);
-
     this.adminService.updateComment(this.commentId, commentData)
       .pipe(finalize(() => this.isSubmitting = false))
       .subscribe({
@@ -155,7 +150,6 @@ export class CommentDetailComponent implements OnInit {
           this.toggleEditMode(); // This will disable the form controls
         },
         error: (error) => {
-          console.error('Error updating comment:', error);
           this.error = 'Failed to update comment. Please try again.';
         }
       });
@@ -178,7 +172,6 @@ export class CommentDetailComponent implements OnInit {
             }, 1500);
           },
           error: (error) => {
-            console.error('Error deleting comment:', error);
             this.error = 'Failed to delete comment. Please try again.';
           }
         });

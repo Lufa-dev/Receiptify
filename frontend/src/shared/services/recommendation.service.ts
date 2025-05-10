@@ -30,7 +30,6 @@ export class RecommendationService {
     }).pipe(
       // Add a fallback to return empty array instead of error
       catchError(error => {
-        console.error('Error fetching recommendations:', error);
         return of([]);
       })
     );
@@ -61,7 +60,6 @@ export class RecommendationService {
       headers: this.authService.getAuthHeaders()
     }).pipe(
       catchError(error => {
-        console.error('Error tracking recipe view:', error);
         return of(null);
       })
     );
@@ -84,7 +82,6 @@ export class RecommendationService {
         );
       }),
       catchError(error => {
-        console.error('Error checking if recipe is in collections:', error);
         return of(false);
       })
     );
@@ -124,7 +121,6 @@ export class RecommendationService {
         return true;
       }),
       catchError(error => {
-        console.error('Error adding recipe to favorites:', error);
         return of(false);
       })
     );

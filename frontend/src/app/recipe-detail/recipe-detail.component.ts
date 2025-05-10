@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {RecipeService} from "../../shared/services/recipe.service";
 import {RecipeDTO} from "../../shared/models/recipe.model";
 import {AuthService} from "../../shared/services/auth.service";
 import {PortionCalculatorService} from "../../shared/services/portion-calculator.service";
+import {Subscription} from "rxjs";
+import {DietaryDetectionService} from "../../shared/services/dietary-detection.service";
 
 
 @Component({
@@ -11,7 +13,7 @@ import {PortionCalculatorService} from "../../shared/services/portion-calculator
   templateUrl: './recipe-detail.component.html',
   styleUrls: ['./recipe-detail.component.scss']
 })
-export class RecipeDetailComponent implements OnInit {
+export class RecipeDetailComponent implements OnInit, OnDestroy {
   recipe: RecipeDTO | null = null;
   originalRecipe: RecipeDTO | null = null;
   isLoading = true;
@@ -20,6 +22,7 @@ export class RecipeDetailComponent implements OnInit {
   isDeleting = false;
   currentServings: number = 0;
   originalServings: number = 0;
+  private subscriptions: Subscription[] = [];
 
 
   constructor(
@@ -27,7 +30,8 @@ export class RecipeDetailComponent implements OnInit {
     public authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
-    private portionCalculatorService: PortionCalculatorService
+    private portionCalculatorService: PortionCalculatorService,
+    private dietaryDetectionService: DietaryDetectionService
   ) {}
 
   ngOnInit(): void {
@@ -48,7 +52,7 @@ export class RecipeDetailComponent implements OnInit {
     const username = this.authService.isLoggedIn() ?
       sessionStorage.getItem('profileName') : null;
 
-    this.recipeService.getRecipeWithSeasonality(id, username || '')
+    const sub = this.recipeService.getRecipeWithSeasonality(id, username || '')
       .subscribe({
         next: (recipe) => {
           this.recipe = JSON.parse(JSON.stringify(recipe)); // Deep copy
@@ -62,11 +66,11 @@ export class RecipeDetailComponent implements OnInit {
             username === recipe.user?.username;
         },
         error: (error) => {
-          console.error('Error loading recipe:', error);
           this.error = 'Failed to load recipe details.';
           this.isLoading = false;
         }
       });
+    this.subscriptions.push(sub);
   }
 
   formatIngredientName(type: string): string {
@@ -105,7 +109,6 @@ export class RecipeDetailComponent implements OnInit {
           this.router.navigate(['/my-recipes']);
         },
         error: (error) => {
-          console.error('Error deleting recipe:', error);
           this.error = 'Failed to delete recipe.';
           this.isDeleting = false;
         }
@@ -240,6 +243,37 @@ export class RecipeDetailComponent implements OnInit {
     return this.recipe.seasonalityInfo.ingredientSeasonality.find(
       i => i.ingredientName === ingredientName
     ) || null;
+  }
+
+  detectDietaryTags(): string[] {
+    if (!this.recipe || !this.recipe.ingredients || this.recipe.ingredients.length === 0) {
+      return [];
+    }
+
+    // If the recipe already has dietaryTags, use those
+    if (this.recipe.dietaryTags && this.recipe.dietaryTags.length > 0) {
+      return this.recipe.dietaryTags;
+    }
+
+    // Otherwise, detect them automatically
+    const detectedTags = this.dietaryDetectionService.detectDietaryTags(this.recipe.ingredients);
+
+    // Store them in the recipe object (but don't modify the backend)
+    if (this.recipe) {
+      this.recipe.dietaryTags = detectedTags;
+    }
+
+    return detectedTags;
+  }
+
+  isToTaste(unit: string | undefined | null): boolean {
+    if (!unit) return false;
+    return unit.toUpperCase() === 'TO_TASTE';
+  }
+
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   protected readonly HTMLInputElement = HTMLInputElement;

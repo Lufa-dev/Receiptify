@@ -1,17 +1,18 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import { RatingService } from '../../shared/services/rating.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { Rating } from '../../shared/models/rating.model';
 import { RatingSummary } from '../../shared/models/rating-summary.model';
 import { finalize } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-recipe-rating',
   templateUrl: './recipe-rating.component.html',
   styleUrls: ['./recipe-rating.component.scss']
 })
-export class RecipeRatingComponent implements OnInit {
+export class RecipeRatingComponent implements OnInit, OnDestroy {
   @Input() recipeId!: number | undefined;
   @Input() isOwner: boolean = false;
 
@@ -21,6 +22,7 @@ export class RecipeRatingComponent implements OnInit {
   isSubmitting = false;
   error = '';
   successMessage = '';
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private ratingService: RatingService,
@@ -37,17 +39,17 @@ export class RecipeRatingComponent implements OnInit {
     if (!this.recipeId) return;
 
     this.isLoading = true;
-    this.ratingService.getRecipeRatingSummary(this.recipeId)
+    const sub = this.ratingService.getRecipeRatingSummary(this.recipeId)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (summary) => {
           this.ratingSummary = summary;
         },
         error: (error) => {
-          console.error('Error loading rating summary:', error);
           this.error = 'Failed to load ratings';
         }
       });
+    this.subscriptions.push(sub);
   }
 
   loadUserRating(): void {
@@ -63,7 +65,6 @@ export class RecipeRatingComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.error('Error loading user rating:', error);
         }
       });
   }
@@ -106,7 +107,6 @@ export class RecipeRatingComponent implements OnInit {
           }, 3000);
         },
         error: (error) => {
-          console.error('Error submitting rating:', error);
 
           if (error.status === 401) {
             this.router.navigate(['/login'], {
@@ -119,5 +119,9 @@ export class RecipeRatingComponent implements OnInit {
           }
         }
       });
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
