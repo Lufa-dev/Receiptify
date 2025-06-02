@@ -82,6 +82,7 @@ npm start
 - Backend API: http://localhost:8080
 - API Documentation: http://localhost:8080/swagger-ui/index.html
 - MinIO Console: http://localhost:9001 (username: minioadmin, password: minioadmin)
+- Hosted application: https://receiptify-znes.onrender.com/
 
 ## Project Structure
 
